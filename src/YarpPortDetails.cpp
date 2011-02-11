@@ -1,0 +1,1 @@
+#include "SpikeAdapter/YarpPortDetails.hpp"
