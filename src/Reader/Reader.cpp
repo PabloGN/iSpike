@@ -1,1 +1,1 @@
-#include "SpikeAdapter/Reader/Reader.hpp"
+#include "iSpike/Reader/Reader.hpp"

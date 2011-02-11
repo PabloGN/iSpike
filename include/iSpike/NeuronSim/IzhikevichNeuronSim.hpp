@@ -8,7 +8,7 @@
 #ifndef IZHIKEVICHNEURONSIM_HPP_
 #define IZHIKEVICHNEURONSIM_HPP_
 
-#include <SpikeAdapter/NeuronSim/NeuronSim.hpp>
+#include <iSpike/NeuronSim/NeuronSim.hpp>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 

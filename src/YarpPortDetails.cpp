@@ -1,1 +1,1 @@
-#include "SpikeAdapter/YarpPortDetails.hpp"
+#include "iSpike/YarpPortDetails.hpp"

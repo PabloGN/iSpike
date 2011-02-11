@@ -1,11 +1,11 @@
-#include <SpikeAdapter/Reader/FileVisualReader.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/Reader/FileVisualReader.hpp>
+#include <iSpike/Bitmap.hpp>
 #include <iostream>
 #include <fstream>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/mpl/vector.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
+#include <iSpike/YarpInterface.hpp>
 
 Bitmap FileVisualReader::getData()
 {

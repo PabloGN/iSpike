@@ -1,4 +1,4 @@
-#include <SpikeAdapter/version.h>
+#include <iSpike/version.h>
 #include "libraryinfo.h"
 
 EXTERNC int projectname_version_major()

@@ -4,8 +4,8 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/mpl/vector.hpp>
-#include <SpikeAdapter/YarpPortDetails.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/YarpPortDetails.hpp>
+#include <iSpike/Bitmap.hpp>
 
 using boost::asio::ip::tcp;
 

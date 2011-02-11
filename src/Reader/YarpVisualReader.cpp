@@ -1,12 +1,12 @@
-#include <SpikeAdapter/Reader/YarpVisualReader.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/Reader/YarpVisualReader.hpp>
+#include <iSpike/Bitmap.hpp>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/gil/gil_all.hpp>
 #include <boost/gil/extension/dynamic_image/dynamic_image_all.hpp>
 #include <boost/gil/extension/io/jpeg_dynamic_io.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
+#include <iSpike/YarpInterface.hpp>
 
 Bitmap YarpVisualReader::getData()
 {

@@ -8,7 +8,7 @@
 #ifndef VISUALFILTER_HPP_
 #define VISUALFILTER_HPP_
 
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/Bitmap.hpp>
 
 /**
  * @class VisualFilter

@@ -6,8 +6,8 @@
  */
 
 #include <vector>
-#include <SpikeAdapter/Bitmap.hpp>
-#include <SpikeAdapter/NeuronSim/IzhikevichNeuronSim.hpp>
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iostream>
 
 std::vector<int>* IzhikevichNeuronSim::getSpikes(Bitmap* voltageMap)

@@ -8,8 +8,8 @@
 #ifndef YARPTEXTREADER_HPP_
 #define YARPTEXTREADER_HPP_
 
-#include <SpikeAdapter/Reader/Reader.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
+#include <iSpike/Reader/Reader.hpp>
+#include <iSpike/YarpInterface.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 

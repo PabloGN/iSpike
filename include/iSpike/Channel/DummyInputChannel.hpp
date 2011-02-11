@@ -10,11 +10,11 @@
 
 #include <string>
 #include <vector>
-#include <SpikeAdapter/Channel/InputChannel.hpp>
-#include <SpikeAdapter/Reader/VisualReader.hpp>
-#include <SpikeAdapter/VisualDataReducer/VisualDataReducer.hpp>
-#include <SpikeAdapter/VisualFilter/VisualFilter.hpp>
-#include <SpikeAdapter/NeuronSim/NeuronSim.hpp>
+#include <iSpike/Channel/InputChannel.hpp>
+#include <iSpike/Reader/VisualReader.hpp>
+#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
+#include <iSpike/VisualFilter/VisualFilter.hpp>
+#include <iSpike/NeuronSim/NeuronSim.hpp>
 #include <boost/thread/mutex.hpp>
 
 /**

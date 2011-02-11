@@ -8,8 +8,8 @@
 #ifndef VISUALDATAREDUCER_HPP_
 #define VISUALDATAREDUCER_HPP_
 
-#include <SpikeAdapter/Bitmap.hpp>
-#include <SpikeAdapter/Reader/VisualReader.hpp>
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/Reader/VisualReader.hpp>
 
 /**
  * @class Visual Data Reducer

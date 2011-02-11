@@ -8,9 +8,9 @@
 #ifndef DOGVISUALFILTER_HPP_
 #define DOGVISUALFILTER_HPP_
 
-#include <SpikeAdapter/VisualFilter/VisualFilter.hpp>
-#include <SpikeAdapter/VisualDataReducer/VisualDataReducer.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/VisualFilter/VisualFilter.hpp>
+#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
+#include <iSpike/Bitmap.hpp>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 

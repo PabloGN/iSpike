@@ -5,8 +5,8 @@
  *      Author: cembo
  */
 
-#include <SpikeAdapter/Common.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/Common.hpp>
+#include <iSpike/Bitmap.hpp>
 #include <string>
 #include <string.h>
 #include <iostream>

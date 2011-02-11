@@ -9,8 +9,8 @@
 #define CHANNELCONTROLLER_HPP_
 
 #include <map>
-#include <SpikeAdapter/Channel/InputChannel.hpp>
-#include <SpikeAdapter/Channel/OutputChannel.hpp>
+#include <iSpike/Channel/InputChannel.hpp>
+#include <iSpike/Channel/OutputChannel.hpp>
 
 class ChannelController
 {

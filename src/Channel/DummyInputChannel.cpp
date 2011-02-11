@@ -1,8 +1,8 @@
-#include <SpikeAdapter/Channel/DummyInputChannel.hpp>
-#include <SpikeAdapter/VisualDataReducer/LogpolarVisualDataReducer.hpp>
-#include <SpikeAdapter/VisualDataReducer/VisualDataReducer.hpp>
-#include <SpikeAdapter/VisualFilter/DOGVisualFilter.hpp>
-#include <SpikeAdapter/NeuronSim/IzhikevichNeuronSim.hpp>
+#include <iSpike/Channel/DummyInputChannel.hpp>
+#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
+#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
+#include <iSpike/VisualFilter/DOGVisualFilter.hpp>
+#include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iostream>
 #include <fstream>
 #include <boost/asio.hpp>

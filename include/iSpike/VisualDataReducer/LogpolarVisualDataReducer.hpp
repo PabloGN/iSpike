@@ -8,9 +8,9 @@
 #ifndef LOGPOLARVISUALDATAREDUCER_HPP_
 #define LOGPOLARVISUALDATAREDUCER_HPP_
 
-#include <SpikeAdapter/VisualDataReducer/VisualDataReducer.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
-#include <SpikeAdapter/Reader/VisualReader.hpp>
+#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/Reader/VisualReader.hpp>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 

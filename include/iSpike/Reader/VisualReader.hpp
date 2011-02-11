@@ -8,9 +8,9 @@
 #ifndef VISUALREADER_HPP_
 #define VISUALREADER_HPP_
 
-#include <SpikeAdapter/Reader/Reader.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
+#include <iSpike/Reader/Reader.hpp>
+#include <iSpike/YarpInterface.hpp>
+#include <iSpike/Bitmap.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/gil/gil_all.hpp>

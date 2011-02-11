@@ -7,8 +7,8 @@
 #include <boost/asio.hpp>
 #include <boost/regex.hpp>
 #include <boost/mpl/vector.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
-#include <SpikeAdapter/YarpPortDetails.hpp>
+#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpPortDetails.hpp>
 
 using boost::asio::ip::tcp;
 

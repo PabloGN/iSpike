@@ -1,1 +1,1 @@
-#include "SpikeAdapter/Channel/InputChannel.hpp"
+#include "iSpike/Channel/InputChannel.hpp"

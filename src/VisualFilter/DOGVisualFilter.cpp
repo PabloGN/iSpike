@@ -5,9 +5,9 @@
  *      Author: cembo
  */
 
-#include <SpikeAdapter/VisualFilter/DOGVisualFilter.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
-#include <SpikeAdapter/Common.hpp>
+#include <iSpike/VisualFilter/DOGVisualFilter.hpp>
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/Common.hpp>
 
 DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval)
 {

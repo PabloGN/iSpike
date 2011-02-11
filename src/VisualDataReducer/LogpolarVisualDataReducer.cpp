@@ -4,10 +4,10 @@
  *  Created on: 5 Feb 2011
  *      Author: cembo
  */
-#include <SpikeAdapter/VisualDataReducer/LogpolarVisualDataReducer.hpp>
-#include <SpikeAdapter/Bitmap.hpp>
-#include <SpikeAdapter/Reader/VisualReader.hpp>
-#include <SpikeAdapter/Common.hpp>
+#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/Reader/VisualReader.hpp>
+#include <iSpike/Common.hpp>
 #include <iostream>
 
 LogPolarVisualDataReducer::LogPolarVisualDataReducer(VisualReader* reader, int queryInterval)

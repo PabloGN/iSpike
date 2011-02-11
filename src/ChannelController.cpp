@@ -6,11 +6,11 @@
  */
 #include <string>
 #include <iostream>
-#include <SpikeAdapter/ChannelController.hpp>
-#include <SpikeAdapter/YarpInterface.hpp>
-#include <SpikeAdapter/Reader/FileVisualReader.hpp>
-#include <SpikeAdapter/Reader/YarpVisualReader.hpp>
-#include <SpikeAdapter/Channel/DummyInputChannel.hpp>
+#include <iSpike/ChannelController.hpp>
+#include <iSpike/YarpInterface.hpp>
+#include <iSpike/Reader/FileVisualReader.hpp>
+#include <iSpike/Reader/YarpVisualReader.hpp>
+#include <iSpike/Channel/DummyInputChannel.hpp>
 
 void ChannelController::getInputChannels()
 {
