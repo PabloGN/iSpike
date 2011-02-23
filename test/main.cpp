@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <iSpike/ChannelController.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 #include <iSpike/Reader/YarpTextReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Channel/VisualInputChannel.hpp>

@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 #include <iSpike/ChannelController.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 #include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Reader/YarpAngleReader.hpp>

@@ -15,7 +15,7 @@
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 
 std::vector<double> YarpAngleReader::getData()
 {

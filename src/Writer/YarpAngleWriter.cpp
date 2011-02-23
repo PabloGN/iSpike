@@ -7,7 +7,7 @@
 
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/YarpPortDetails.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 #include <sstream>
 #include <iostream>
 

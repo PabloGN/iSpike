@@ -9,7 +9,7 @@
 #define YARPTEXTREADER_HPP_
 
 #include <iSpike/Reader/Reader.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 

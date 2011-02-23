@@ -9,7 +9,7 @@
 #define FILEVISUALREADER_HPP_
 
 #include <iSpike/Reader/VisualReader.hpp>
-#include <iSpike/YarpInterface.hpp>
+#include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
