@@ -34,8 +34,9 @@ int main(int argc, char* argv[])
 
       while(true)
       {
-        int angle = 45;
-        int neuronId = floor(angle / 10 + 0.5);
+        //int angle = 45;
+        //int neuronId = floor(angle / 10 + 0.5);
+        int neuronId = rand() % 10;
         std::vector<int>* spikedNeurons = new std::vector<int>(1,neuronId);
         //delete spikedNeurons;
         controller->setFiring(1, spikedNeurons);

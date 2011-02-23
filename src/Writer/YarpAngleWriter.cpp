@@ -36,6 +36,7 @@ void YarpAngleWriter::start()
 void YarpAngleWriter::workerFunction()
 {
   int degreeOfFreedom = 0;
+  int sleepAmount = 1;
   std::map<std::string, YarpPortDetails*>* portMap = YarpInterface::Instance()->getPortMap();
   std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
   std::string ip;
@@ -69,5 +70,6 @@ void YarpAngleWriter::workerFunction()
       YarpInterface::Instance()->write_text(command);
       std::cout << YarpInterface::Instance()->read_until("\n");
     }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }
 }

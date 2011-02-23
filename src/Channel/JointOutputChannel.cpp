@@ -37,6 +37,7 @@ void JointOutputChannel::workerFunction()
   double minAngle = 0;
   double maxAngle = 90;
   unsigned int counter = 0;
+  int sleepAmount = 1;
   while(true)
   {
     bool enoughFrames = false;
@@ -70,5 +71,6 @@ void JointOutputChannel::workerFunction()
       double angle = angleSum / weightSum;
       this->writer->addAngle(angle);
     }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }
 }
