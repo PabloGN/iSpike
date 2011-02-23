@@ -10,8 +10,8 @@
 using boost::asio::ip::tcp;
 
 /**
- * @class YarpInterface
- * @brief Yarp Interface
+ * @class YarpConnection
+ * @brief Yarp Connection
  *
  * This is the main interface used for communication with Yarp
  *
@@ -19,33 +19,21 @@ using boost::asio::ip::tcp;
  *
  */
 
-class YarpInterface {
+class YarpConnection {
 
 private:
   std::map<std::string, YarpPortDetails*>* portMap;
-  static YarpInterface* pInstance;
   bool initialised;
   tcp::socket* connectionSocket;
   boost::asio::io_service io_service;
 
-protected:
-  YarpInterface(std::string ip, std::string port);
-
 public:
 
-  static YarpInterface* Instance()
-  {
-    return pInstance;
-  }
+  YarpConnection(std::string ip, std::string port);
 
   std::map<std::string, YarpPortDetails*>* getPortMap()
   {
     return portMap;
-  }
-
-  static void initialise(std::string ip, std::string port)
-  {
-    pInstance = new YarpInterface(ip, port);
   }
 
   /**

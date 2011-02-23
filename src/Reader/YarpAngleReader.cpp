@@ -28,11 +28,12 @@ YarpAngleReader::YarpAngleReader(std::string portName)
   this->setPortName(portName);
   this->buffer = new std::vector<double>();
   this->initialised = false;
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10006");
 }
 
 void YarpAngleReader::workerFunction()
 {
-  std::map<std::string, YarpPortDetails*>* portMap = YarpInterface::Instance()->getPortMap();
+  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
   std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
   std::string ip;
   std::string port;
@@ -46,11 +47,11 @@ void YarpAngleReader::workerFunction()
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
-  YarpInterface::Instance()->connect_to_port(ip, port);
-  YarpInterface::Instance()->prepare_to_read_text();
+  this->yarpConnection->connect_to_port(ip, port);
+  this->yarpConnection->prepare_to_read_text();
   while(true)
   {
-    std::string contentLine = YarpInterface::Instance()->read_until("\n");
+    std::string contentLine = this->yarpConnection->read_until("\n");
     if(contentLine.length() > 0 && contentLine.substr(0,2) != "do")
     {
       std::vector<double> *angles = new std::vector<double>();

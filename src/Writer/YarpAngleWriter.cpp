@@ -16,6 +16,7 @@ YarpAngleWriter::YarpAngleWriter(std::string portName)
   this->setPortName(portName);
   this->angleList = new std::queue<double>();
   this->initialised = false;
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10006");
 }
 
 void YarpAngleWriter::addAngle(double angle)
@@ -37,7 +38,7 @@ void YarpAngleWriter::workerFunction()
 {
   int degreeOfFreedom = 0;
   int sleepAmount = 1;
-  std::map<std::string, YarpPortDetails*>* portMap = YarpInterface::Instance()->getPortMap();
+  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
   std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
   std::string ip;
   std::string port;
@@ -51,8 +52,8 @@ void YarpAngleWriter::workerFunction()
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
-  YarpInterface::Instance()->connect_to_port(ip, port);
-  YarpInterface::Instance()->write_text("CONNECT foo\n");
+  this->yarpConnection->connect_to_port(ip, port);
+  this->yarpConnection->write_text("CONNECT foo\n");
   while(true)
   {
     if(this->angleList->size() > 0)
@@ -62,13 +63,13 @@ void YarpAngleWriter::workerFunction()
         boost::mutex::scoped_lock lock(this->mutex);
         this->angleList->pop();
       }
-      YarpInterface::Instance()->write_text("d\n");
+      this->yarpConnection->write_text("d\n");
       std::ostringstream commandStream;
       commandStream << "set pos " << degreeOfFreedom << " " << angle << "\n";
       std::string command = commandStream.str();
       std::cout << command;
-      YarpInterface::Instance()->write_text(command);
-      std::cout << YarpInterface::Instance()->read_until("\n");
+      this->yarpConnection->write_text(command);
+      std::cout << this->yarpConnection->read_until("\n");
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }

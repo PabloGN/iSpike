@@ -22,7 +22,7 @@ void YarpVisualReader::start()
 
 void YarpVisualReader::workerFunction()
 {
-  std::map<std::string, YarpPortDetails*>* portMap = YarpInterface::Instance()->getPortMap();
+  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
   std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
   std::string ip;
   std::string port;
@@ -36,12 +36,12 @@ void YarpVisualReader::workerFunction()
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
-  YarpInterface::Instance()->connect_to_port(ip, port);
-  YarpInterface::Instance()->prepare_to_read_binary();
+  this->yarpConnection->connect_to_port(ip, port);
+  this->yarpConnection->prepare_to_read_binary();
   bool toggler = false;
   while(true)
   {
-    Bitmap* image = YarpInterface::Instance()->read_image();
+    Bitmap* image = this->yarpConnection->read_image();
     if(image != NULL)
     {
       boost::mutex::scoped_lock lock(this->mutex);
@@ -57,4 +57,5 @@ YarpVisualReader::YarpVisualReader(std::string portName)
   this->setPortName(portName);
   this->buffer = new Bitmap(0,0,0,NULL);
   this->initialised = false;
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10006");
 }

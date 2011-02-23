@@ -12,9 +12,7 @@
 
 using boost::asio::ip::tcp;
 
-YarpInterface* YarpInterface::pInstance = NULL;
-
-int YarpInterface::write_text(std::string message)
+int YarpConnection::write_text(std::string message)
 {
   boost::system::error_code connection_error;
   boost::asio::write( *this->connectionSocket, boost::asio::buffer(message),
@@ -23,7 +21,7 @@ int YarpInterface::write_text(std::string message)
   return(true);
 }
 
-int YarpInterface::write_binary(unsigned char* buffer, int length)
+int YarpConnection::write_binary(unsigned char* buffer, int length)
 {
   boost::system::error_code connection_error;
   boost::asio::write( *this->connectionSocket, boost::asio::buffer(buffer, length),
@@ -32,7 +30,7 @@ int YarpInterface::write_binary(unsigned char* buffer, int length)
   return(true);
 }
 
-std::string YarpInterface::read_until(std::string until)
+std::string YarpConnection::read_until(std::string until)
 {
   boost::asio::streambuf response;
   boost::asio::read_until(*this->connectionSocket, response, until);
@@ -42,16 +40,16 @@ std::string YarpInterface::read_until(std::string until)
   return(response_string);
 }
 
-std::string YarpInterface::read_text()
+std::string YarpConnection::read_text()
 {
   return read_until("*** end of message");
 }
 
-int YarpInterface::read_binary(unsigned char* buffer, int length){
+int YarpConnection::read_binary(unsigned char* buffer, int length){
   return boost::asio::read(*this->connectionSocket, boost::asio::buffer(buffer, length));
 }
 
-YarpInterface::YarpInterface(std::string ip, std::string port)
+YarpConnection::YarpConnection(std::string ip, std::string port)
 {
     //boost::asio::io_service io_service;
     this->connectionSocket = new tcp::socket(this->io_service);
@@ -98,7 +96,7 @@ YarpInterface::YarpInterface(std::string ip, std::string port)
 
 }
 
-int YarpInterface::connect_to_port(std::string ip, std::string port)
+int YarpConnection::connect_to_port(std::string ip, std::string port)
 {
   try
       {
@@ -130,11 +128,11 @@ int YarpInterface::connect_to_port(std::string ip, std::string port)
       }
 }
 
-void YarpInterface::disconnect(){
+void YarpConnection::disconnect(){
   this->connectionSocket->close();
 }
 
-void YarpInterface::prepare_to_read_text()
+void YarpConnection::prepare_to_read_text()
 {
   write_text("CONNECT foo\n");
   boost::asio::streambuf response;
@@ -142,7 +140,7 @@ void YarpInterface::prepare_to_read_text()
   write_text("r\n");
 }
 
-void YarpInterface::prepare_to_read_binary()
+void YarpConnection::prepare_to_read_binary()
 {
   // Send header to select connection type.
   // this header is for fast_tcp, so we don't have to deal with flow control
@@ -177,14 +175,14 @@ void YarpInterface::prepare_to_read_binary()
   write_binary(command_reverse,8);
 }
 
-int YarpInterface::read_int(unsigned char* buf)
+int YarpConnection::read_int(unsigned char* buf)
 {
   unsigned char *ubuf = (unsigned char *)buf;
   // this could be optimized away on little-endian machines!
   return ubuf[0] + (ubuf[1]<<8) + (ubuf[2]<<16) + (ubuf[3]<<24);
 }
 
-int YarpInterface::read_data_header()
+int YarpConnection::read_data_header()
 {
   int i;
   unsigned char load_hdr_ref[8] = {'Y','A',10, 0, 0, 0,'R','P'};
@@ -251,7 +249,7 @@ int YarpInterface::read_data_header()
   return len;
 }
 
-Bitmap* YarpInterface::read_image()
+Bitmap* YarpConnection::read_image()
 {
   int result = read_data_header();
   if (result>=0) {

@@ -34,6 +34,7 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string portName;
+  YarpConnection* yarpConnection;
 
 public:
 

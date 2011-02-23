@@ -14,6 +14,7 @@
 #include <iSpike/Writer/Writer.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
+#include <iSpike/YarpConnection.hpp>
 
 class YarpAngleWriter : public Writer {
 
@@ -24,6 +25,7 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string portName;
+  YarpConnection* yarpConnection;
 
 public:
 

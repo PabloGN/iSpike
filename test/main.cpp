@@ -36,23 +36,21 @@ int main(int argc, char* argv[])
       {
         //int angle = 45;
         //int neuronId = floor(angle / 10 + 0.5);
-        int neuronId = rand() % 10;
-        std::vector<int>* spikedNeurons = new std::vector<int>(1,neuronId);
-        //delete spikedNeurons;
-        controller->setFiring(1, spikedNeurons);
+
         //get fired spikes
-        /*spikes = controller->getFiring(1);
+        spikes = controller->getFiring(1);
         std::cout << spikes.size() << std::endl;
 
         if(spikes.size() > 0)
         {
+          controller->setFiring(1, &(spikes.front()));
           std::cout << "[";
           for(int i = 0; i < spikes.front().size(); i++)
           {
             std::cout << spikes.front().at(i) << ",";
           }
           std::cout << "]" << std::endl;
-        }*/
+        }
 
         /*//if any spikes have been fired
         if(spikes.size() > 0 )

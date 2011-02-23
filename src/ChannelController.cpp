@@ -50,16 +50,15 @@ void ChannelController::setFiring(int channelId, std::vector<int>* spikes)
 
 ChannelController::ChannelController()
 {
-  inputChannelDirectory = new std::map<int, InputChannel*>();
-  YarpInterface::initialise("127.0.0.1", "10006");
-  //YarpAngleReader* headJoints = new YarpAngleReader("/icubSim/head/state:o");
+  this->inputChannelDirectory = new std::map<int, InputChannel*>();
+  this->outputChannelDirectory = new std::map<int, OutputChannel*>();
+  YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o");
+  this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new JointInputChannel(jointReader)));
+  YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i");
+  this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, new JointOutputChannel(jointWriter)));
   //const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";
   //FileVisualReader* fileReader = new FileVisualReader(filename);
   //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new VisualInputChannel(fileReader)));
-  //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new JointInputChannel(headJoints)));
-  this->outputChannelDirectory = new std::map<int, OutputChannel*>();
-  YarpAngleWriter* headJoints = new YarpAngleWriter("/icubSim/left_arm/rpc:i");
-  this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, new JointOutputChannel(headJoints)));
 }
 
 void ChannelController::inputChannelSubscribe(int channelId)

@@ -21,6 +21,7 @@ private:
   void workerFunction();
   boost::mutex mutex;
   std::string portName;
+  YarpConnection* yarpConnection;
 
 public:
   std::string getData();

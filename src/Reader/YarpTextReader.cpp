@@ -11,7 +11,7 @@ std::string YarpTextReader::getData()
 
 void YarpTextReader::workerFunction()
 {
-  std::map<std::string, YarpPortDetails*>* portMap = YarpInterface::Instance()->getPortMap();
+  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
   std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
   std::string ip;
   std::string port;
@@ -25,17 +25,18 @@ void YarpTextReader::workerFunction()
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
-  YarpInterface::Instance()->connect_to_port(ip, port);
-  YarpInterface::Instance()->prepare_to_read_text();
+  this->yarpConnection->connect_to_port(ip, port);
+  this->yarpConnection->prepare_to_read_text();
   while(true)
   {
     boost::mutex::scoped_lock lock(this->mutex);
-    this->buffer = YarpInterface::Instance()->read_until("\n");
+    this->buffer = this->yarpConnection->read_until("\n");
   }
 }
 
 YarpTextReader::YarpTextReader(std::string portName)
 {
   this->setPortName(portName);
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10006");
   this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpTextReader::workerFunction, this))));
 }
