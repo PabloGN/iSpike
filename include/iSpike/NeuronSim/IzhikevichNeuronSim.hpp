@@ -37,7 +37,7 @@ public:
 /**
  * Converts the voltage map into a spike pattern
  */
-std::vector<int>* getSpikes(Bitmap* voltageMap);
+std::vector<int>* getSpikes(std::vector<double>* voltages);
 
 /**
  * Constructor, parameters a-d as in the Izhikevich model

@@ -1,12 +1,12 @@
 /*
- * DummyInputChannel.hpp
+ * VisualInputChannel.hpp
  *
  *  Created on: 31 Dec 2010
  *      Author: cembo
  */
 
-#ifndef DUMMYINPUTCHANNEL_HPP_
-#define DUMMYINPUTCHANNEL_HPP_
+#ifndef VISUALINPUTCHANNEL_HPP_
+#define VISUALINPUTCHANNEL_HPP_
 
 #include <string>
 #include <vector>
@@ -18,15 +18,15 @@
 #include <boost/thread/mutex.hpp>
 
 /**
- * @class DummyInputChannel
- * @brief DummyInputChannel class
+ * @class VisualInputChannel
+ * @brief VisualInputChannel class
  *
- * Temporary class that converts an image input into a spike pattern
+ * Class that converts an image input into a spike pattern
  *
  * @author Edgars Lazdins
  *
  */
-class DummyInputChannel : public InputChannel {
+class VisualInputChannel : public InputChannel {
 
 private:
   std::vector< std::vector<int> >* buffer;
@@ -44,7 +44,7 @@ public:
   /**
    * @param The reader where the image is retrieved from
    */
-  DummyInputChannel(VisualReader* reader);
+  VisualInputChannel(VisualReader* reader);
 
   /**
    *  Initialised the channel and starts the conversion thread
@@ -78,4 +78,4 @@ public:
 
 };
 
-#endif /* DUMMYINPUTCHANNEL_HPP_ */
+#endif /* VISUALINPUTCHANNEL_HPP_ */

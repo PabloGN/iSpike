@@ -1,4 +1,4 @@
-#include <iSpike/Channel/DummyInputChannel.hpp>
+#include <iSpike/Channel/VisualInputChannel.hpp>
 #include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
@@ -14,8 +14,9 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
 #include <time.h>
+#include <boost/lexical_cast.hpp>
 
-std::vector< std::vector<int> > DummyInputChannel::getFiring()
+std::vector< std::vector<int> > VisualInputChannel::getFiring()
 {
   boost::mutex::scoped_lock lock(this->mutex);
   std::vector< std::vector<int> > result = *(this->buffer);
@@ -23,7 +24,7 @@ std::vector< std::vector<int> > DummyInputChannel::getFiring()
   return result;
 }
 
-void DummyInputChannel::workerFunction()
+void VisualInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
   timeval time;
@@ -38,7 +39,14 @@ void DummyInputChannel::workerFunction()
     if(rPlusGMinus.getWidth() > 0)
     {
       boost::mutex::scoped_lock lock(this->mutex);
-      this->buffer->push_back(*(this->neuronSim->getSpikes(&rPlusGMinus)));
+      std::vector<double>* voltages = new std::vector<double>(rPlusGMinus.getWidth() * rPlusGMinus.getHeight());
+      for(int i = 0; i < rPlusGMinus.getWidth() * rPlusGMinus.getHeight(); i ++)
+      {
+        double voltage = (unsigned int)rPlusGMinus.getContents()[i];
+        voltages->at(i) = voltage;
+      }
+      this->buffer->push_back(*(this->neuronSim->getSpikes(voltages)));
+      delete voltages;
     }
     //std::cout << this->buffer->size() << std::endl;
     //boost::this_thread::sleep(boost::posix_time::milliseconds(100));
@@ -49,7 +57,7 @@ void DummyInputChannel::workerFunction()
   }
 }
 
-void DummyInputChannel::start()
+void VisualInputChannel::start()
 {
   if(!initialised)
   {
@@ -58,12 +66,12 @@ void DummyInputChannel::start()
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 100);
     this->filter = new DOGVisualFilter(this->dataReducer, 100);
     this->neuronSim = new IzhikevichNeuronSim(320*240, 0.1, 0.2, -65, 2);
-    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DummyInputChannel::workerFunction, this))));
+    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;
   }
 }
 
-DummyInputChannel::DummyInputChannel(VisualReader* reader)
+VisualInputChannel::VisualInputChannel(VisualReader* reader)
 {
   this->initialised = false;
   this->setReader(reader);

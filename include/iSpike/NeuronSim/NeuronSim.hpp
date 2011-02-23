@@ -28,7 +28,7 @@ public:
 /**
  * Convert voltage map into a spike pattern
  */
-virtual std::vector<int>* getSpikes(Bitmap* voltageMap) = 0;
+virtual std::vector<int>* getSpikes(std::vector<double>* voltages) = 0;
 
 };
 

@@ -10,7 +10,11 @@
 #include <iSpike/YarpInterface.hpp>
 #include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
-#include <iSpike/Channel/DummyInputChannel.hpp>
+#include <iSpike/Reader/YarpAngleReader.hpp>
+#include <iSpike/Channel/VisualInputChannel.hpp>
+#include <iSpike/Channel/JointInputChannel.hpp>
+#include <iSpike/Channel/JointOutputChannel.hpp>
+#include <iSpike/Writer/YarpAngleWriter.hpp>
 
 void ChannelController::getInputChannels()
 {
@@ -47,11 +51,15 @@ void ChannelController::setFiring(int channelId, std::vector<int>* spikes)
 ChannelController::ChannelController()
 {
   inputChannelDirectory = new std::map<int, InputChannel*>();
-  //YarpInterface::initialise("127.0.0.1", "10006");
-  //YarpVisualReader* leftEye = new YarpVisualReader("/icubSim/cam/left");
-  const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";
-  FileVisualReader* reader = new FileVisualReader(filename);
-  this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new DummyInputChannel(reader)));
+  YarpInterface::initialise("127.0.0.1", "10006");
+  //YarpAngleReader* headJoints = new YarpAngleReader("/icubSim/head/state:o");
+  //const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";
+  //FileVisualReader* fileReader = new FileVisualReader(filename);
+  //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new VisualInputChannel(fileReader)));
+  //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new JointInputChannel(headJoints)));
+  this->outputChannelDirectory = new std::map<int, OutputChannel*>();
+  YarpAngleWriter* headJoints = new YarpAngleWriter("/icubSim/left_arm/rpc:i");
+  this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, new JointOutputChannel(headJoints)));
 }
 
 void ChannelController::inputChannelSubscribe(int channelId)

@@ -13,7 +13,7 @@
 #include <iSpike/YarpInterface.hpp>
 #include <iSpike/Reader/YarpTextReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
-#include <iSpike/Channel/DummyInputChannel.hpp>
+#include <iSpike/Channel/VisualInputChannel.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
 #include <boost/thread/thread.hpp>
@@ -28,16 +28,32 @@ int main(int argc, char* argv[])
       int height = 240;
 
       ChannelController* controller = new ChannelController();
-      controller->inputChannelSubscribe(1);
+      //controller->inputChannelSubscribe(1);
+      controller->outputChannelSubscribe(1);
       std::vector< std::vector<int> > spikes;
 
       while(true)
       {
+        int angle = 45;
+        int neuronId = floor(angle / 10 + 0.5);
+        std::vector<int>* spikedNeurons = new std::vector<int>(1,neuronId);
+        //delete spikedNeurons;
+        controller->setFiring(1, spikedNeurons);
         //get fired spikes
-        spikes = controller->getFiring(1);
+        /*spikes = controller->getFiring(1);
         std::cout << spikes.size() << std::endl;
 
-        //if any spikes have been fired
+        if(spikes.size() > 0)
+        {
+          std::cout << "[";
+          for(int i = 0; i < spikes.front().size(); i++)
+          {
+            std::cout << spikes.front().at(i) << ",";
+          }
+          std::cout << "]" << std::endl;
+        }*/
+
+        /*//if any spikes have been fired
         if(spikes.size() > 0 )
         {
           //create a grayscale image buffer
@@ -65,7 +81,7 @@ int main(int argc, char* argv[])
           delete image;
         } else {
           std::cout << "length is zero" << std::endl;
-        }
+        }*/
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(200));
       }

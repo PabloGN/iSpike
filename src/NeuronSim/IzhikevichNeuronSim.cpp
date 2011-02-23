@@ -10,21 +10,21 @@
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iostream>
 
-std::vector<int>* IzhikevichNeuronSim::getSpikes(Bitmap* voltageMap)
+std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
 {
-  bool* fired = new bool[voltageMap->getWidth() * voltageMap->getHeight()];
-  for(int n = 0; n < voltageMap->getWidth() * voltageMap->getHeight(); n++)
+  bool* fired = new bool[voltages->size()];
+  for(unsigned int n = 0; n < voltages->size(); n++)
   {
     fired[n] = false;
   }
-  float* I = new float[voltageMap->getWidth() * voltageMap->getHeight()];
-  for(int n = 0; n < voltageMap->getWidth() * voltageMap->getHeight(); n++)
+  float* I = new float[voltages->size()];
+  for(unsigned int n = 0; n < voltages->size(); n++)
   {
-    I[n] = (float) ( ( ( voltageMap->getContents()[n] ) / 16 ) + 4 );
+    I[n] = (float) ( ( ( voltages->at(n) ) / 16 ) + 4 );
   }
 
   std::vector<int>* result = new std::vector<int>();
-  for(int n = 0; n < voltageMap->getWidth() * voltageMap->getHeight(); n++)
+  for(unsigned int n = 0; n < voltages->size(); n++)
   {
     for(unsigned int t=0; t<4; ++t) {
              if(!fired[n]) {
