@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
       int height = 240;
 
       ChannelController* controller = new ChannelController();
-      //controller->inputChannelSubscribe(1);
+      controller->inputChannelSubscribe(1);
       controller->outputChannelSubscribe(1);
       std::vector< std::vector<int> > spikes;
 
@@ -39,11 +39,14 @@ int main(int argc, char* argv[])
 
         //get fired spikes
         spikes = controller->getFiring(1);
+        //spikes = std::vector< std::vector<int> >();
+        //spikes.push_back(std::vector<int>(1,1));
         std::cout << spikes.size() << std::endl;
 
         if(spikes.size() > 0)
         {
-          controller->setFiring(1, &(spikes.front()));
+          for(int i = 0; i < spikes.size(); i++)
+            controller->setFiring(1, &(spikes.at(i)));
           std::cout << "[";
           for(int i = 0; i < spikes.front().size(); i++)
           {

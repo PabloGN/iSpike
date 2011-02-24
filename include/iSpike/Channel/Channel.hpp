@@ -88,6 +88,8 @@ public:
   void setDescription(std::string description){
     this->description = description;
   }
+
+  virtual bool isInitialised() = 0;
   //ChannelType getChannelType();
   //void setChannelType(ChannelType channelType);
 };

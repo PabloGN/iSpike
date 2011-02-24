@@ -59,6 +59,11 @@ public:
       this->threadPointer = threadPointer;
   }
 
+  bool isInitialised()
+  {
+    return this->initialised;
+  }
+
 };
 
 #endif /* JOINTOUTPUTCHANNEL_HPP_ */

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <boost/asio.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 #include <vector>
 #include <sys/time.h>
 #define _USE_MATH_DEFINES
@@ -30,6 +31,7 @@ void JointInputChannel::workerFunction()
   double sd = 2;
   double minAngle = 0;
   double maxAngle = 90;
+  int sleepAmount = 1;
   IzhikevichNeuronSim neuronSim(numOfNeurons, 0.1, 0.2, -65, 2);
 
   while(true)
@@ -73,6 +75,7 @@ void JointInputChannel::workerFunction()
     //boost::this_thread::sleep(boost::posix_time::milliseconds(100));
     time = boost::posix_time::microsec_clock::local_time();
     boost::posix_time::time_duration finish( time.time_of_day() );
+    boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
     //boost::this_thread::sleep(boost::posix_time::microseconds(1000 - (finish.total_microseconds() - start.total_microseconds())));
     //std::cout << finish.total_microseconds() - start.total_microseconds() << "yo" << std::endl;
   }
@@ -86,6 +89,7 @@ void JointInputChannel::start()
     this->reader->start();
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this))));
     initialised = true;
+    std::cout << "initialised" << std::endl;
   }
 }
 

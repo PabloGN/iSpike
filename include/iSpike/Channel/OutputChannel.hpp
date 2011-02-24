@@ -15,7 +15,7 @@
  *
  */
 
-class OutputChannel : Channel {
+class OutputChannel : public Channel {
 public:
 
   /**

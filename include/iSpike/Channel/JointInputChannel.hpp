@@ -70,6 +70,11 @@ public:
       this->reader = reader;
   }
 
+  bool isInitialised()
+  {
+    return this->initialised;
+  }
+
 };
 
 #endif /* JOINTINPUTCHANNEL_HPP_ */

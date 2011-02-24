@@ -64,13 +64,13 @@ void YarpAngleReader::workerFunction()
         lines.pop_front();
         try
         {
-        double angle = boost::lexical_cast<double>(current_string);
-        angles->push_back(angle);
+          double angle = boost::lexical_cast<double>(current_string);
+          angles->push_back(angle);
         }
-        catch(int i)
+        catch(boost::bad_lexical_cast &)
         {
-            std::cout << "could not convert " << current_string << " to double" << std::endl;
-            break;
+          std::cout << "could not convert " << current_string << " to double" << std::endl;
+          break;
         }
       }
       boost::mutex::scoped_lock lock(this->mutex);

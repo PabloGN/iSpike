@@ -31,7 +31,10 @@ std::vector< std::vector<int> > ChannelController::getFiring(int channelId)
   std::map<int, InputChannel*>::iterator iter = inputChannelDirectory->find(channelId);
   if (iter != inputChannelDirectory->end() )
   {
-    return iter->second->getFiring();
+    if(iter->second->isInitialised())
+      return iter->second->getFiring();
+    else
+      std::cout << "Input Channel " << channelId << " has not been initialised!";
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
@@ -42,7 +45,10 @@ void ChannelController::setFiring(int channelId, std::vector<int>* spikes)
   std::map<int, OutputChannel*>::iterator iter = outputChannelDirectory->find(channelId);
   if (iter != outputChannelDirectory->end() )
   {
-    return iter->second->setFiring(spikes);
+    if(iter->second->isInitialised())
+      return iter->second->setFiring(spikes);
+    else
+      std::cout << "Output Channel " << channelId << " has not been initialised!";
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }

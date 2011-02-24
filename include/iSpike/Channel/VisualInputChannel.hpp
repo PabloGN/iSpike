@@ -76,6 +76,11 @@ public:
       this->reader = reader;
   }
 
+  bool isInitialised()
+  {
+    return this->initialised;
+  }
+
 };
 
 #endif /* VISUALINPUTCHANNEL_HPP_ */
