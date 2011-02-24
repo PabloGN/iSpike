@@ -29,7 +29,7 @@ void JointInputChannel::workerFunction()
   int numOfNeurons = 10;
   int degreeOfFreedom = 0;
   double sd = 2;
-  double minAngle = 0;
+  double minAngle = -90;
   double maxAngle = 90;
   int sleepAmount = 1;
   IzhikevichNeuronSim neuronSim(numOfNeurons, 0.1, 0.2, -65, 2);

@@ -34,7 +34,7 @@ void JointOutputChannel::workerFunction()
 {
   unsigned int numOfFrames = 10;
   int numOfNeurons = 10;
-  double minAngle = 0;
+  double minAngle = -90;
   double maxAngle = 90;
   unsigned int counter = 0;
   int sleepAmount = 1;
@@ -68,8 +68,12 @@ void JointOutputChannel::workerFunction()
         angleSum += variables[j] * currentAngle;
         weightSum += variables[j];
       }
-      double angle = angleSum / weightSum;
-      this->writer->addAngle(angle);
+      if(!weightSum == 0)
+      {
+        double angle = angleSum / weightSum;
+        std::cout << "Angle: " << angle << std::endl;
+        this->writer->addAngle(angle);
+      }
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }
