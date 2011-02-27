@@ -28,7 +28,7 @@ YarpAngleReader::YarpAngleReader(std::string portName)
   this->setPortName(portName);
   this->buffer = new std::vector<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection("localhost", "10000");
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10000");
 }
 
 void YarpAngleReader::workerFunction()

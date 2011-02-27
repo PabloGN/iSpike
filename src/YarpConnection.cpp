@@ -6,6 +6,7 @@
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/YarpPortDetails.hpp>
@@ -102,19 +103,24 @@ int YarpConnection::connect_to_port(std::string ip, std::string port)
       {
         boost::asio::io_service io_service;
         //this->connectionSocket = new tcp::socket(io_service);
-        tcp::resolver resolver(io_service);
+        int intPort = boost::lexical_cast<int>(port);
+        boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), intPort);
+        /*tcp::resolver resolver(io_service);
         tcp::resolver::query query(boost::asio::ip::tcp::v4(), ip, port);
         tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end;
+        tcp::resolver::iterator end;*/
         boost::system::error_code error = boost::asio::error::host_not_found;
 
-        while (error && endpoint_iterator != end)
+        this->connectionSocket->close();
+        this->connectionSocket->connect(endpoint, error);
+
+        /*while (error && endpoint_iterator != end)
         {
           this->connectionSocket->close();
           boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
           endpoint_iterator++;
           this->connectionSocket->connect(endpoint, error);
-        }
+        }*/
         if (error || !this->connectionSocket->is_open())
         {
           throw boost::system::system_error(error);

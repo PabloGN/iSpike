@@ -16,7 +16,7 @@ YarpAngleWriter::YarpAngleWriter(std::string portName)
   this->setPortName(portName);
   this->angleList = new std::queue<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection("localhost", "10000");
+  this->yarpConnection = new YarpConnection("127.0.0.1", "10000");
 }
 
 void YarpAngleWriter::addAngle(double angle)
