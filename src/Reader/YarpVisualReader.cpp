@@ -57,5 +57,5 @@ YarpVisualReader::YarpVisualReader(std::string portName)
   this->setPortName(portName);
   this->buffer = new Bitmap(0,0,0,NULL);
   this->initialised = false;
-  this->yarpConnection = new YarpConnection("127.0.0.1", "10006");
+  this->yarpConnection = new YarpConnection("localhost", "10000");
 }

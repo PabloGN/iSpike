@@ -2,6 +2,7 @@
 # This CMake Module locates the UnitTest++ (http://unittest-cpp.sourceforge.net/)
 # C++ unit testing framework, enabling FIND_PACKAGE(UnitTestPlusPlus) to work. 
 #
+IF(WIN32)
 set(_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS
 	C:/UnitTest++/src
 )
@@ -9,6 +10,15 @@ set(_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS
 set(_UnitTestPlusPlus_LIB_SEARCH_DIRS
 	C:/UnitTest++/lib
 )
+ELSE()
+set(_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS
+	/usr/local/UnitTest++/src
+)
+
+set(_UnitTestPlusPlus_LIB_SEARCH_DIRS
+	/usr/local/UnitTest++/lib
+)
+ENDIF()
 
 FIND_PATH(UnitTestPlusPlus_INCLUDE_DIR NAMES UnitTest++.h HINTS ${_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS})
 MARK_AS_ADVANCED(UnitTestPlusPlus_INCLUDE_DIR)
