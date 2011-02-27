@@ -58,10 +58,12 @@ ChannelController::ChannelController()
 {
   this->inputChannelDirectory = new std::map<int, InputChannel*>();
   this->outputChannelDirectory = new std::map<int, OutputChannel*>();
-  YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o");
-  this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new JointInputChannel(jointReader)));
-  YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i");
-  this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, new JointOutputChannel(jointWriter)));
+  YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o", "127.0.0.1", "10006");
+  JointInputChannel* readerChannel = new JointInputChannel(jointReader, 0, 2, -90, 90, 20);
+  this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, readerChannel));
+  YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i", "127.0.0.1", "10006");
+  JointOutputChannel* writerChannel = new JointOutputChannel(jointWriter, -90, 90, 0.1, 20);
+  this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, writerChannel));
   //const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";
   //FileVisualReader* fileReader = new FileVisualReader(filename);
   //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new VisualInputChannel(fileReader)));

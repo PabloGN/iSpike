@@ -25,7 +25,7 @@ private:
 
 public:
   std::string getData();
-  YarpTextReader(std::string portName);
+  YarpTextReader(std::string portName, std::string yarpIP, std::string yarpPort);
 
   std::string getPortName()
   {

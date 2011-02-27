@@ -47,7 +47,7 @@ public:
    * Constructor
    * @param portName The YARP port where the joints are read from
    */
-  YarpAngleReader(std::string portName);
+  YarpAngleReader(std::string portName, std::string yarpIP, std::string yarpPort);
 
   /**
    * Initialises the reader and starts the main thread

@@ -52,10 +52,10 @@ void YarpVisualReader::workerFunction()
   }
 }
 
-YarpVisualReader::YarpVisualReader(std::string portName)
+YarpVisualReader::YarpVisualReader(std::string portName, std::string yarpIP, std::string yarpPort)
 {
   this->setPortName(portName);
   this->buffer = new Bitmap(0,0,0,NULL);
   this->initialised = false;
-  this->yarpConnection = new YarpConnection("127.0.0.1", "10000");
+  this->yarpConnection = new YarpConnection(yarpIP, yarpPort);
 }

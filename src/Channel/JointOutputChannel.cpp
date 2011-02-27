@@ -24,47 +24,55 @@ void JointOutputChannel::start()
   }
 }
 
-JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer)
+JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer, double maxAngle, double minAngle, double rateOfDecay, double numOfNeurons)
 {
   this->initialised = false;
   this->setWriter(writer);
+  this->maxAngle = maxAngle;
+  this->minAngle = minAngle;
+  this->rateOfDecay = rateOfDecay;
+  this->numOfNeurons = numOfNeurons;
 }
 
 void JointOutputChannel::workerFunction()
 {
-  unsigned int numOfFrames = 10;
-  int numOfNeurons = 10;
-  double minAngle = -90;
-  double maxAngle = 90;
-  unsigned int counter = 0;
   int sleepAmount = 1;
+  std::vector<double> variables(this->numOfNeurons,0);
   while(true)
   {
     bool enoughFrames = false;
     {
       boost::mutex::scoped_lock lock(this->mutex);
-      enoughFrames = this->buffer->size() >= numOfFrames;
+      enoughFrames = !(this->buffer->empty());
     }
     if(enoughFrames)
     {
-      std::vector<int> variables(numOfNeurons,0);
-      for(int i = 0; i < numOfFrames; i++)
+      std::vector<int> currentFrame = this->buffer->front();
       {
-        std::vector<int> currentFrame = this->buffer->front();
-        {
-          boost::mutex::scoped_lock lock(this->mutex);
-          this->buffer->pop();
-        }
-        for(int neuronID = 0; neuronID < currentFrame.size(); neuronID++)
-        {
-          variables[currentFrame[neuronID]]++;
-        }
+        boost::mutex::scoped_lock lock(this->mutex);
+        this->buffer->pop();
       }
+      for(unsigned int neuronID = 0; neuronID < currentFrame.size(); neuronID++)
+      {
+        variables[currentFrame[neuronID]]++;
+      }
+      /**
+       * Decay the variables according to the following function:
+       * N(t+1) = N(t)*e^(-rateOfDecay)
+       */
+      std::cout << "Variables" << std::endl;
+      std::cout << "[";
+      for(unsigned int i = 0; i < variables.size(); i++)
+      {
+        variables[i] = variables[i] * exp(-(this->rateOfDecay));
+        std::cout << variables[i] << ", ";
+      }
+      std::cout << "]" << std::endl;
       double angleSum = 0;
       double weightSum = 0;
-      for(int j = 0; j < variables.size(); j++)
+      for(unsigned int j = 0; j < variables.size(); j++)
       {
-        double currentAngle = (maxAngle - minAngle) / (numOfNeurons-1) * j + minAngle;
+        double currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * j + this->minAngle;
         angleSum += variables[j] * currentAngle;
         weightSum += variables[j];
       }

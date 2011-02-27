@@ -32,13 +32,18 @@ private:
   boost::shared_ptr<boost::thread> threadPointer;
   boost::mutex mutex;
   bool initialised;
+  int numOfNeurons;
+  int degreeOfFreedom;
+  double sd;
+  double minAngle;
+  double maxAngle;
 
 public:
 
   /**
    * @param The reader where the image is retrieved from
    */
-  JointInputChannel(YarpAngleReader* reader);
+  JointInputChannel(YarpAngleReader* reader, int degreeOfFreedom, int sd, int minAngle, int maxAngle, int numOfNeurons);
 
   /**
    *  Initialised the channel and starts the conversion thread

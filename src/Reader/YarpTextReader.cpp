@@ -34,9 +34,9 @@ void YarpTextReader::workerFunction()
   }
 }
 
-YarpTextReader::YarpTextReader(std::string portName)
+YarpTextReader::YarpTextReader(std::string portName, std::string yarpIP, std::string yarpPort)
 {
   this->setPortName(portName);
-  this->yarpConnection = new YarpConnection("127.0.0.1", "10000");
+  this->yarpConnection = new YarpConnection(yarpIP, yarpPort);
   this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpTextReader::workerFunction, this))));
 }

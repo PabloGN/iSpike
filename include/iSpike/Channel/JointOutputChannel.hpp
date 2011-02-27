@@ -24,6 +24,10 @@ private:
   boost::shared_ptr<boost::thread> threadPointer;
   boost::mutex mutex;
   bool initialised;
+  int numOfNeurons;
+  double minAngle;
+  double maxAngle;
+  double rateOfDecay;
 
 public:
 
@@ -47,7 +51,7 @@ public:
       this->writer = writer;
   }
 
-  JointOutputChannel(YarpAngleWriter* writer);
+  JointOutputChannel(YarpAngleWriter* writer, double maxAngle, double minAngle, double rateOfDecay, double numOfNeurons);
 
   boost::shared_ptr<boost::thread> getThreadPointer()
   {

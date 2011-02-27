@@ -33,7 +33,7 @@ public:
    * Constructor
    * @param portName The YARP port where the joints commands are written to
    */
-  YarpAngleWriter(std::string portName);
+  YarpAngleWriter(std::string portName, std::string yarpIP, std::string yarpPort);
 
   /**
    * Adds an angle to the processing queue

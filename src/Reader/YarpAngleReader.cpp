@@ -23,12 +23,12 @@ std::vector<double> YarpAngleReader::getData()
   return *(this->buffer);
 }
 
-YarpAngleReader::YarpAngleReader(std::string portName)
+YarpAngleReader::YarpAngleReader(std::string portName, std::string yarpIP, std::string yarpPort)
 {
   this->setPortName(portName);
   this->buffer = new std::vector<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection("127.0.0.1", "10000");
+  this->yarpConnection = new YarpConnection(yarpIP, yarpPort);
 }
 
 void YarpAngleReader::workerFunction()
