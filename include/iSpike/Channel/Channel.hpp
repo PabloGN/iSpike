@@ -13,7 +13,7 @@
  *
  */
 class Channel {
-private:
+protected:
 
   ///Channel Identifier
   int id;

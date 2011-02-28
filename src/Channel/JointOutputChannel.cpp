@@ -6,6 +6,7 @@
  */
 #include <iSpike/Channel/JointOutputChannel.hpp>
 #include <iostream>
+#include <boost/lexical_cast.hpp>
 
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
@@ -13,25 +14,31 @@ void JointOutputChannel::setFiring(std::vector<int>* buffer)
   this->buffer->push(*buffer);
 }
 
-void JointOutputChannel::start()
+void JointOutputChannel::start(std::vector<std::string> arguments)
 {
   if(!initialised)
   {
-    this->buffer = new std::queue< std::vector<int> >();
-    this->writer->start();
-    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
-    initialised = true;
+    if(arguments.size() != 4)
+      std::cout << "incorrect number of arguments" << std::endl;
+    else
+    {
+      this->buffer = new std::queue< std::vector<int> >();
+      this->maxAngle = boost::lexical_cast<double>(arguments[0]);
+      this->minAngle = boost::lexical_cast<double>(arguments[1]);
+      this->rateOfDecay = boost::lexical_cast<double>(arguments[2]);
+      this->numOfNeurons = boost::lexical_cast<int>(arguments[3]);
+      this->writer->start();
+      this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
+      initialised = true;
+    }
   }
 }
 
-JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer, double maxAngle, double minAngle, double rateOfDecay, double numOfNeurons)
+JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer)
 {
   this->initialised = false;
   this->setWriter(writer);
-  this->maxAngle = maxAngle;
-  this->minAngle = minAngle;
-  this->rateOfDecay = rateOfDecay;
-  this->numOfNeurons = numOfNeurons;
+  this->description = "A Joint Output Channel. Arguments: [ minAngle, maxAngle, rateOfDecay, numOfNeurons ]";
 }
 
 void JointOutputChannel::workerFunction()

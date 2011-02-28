@@ -28,8 +28,22 @@ int main(int argc, char* argv[])
       int height = 240;
 
       ChannelController* controller = new ChannelController();
-      controller->inputChannelSubscribe(1);
-      controller->outputChannelSubscribe(1);
+      std::map<int, std::string>::iterator i;
+      std::map<int,std::string>* inputChannels = controller->getInputChannels();
+      std::cout << "Input Channels:" << std::endl;
+      for (i = inputChannels->begin(); i != inputChannels->end(); i++)
+        std::cout << i->first << "," << i->second << std::endl;
+      std::map<int,std::string>* outputChannels = controller->getOutputChannels();
+      std::cout << "Output Channels:" << std::endl;
+      for (i = outputChannels->begin(); i != outputChannels->end(); i++)
+        std::cout << i->first << "," << i->second << std::endl;
+
+      char* inputValues[] = {"0", "2", "-90", "90", "20"};
+      std::vector<std::string> inputArguments(inputValues, inputValues + sizeof(inputValues) / sizeof(char*) );
+      controller->inputChannelSubscribe(1, inputArguments);
+      char* outputValues[] = {"-90", "90", "0.1", "20"};
+      std::vector<std::string> outputArguments(outputValues, outputValues + sizeof(outputValues) / sizeof(char*) );
+      controller->outputChannelSubscribe(1, outputArguments);
       std::vector< std::vector<int> > spikes;
 
       while(true)

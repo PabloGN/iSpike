@@ -12,6 +12,7 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
 #include <time.h>
+#include <boost/lexical_cast.hpp>
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
@@ -62,25 +63,31 @@ void JointInputChannel::workerFunction()
   }
 }
 
-void JointInputChannel::start()
+void JointInputChannel::start(std::vector<std::string> arguments)
 {
   if(!initialised)
   {
-    this->buffer = new std::vector< std::vector<int> >();
-    this->reader->start();
-    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this))));
-    initialised = true;
-    std::cout << "initialised" << std::endl;
+    if(arguments.size() != 5)
+      std::cout << "incorrect number of arguments" << std::endl;
+    else
+    {
+      this->buffer = new std::vector< std::vector<int> >();
+      this->degreeOfFreedom = boost::lexical_cast<int>(arguments[0]);
+      this->sd = boost::lexical_cast<double>(arguments[1]);
+      this->minAngle = boost::lexical_cast<double>(arguments[2]);
+      this->maxAngle = boost::lexical_cast<double>(arguments[3]);
+      this->numOfNeurons = boost::lexical_cast<int>(arguments[4]);
+      this->reader->start();
+      this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this))));
+      initialised = true;
+      std::cout << "initialised" << std::endl;
+    }
   }
 }
 
-JointInputChannel::JointInputChannel(YarpAngleReader* reader, int degreeOfFreedom, int sd, int minAngle, int maxAngle, int numOfNeurons)
+JointInputChannel::JointInputChannel(YarpAngleReader* reader)
 {
   this->initialised = false;
   this->setReader(reader);
-  this->degreeOfFreedom = degreeOfFreedom;
-  this->sd = sd;
-  this->minAngle = minAngle;
-  this->maxAngle = maxAngle;
-  this->numOfNeurons = numOfNeurons;
+  this->description = "A Joint Input Channel. Arguments: [ degreeOfFreedom, sd, minAngle, maxAngle, numOfNeurons ]";
 }

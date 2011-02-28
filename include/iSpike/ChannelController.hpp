@@ -9,6 +9,8 @@
 #define CHANNELCONTROLLER_HPP_
 
 #include <map>
+#include <vector>
+#include <string>
 #include <iSpike/Channel/InputChannel.hpp>
 #include <iSpike/Channel/OutputChannel.hpp>
 
@@ -20,12 +22,12 @@ class ChannelController
 
   public:
     ChannelController();
-    void inputChannelSubscribe(int channelId);
-    void outputChannelSubscribe(int channelId);
+    void inputChannelSubscribe(int channelId, std::vector<std::string> arguments);
+    void outputChannelSubscribe(int channelId, std::vector<std::string> arguments);
     std::vector< std::vector<int> > getFiring(int channelId);
     void setFiring(int channelId, std::vector<int>* spikes);
-    void getInputChannels();
-    void getOutputChannels();
+    std::map<int, std::string>* getInputChannels();
+    std::map<int, std::string>* getOutputChannels();
 
 };
 

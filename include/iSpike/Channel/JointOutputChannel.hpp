@@ -39,7 +39,7 @@ public:
   /**
    * Initialises the channel
    */
-  void start();
+  void start(std::vector<std::string> arguments);
 
   YarpAngleWriter* getWriter() const
   {
@@ -51,7 +51,7 @@ public:
       this->writer = writer;
   }
 
-  JointOutputChannel(YarpAngleWriter* writer, double maxAngle, double minAngle, double rateOfDecay, double numOfNeurons);
+  JointOutputChannel(YarpAngleWriter* writer);
 
   boost::shared_ptr<boost::thread> getThreadPointer()
   {

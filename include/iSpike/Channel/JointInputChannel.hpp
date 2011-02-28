@@ -43,12 +43,12 @@ public:
   /**
    * @param The reader where the image is retrieved from
    */
-  JointInputChannel(YarpAngleReader* reader, int degreeOfFreedom, int sd, int minAngle, int maxAngle, int numOfNeurons);
+  JointInputChannel(YarpAngleReader* reader);
 
   /**
-   *  Initialised the channel and starts the conversion thread
+   *  Initialises the channel and starts the conversion thread
    */
-  void start();
+  void start(std::vector<std::string> arguments);
 
   /**
    * Retrieves the spike pattern

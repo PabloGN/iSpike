@@ -16,14 +16,22 @@
 #include <iSpike/Channel/JointOutputChannel.hpp>
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 
-void ChannelController::getInputChannels()
+std::map<int, std::string>* ChannelController::getInputChannels()
 {
-
+  std::map<int, InputChannel*>::iterator i;
+  std::map<int, std::string>* result = new std::map<int, std::string>();
+  for (i = this->inputChannelDirectory->begin(); i != this->inputChannelDirectory->end(); i++)
+    result->insert(std::pair<int, std::string>(i->first, i->second->getDescription()));
+  return result;
 }
 
-void ChannelController::getOutputChannels()
+std::map<int, std::string>* ChannelController::getOutputChannels()
 {
-
+  std::map<int, OutputChannel*>::iterator i;
+  std::map<int, std::string>* result = new std::map<int, std::string>();
+  for (i = this->outputChannelDirectory->begin(); i != this->outputChannelDirectory->end(); i++)
+    result->insert(std::pair<int, std::string>(i->first, i->second->getDescription()));
+  return result;
 }
 
 std::vector< std::vector<int> > ChannelController::getFiring(int channelId)
@@ -59,32 +67,32 @@ ChannelController::ChannelController()
   this->inputChannelDirectory = new std::map<int, InputChannel*>();
   this->outputChannelDirectory = new std::map<int, OutputChannel*>();
   YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o", "127.0.0.1", "10006");
-  JointInputChannel* readerChannel = new JointInputChannel(jointReader, 0, 2, -90, 90, 20);
+  JointInputChannel* readerChannel = new JointInputChannel(jointReader);
   this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, readerChannel));
   YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i", "127.0.0.1", "10006");
-  JointOutputChannel* writerChannel = new JointOutputChannel(jointWriter, -90, 90, 0.1, 20);
+  JointOutputChannel* writerChannel = new JointOutputChannel(jointWriter);
   this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, writerChannel));
   //const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";
   //FileVisualReader* fileReader = new FileVisualReader(filename);
   //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new VisualInputChannel(fileReader)));
 }
 
-void ChannelController::inputChannelSubscribe(int channelId)
+void ChannelController::inputChannelSubscribe(int channelId, std::vector<std::string> channelArguments)
 {
   std::map<int, InputChannel*>::iterator iter = inputChannelDirectory->find(channelId);
   if (iter != inputChannelDirectory->end() )
   {
-    iter->second->start();
+    iter->second->start(channelArguments);
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
 }
-void ChannelController::outputChannelSubscribe(int channelId)
+void ChannelController::outputChannelSubscribe(int channelId, std::vector<std::string> channelArguments)
 {
   std::map<int, OutputChannel*>::iterator iter = outputChannelDirectory->find(channelId);
   if (iter != outputChannelDirectory->end() )
   {
-    iter->second->start();
+    iter->second->start(channelArguments);
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }
