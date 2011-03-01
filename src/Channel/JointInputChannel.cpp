@@ -32,8 +32,8 @@ void JointInputChannel::workerFunction()
 
   while(true)
   {
-    boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
-    boost::posix_time::time_duration start( time.time_of_day() );
+    //boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
+    //boost::posix_time::time_duration start( time.time_of_day() );
 
     std::vector<double> angles = this->reader->getData();
     std::vector<double> voltages(this->numOfNeurons);
@@ -57,10 +57,18 @@ void JointInputChannel::workerFunction()
       delete spikes;
     }
 
-    time = boost::posix_time::microsec_clock::local_time();
-    boost::posix_time::time_duration finish( time.time_of_day() );
-    boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
+    //time = boost::posix_time::microsec_clock::local_time();
+    //boost::posix_time::time_duration finish( time.time_of_day() );
+   // boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
+    std::cout << "About to yield..." << std::endl;
+    boost::mutex::scoped_lock lk(this->wait_mutex);
+    this->wait_condition.wait(lk);
   }
+}
+
+void JointInputChannel::step()
+{
+  this->wait_condition.notify_all();
 }
 
 void JointInputChannel::start(std::vector<std::string> arguments)

@@ -13,6 +13,8 @@
 #include <iSpike/Channel/InputChannel.hpp>
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+
 
 /**
  * @class JointInputChannel
@@ -30,7 +32,8 @@ private:
   YarpAngleReader* reader;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
-  boost::mutex mutex;
+  boost::condition wait_condition;
+  boost::mutex mutex, wait_mutex;
   bool initialised;
   int numOfNeurons;
   int degreeOfFreedom;
@@ -59,6 +62,8 @@ public:
   {
       return threadPointer;
   }
+
+  void step();
 
   void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
   {

@@ -41,6 +41,11 @@ JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer)
   this->description = "A Joint Output Channel. Arguments: [ minAngle, maxAngle, rateOfDecay, numOfNeurons ]";
 }
 
+void JointOutputChannel::step()
+{
+  this->threadPointer->interrupt();
+}
+
 void JointOutputChannel::workerFunction()
 {
   int sleepAmount = 1;
@@ -90,6 +95,8 @@ void JointOutputChannel::workerFunction()
         this->writer->addAngle(angle);
       }
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
+    //boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
+    boost::mutex::scoped_lock lk(this->wait_mutex);
+    this->wait_condition.wait(lk);
   }
 }

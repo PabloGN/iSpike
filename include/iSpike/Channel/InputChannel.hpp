@@ -26,6 +26,8 @@ public:
    * Initialised the channel
    */
   virtual void start(std::vector<std::string> arguments) = 0;
+
+  virtual void step() = 0;
 };
 
 #endif /* INPUTCHANNEL_H_ */

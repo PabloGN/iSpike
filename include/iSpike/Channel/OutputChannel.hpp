@@ -27,6 +27,8 @@ public:
    * Initialises the channel
    */
   virtual void start(std::vector<std::string> arguments) = 0;
+
+  virtual void step() = 0;
 };
 
 #endif /* OUTPUTCHANNEL_H_ */

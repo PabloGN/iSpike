@@ -34,6 +34,34 @@ std::map<int, std::string>* ChannelController::getOutputChannels()
   return result;
 }
 
+void ChannelController::stepInputChannel(int channelId)
+{
+  std::map<int, InputChannel*>::iterator iter = inputChannelDirectory->find(channelId);
+    if (iter != inputChannelDirectory->end() )
+    {
+      if(iter->second->isInitialised())
+        return iter->second->step();
+      else
+        std::cout << "Input Channel " << channelId << " has not been initialised!";
+    } else {
+      std::cout << "Iterator is empty!" << std::endl;
+    }
+}
+
+void ChannelController::stepOutputChannel(int channelId)
+{
+  std::map<int, OutputChannel*>::iterator iter = outputChannelDirectory->find(channelId);
+    if (iter != outputChannelDirectory->end() )
+    {
+      if(iter->second->isInitialised())
+        return iter->second->step();
+      else
+        std::cout << "Output Channel " << channelId << " has not been initialised!";
+    } else {
+      std::cout << "Iterator is empty!" << std::endl;
+    }
+}
+
 std::vector< std::vector<int> > ChannelController::getFiring(int channelId)
 {
   std::map<int, InputChannel*>::iterator iter = inputChannelDirectory->find(channelId);

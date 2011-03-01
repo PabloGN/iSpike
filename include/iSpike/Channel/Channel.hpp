@@ -90,6 +90,8 @@ public:
   }
 
   virtual bool isInitialised() = 0;
+
+  virtual void step() = 0;
   //ChannelType getChannelType();
   //void setChannelType(ChannelType channelType);
 };

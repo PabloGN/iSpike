@@ -10,6 +10,7 @@
 
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/Channel/OutputChannel.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 #include <queue>
@@ -22,7 +23,8 @@ private:
   YarpAngleWriter* writer;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
-  boost::mutex mutex;
+  boost::condition wait_condition;
+  boost::mutex mutex, wait_mutex;
   bool initialised;
   int numOfNeurons;
   double minAngle;
@@ -67,6 +69,8 @@ public:
   {
     return this->initialised;
   }
+
+  void step();
 
 };
 

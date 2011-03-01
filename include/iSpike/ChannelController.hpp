@@ -26,6 +26,8 @@ class ChannelController
     void outputChannelSubscribe(int channelId, std::vector<std::string> arguments);
     std::vector< std::vector<int> > getFiring(int channelId);
     void setFiring(int channelId, std::vector<int>* spikes);
+    void stepInputChannel(int channelId);
+    void stepOutputChannel(int channelId);
     std::map<int, std::string>* getInputChannels();
     std::map<int, std::string>* getOutputChannels();
 

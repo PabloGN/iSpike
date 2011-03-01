@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
         //int neuronId = floor(angle / 10 + 0.5);
 
         //get fired spikes
+        controller->stepInputChannel(1);
         spikes = controller->getFiring(1);
         //spikes = std::vector< std::vector<int> >();
         //spikes.push_back(std::vector<int>(1,1));
@@ -60,7 +61,10 @@ int main(int argc, char* argv[])
         if(spikes.size() > 0)
         {
           for(int i = 0; i < spikes.size(); i++)
+          {
             controller->setFiring(1, &(spikes.at(i)));
+            controller->stepOutputChannel(1);
+          }
           std::cout << "[";
           for(int i = 0; i < spikes.front().size(); i++)
           {
