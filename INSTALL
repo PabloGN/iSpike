@@ -1,31 +1,19 @@
-== INSTALL ==
- 1.) Windows
- 2.) Mac OS X
- 3.) Linux
- 
-== Windows ==
+== Installing CMake ==
+1) Download CMake from: http://www.cmake.org/cmake/resources/software.html
+2) To install, follow instructions from: http://www.cmake.org/cmake/help/install.html
 
- If using Cygwin:
-    
-    ./configure
-    make
-    make install
-    
- If using Visual Studio:
- 
-    Follow the directions at the link for running CMake on Windows:
-    http://www.opentissue.org/wikitissue/index.php/Using_CMake
-    
-    NOTE: Select the "build" folder as the location to build the binaries.
-    
-== Mac OS X ==
+== Installing YARP ==
+1) To install YARP follow instructions from: http://eris.liralab.it/yarp/specs/dox/user/html/install.html
 
- ./configure
- make
- sudo make install
+== Installing the iCub Simulator ==
+1) To install the simulator, follow the instructions from: http://eris.liralab.it/wiki/ICub_Simulator_Installation
 
-== Linux ==
+== Installing Boost ==
+1) Get and install the latest Boost package from: http://www.boost.org/users/download/
 
- ./configure
- make
- sudo make install
+== Compiling the libraries ==
+
+1) Empty the contents of the "build" subdirectory
+2) Set the "build" subdirectory as your current directory (eg. cd)
+3) Run "cmake ../" with the appropriate platform flags, eg "cmake.exe" -G "MinGW Makefiles" ../ if you are using MinGW under Windows
+4) Run "make" in the make directory. To compile documentation, run "make doxygen"
