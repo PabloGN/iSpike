@@ -21,15 +21,6 @@ std::vector<double> FileAngleReader::getData()
   return *(this->buffer);
 }
 
-void FileAngleReader::start()
-{
-  if(!initialised)
-  {
-    initialised = true;
-    this->buffer = readAngleFromFile(fileName.c_str());
-  }
-}
-
 std::vector<double>* readAngleFromFile(const char* fileName)
 {
  std::ifstream fileStream;
@@ -54,6 +45,15 @@ std::vector<double>* readAngleFromFile(const char* fileName)
 
  return new std::vector<double>();
 
+}
+
+void FileAngleReader::start()
+{
+  if(!initialised)
+  {
+    initialised = true;
+    this->buffer = readAngleFromFile(fileName.c_str());
+  }
 }
 
 FileAngleReader::FileAngleReader(std::string fileName)
