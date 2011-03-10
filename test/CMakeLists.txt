@@ -1,6 +1,6 @@
 FILE (GLOB_RECURSE test_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 IF(WIN32)
-    SET (test_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} "C:/GnuWin32/bin/jpeg.dll" ${PROJECT_NAME} "ws2_32")
+    SET (test_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME} "ws2_32")
 ELSE()
     SET (test_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME})
 ENDIF()
