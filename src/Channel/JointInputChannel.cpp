@@ -6,13 +6,11 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 #include <vector>
-#include <sys/time.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
 #include <time.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/math/constants/constants.hpp>
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
@@ -45,7 +43,7 @@ void JointInputChannel::workerFunction()
           currentAngle = this->minAngle;
         else
           currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * i + this->minAngle;
-        double main = 1 / sqrt(2 * M_PI * pow(this->sd,2));
+        double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(this->sd,2));
         std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(this->sd,2));
         voltages[i] = main * exp(-exponent);

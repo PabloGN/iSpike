@@ -9,6 +9,7 @@
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/Common.hpp>
 #include <iostream>
+#include <boost/math/constants/constants.hpp>
 
 LogPolarVisualDataReducer::LogPolarVisualDataReducer(VisualReader* reader, int queryInterval)
 {
@@ -78,7 +79,7 @@ CoordMapType* LogPolarVisualDataReducer::initialisePolarToCartesianMap(Bitmap* i
   for(int y = 0; y < polarHeight; y++)
     for(int x = 0; x < polarWidth; x++)
     {
-      double theta = (2 * M_PI * y ) / polarHeight;
+      double theta = (2 * boost::math::constants::pi<double>() * y ) / polarHeight;
       double r = ( max_r * x ) / polarWidth;
       int cartesian_x;
       int cartesian_y;
@@ -136,13 +137,13 @@ CoordMapType* LogPolarVisualDataReducer::initialiseCartesianToPolarMap(Bitmap* i
       //  r = log(r);
       double theta = atan2(y - center_y, x - center_x);
       if(theta < 0)
-        theta += 2 * M_PI;
+        theta += 2 * boost::math::constants::pi<double>();
       int polar_x;
       //if(r <= foveaRadius)
         polar_x = (int)floor( ( r * polarWidth) / max_r + 0.5);
       //else
         //polar_x = (int)floor( ( r * polarWidth) / log_max_r + 0.5);
-      int polar_y = (int)floor( ( theta * polarHeight ) / ( 2 * M_PI ) + 0.5);
+      int polar_y = (int)floor( ( theta * polarHeight ) / ( 2 * boost::math::constants::pi<double>() ) + 0.5);
       polarToCartesianMap->insert(CoordMapType::value_type(std::make_pair(x,y), std::make_pair(polar_x,polar_y)));
       if(x == center_x + 10 && y == center_y + 10)
       {

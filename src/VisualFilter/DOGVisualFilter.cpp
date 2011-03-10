@@ -8,6 +8,7 @@
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
+#include <boost/math/constants/constants.hpp>
 
 DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval)
 {
@@ -95,7 +96,7 @@ unsigned char* DOGVisualFilter::gaussianBlur(unsigned char* image, double sigma,
   {
     int x = i - ceil( 3 * sigma );
     double k = exp( - ( (x * x) / ( 2 * sigma * sigma ) ) );
-    kernel[i] = k / sqrt( 2 * M_PI * sigma * sigma );
+    kernel[i] = k / sqrt( 2 * boost::math::constants::pi<double>() * sigma * sigma );
   }
 
   //iterate horizontally
