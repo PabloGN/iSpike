@@ -1,22 +1,24 @@
 /*
- * YarpAngleWriter.hpp
+ * FileAngleWriter.hpp
  *
- *  Created on: 23 Feb 2011
+ *  Created on: 9 Mar 2011
  *      Author: cembo
  */
 
-#ifndef YARPANGLEWRITER_HPP_
-#define YARPANGLEWRITER_HPP_
+#ifndef FILEANGLEWRITER_HPP_
+#define FILEANGLEWRITER_HPP_
 
 #include <queue>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iSpike/Writer/AngleWriter.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
-#include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/YarpConnection.hpp>
+#include <boost/lexical_cast.hpp>
 
-class YarpAngleWriter : public AngleWriter {
+class FileAngleWriter : public AngleWriter {
 
 private:
   std::queue<double>* angleList;
@@ -24,16 +26,11 @@ private:
   void workerFunction();
   boost::mutex mutex;
   bool initialised;
-  std::string portName;
-  YarpConnection* yarpConnection;
+  std::string fileName;
 
 public:
 
-  /**
-   * Constructor
-   * @param portName The YARP port where the joints commands are written to
-   */
-  YarpAngleWriter(std::string portName, std::string yarpIP, std::string yarpPort);
+  FileAngleWriter(std::string fileName);
 
   /**
    * Adds an angle to the processing queue
@@ -41,18 +38,18 @@ public:
   void addAngle(double angle);
 
   /**
-   * Initialises the reader and starts the main thread
+   * Initialises the writer and starts the main thread
    */
   void start();
 
-  std::string getPortName()
+  std::string getFileName()
   {
-    return this->portName;
+    return this->fileName;
   }
 
-  void setPortName(std::string portName)
+  void setFileName(std::string fileName)
   {
-    this->portName = portName;
+    this->fileName = fileName;
   }
 
   bool getInitialised()
@@ -77,4 +74,5 @@ public:
 
 };
 
-#endif /* YARPANGLEWRITER_HPP_ */
+
+#endif /* FILEANGLEWRITER_HPP_ */

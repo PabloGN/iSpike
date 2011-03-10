@@ -1,31 +1,29 @@
 /*
- * YarpAngleReader.hpp
+ * FileAngleReader.hpp
  *
- *  Created on: 22 Feb 2011
+ *  Created on: 9 Mar 2011
  *      Author: cembo
  */
 
-#ifndef YARPANGLEREADER_HPP_
-#define YARPANGLEREADER_HPP_
+#ifndef FILEANGLEREADER_HPP_
+#define FILEANGLEREADER_HPP_
 
 #include <iSpike/Reader/AngleReader.hpp>
-#include <iSpike/YarpConnection.hpp>
-#include <iSpike/Bitmap.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <vector>
 
 /**
- * @class YarpVisualReader
- * @brief YarpVisualReader class
+ * @class FileAngleReader
+ * @brief FileAngleReader class
  *
- * This class represents a YarpAngleReader, it retrieves a vector of joint angles from a given yarp port
+ * This class represents a FileAngleReader, it retrieves a vector of joint angles from a given file
  * and makes it available upon request
  *
  * @author Edgars Lazdins
  *
  */
-class YarpAngleReader : public AngleReader {
+class FileAngleReader : public AngleReader {
 
 private:
   std::vector<double>* buffer;
@@ -33,8 +31,7 @@ private:
   void workerFunction();
   boost::mutex mutex;
   bool initialised;
-  std::string portName;
-  YarpConnection* yarpConnection;
+  std::string fileName;
 
 public:
 
@@ -45,23 +42,23 @@ public:
 
   /**
    * Constructor
-   * @param portName The YARP port where the joints are read from
+   * @param fileName The filename where the joints are read from
    */
-  YarpAngleReader(std::string portName, std::string yarpIP, std::string yarpPort);
+  FileAngleReader(std::string fileName);
 
   /**
    * Initialises the reader and starts the main thread
    */
   void start();
 
-  std::string getPortName()
+  std::string getFileName()
   {
-    return this->portName;
+    return this->fileName;
   }
 
-  void setPortName(std::string portName)
+  void setFileName(std::string fileName)
   {
-    this->portName = portName;
+    this->fileName = fileName;
   }
 
   bool getInitialised() const
@@ -86,4 +83,4 @@ public:
 
 };
 
-#endif /* YARPANGLEREADER_HPP_ */
+#endif /* FILEANGLEREADER_HPP_ */

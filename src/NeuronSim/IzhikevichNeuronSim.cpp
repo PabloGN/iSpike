@@ -2,7 +2,7 @@
  * IzhikevichNeuronSim.cpp
  *
  *  Created on: 6 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #include <vector>

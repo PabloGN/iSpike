@@ -29,7 +29,7 @@ class JointInputChannel : public InputChannel {
 
 private:
   std::vector< std::vector<int> >* buffer;
-  YarpAngleReader* reader;
+  AngleReader* reader;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
   boost::condition wait_condition;
@@ -46,7 +46,7 @@ public:
   /**
    * @param The reader where the image is retrieved from
    */
-  JointInputChannel(YarpAngleReader* reader);
+  JointInputChannel(AngleReader* reader);
 
   /**
    *  Initialises the channel and starts the conversion thread
@@ -70,12 +70,12 @@ public:
       this->threadPointer = threadPointer;
   }
 
-  YarpAngleReader* getReader() const
+  AngleReader* getReader() const
   {
       return reader;
   }
 
-  void setReader(YarpAngleReader *reader)
+  void setReader(AngleReader *reader)
   {
       this->reader = reader;
   }

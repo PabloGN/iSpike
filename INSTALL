@@ -3,7 +3,7 @@
 2) To install, follow instructions from: http://www.cmake.org/cmake/help/install.html
 
 == Installing YARP ==
-1) To install YARP follow instructions from: http://eris.liralab.it/yarp/specs/dox/user/html/install.html
+1) To install YARP follow instructions from: http://eris.liralab.it/yarpdoc/install.html
 
 == Installing the iCub Simulator ==
 1) To install the simulator, follow the instructions from: http://eris.liralab.it/wiki/ICub_Simulator_Installation

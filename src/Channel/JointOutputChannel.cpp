@@ -2,7 +2,7 @@
  * JointOutputChannel.cpp
  *
  *  Created on: 23 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 #include <iSpike/Channel/JointOutputChannel.hpp>
 #include <iostream>
@@ -34,7 +34,7 @@ void JointOutputChannel::start(std::vector<std::string> arguments)
   }
 }
 
-JointOutputChannel::JointOutputChannel(YarpAngleWriter* writer)
+JointOutputChannel::JointOutputChannel(AngleWriter* writer)
 {
   this->initialised = false;
   this->setWriter(writer);
@@ -48,7 +48,6 @@ void JointOutputChannel::step()
 
 void JointOutputChannel::workerFunction()
 {
-  int sleepAmount = 1;
   std::vector<double> variables(this->numOfNeurons,0);
   while(true)
   {
@@ -76,7 +75,7 @@ void JointOutputChannel::workerFunction()
       std::cout << "[";
       for(unsigned int i = 0; i < variables.size(); i++)
       {
-        variables[i] = variables[i] * exp(-(this->rateOfDecay));
+        //variables[i] = variables[i] * exp(-(this->rateOfDecay));
         std::cout << variables[i] << ", ";
       }
       std::cout << "]" << std::endl;
@@ -95,7 +94,6 @@ void JointOutputChannel::workerFunction()
         this->writer->addAngle(angle);
       }
     }
-    //boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
     boost::mutex::scoped_lock lk(this->wait_mutex);
     this->wait_condition.wait(lk);
   }

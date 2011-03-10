@@ -2,7 +2,7 @@
  * ChannelController.cpp
  *
  *  Created on: 7 Jan 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 #include <string>
 #include <iostream>
@@ -15,6 +15,8 @@
 #include <iSpike/Channel/JointInputChannel.hpp>
 #include <iSpike/Channel/JointOutputChannel.hpp>
 #include <iSpike/Writer/YarpAngleWriter.hpp>
+#include <iSpike/Reader/FileAngleReader.hpp>
+#include <iSpike/Writer/FileAngleWriter.hpp>
 
 std::map<int, std::string>* ChannelController::getInputChannels()
 {
@@ -94,10 +96,12 @@ ChannelController::ChannelController()
 {
   this->inputChannelDirectory = new std::map<int, InputChannel*>();
   this->outputChannelDirectory = new std::map<int, OutputChannel*>();
-  YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o", "127.0.0.1", "10006");
+  //YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o", "127.0.0.1", "10006");
+  FileAngleReader* jointReader = new FileAngleReader("anglesIn.txt");
   JointInputChannel* readerChannel = new JointInputChannel(jointReader);
   this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, readerChannel));
-  YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i", "127.0.0.1", "10006");
+  //YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i", "127.0.0.1", "10006");
+  FileAngleWriter* jointWriter = new FileAngleWriter("anglesOut.txt");
   JointOutputChannel* writerChannel = new JointOutputChannel(jointWriter);
   this->outputChannelDirectory->insert(std::pair<int, OutputChannel*>(1, writerChannel));
   //const char* filename = "C:\\Users\\cembo\\workspace\\SpikeAdapter\\bin\\image.ppm";

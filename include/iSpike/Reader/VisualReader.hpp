@@ -9,11 +9,9 @@
 #define VISUALREADER_HPP_
 
 #include <iSpike/Reader/Reader.hpp>
-#include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
-#include <boost/gil/gil_all.hpp>
 
 /**
  * @class VisualReader

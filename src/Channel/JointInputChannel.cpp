@@ -27,7 +27,6 @@ void JointInputChannel::workerFunction()
   std::cout << "The thread has started." << std::endl;
   timeval time;
   gettimeofday(&time,NULL);
-  int sleepAmount = 1;
   IzhikevichNeuronSim neuronSim(this->numOfNeurons, 0.1, 0.2, -65, 2);
 
   while(true)
@@ -47,6 +46,7 @@ void JointInputChannel::workerFunction()
         else
           currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * i + this->minAngle;
         double main = 1 / sqrt(2 * M_PI * pow(this->sd,2));
+        std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(this->sd,2));
         voltages[i] = main * exp(-exponent);
       }
@@ -93,7 +93,7 @@ void JointInputChannel::start(std::vector<std::string> arguments)
   }
 }
 
-JointInputChannel::JointInputChannel(YarpAngleReader* reader)
+JointInputChannel::JointInputChannel(AngleReader* reader)
 {
   this->initialised = false;
   this->setReader(reader);

@@ -2,7 +2,7 @@
  * LogpolarVisualDataReducer.cpp
  *
  *  Created on: 5 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 #include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>

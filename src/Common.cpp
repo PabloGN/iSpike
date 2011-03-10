@@ -2,7 +2,7 @@
  * Common.cpp
  *
  *  Created on: 7 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #include <iSpike/Common.hpp>

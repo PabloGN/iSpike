@@ -38,7 +38,6 @@ void YarpVisualReader::workerFunction()
   }
   this->yarpConnection->connect_to_port(ip, port);
   this->yarpConnection->prepare_to_read_binary();
-  bool toggler = false;
   while(true)
   {
     Bitmap* image = this->yarpConnection->read_image();

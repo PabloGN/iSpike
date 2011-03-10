@@ -2,7 +2,7 @@
  * YarpAngleReader.cpp
  *
  *  Created on: 22 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #include <iSpike/Reader/YarpAngleReader.hpp>

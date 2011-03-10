@@ -2,7 +2,7 @@
  * YarpAngleWriter.cpp
  *
  *  Created on: 23 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #include <iSpike/Writer/YarpAngleWriter.hpp>

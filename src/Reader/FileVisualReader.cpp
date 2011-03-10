@@ -22,7 +22,6 @@ void FileVisualReader::start()
 
 Bitmap* readPPMImage(const char* fname)
 {
- int i, j;
  int N, M, Q;
  char header [100], *ptr;
  std::ifstream ifp;
