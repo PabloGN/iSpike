@@ -25,8 +25,6 @@ std::vector< std::vector<int> > VisualInputChannel::getFiring()
 void VisualInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
-  timeval time;
-  gettimeofday(&time,NULL);
   while(true)
   {
     boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();

@@ -22,8 +22,6 @@ std::vector< std::vector<int> > JointInputChannel::getFiring()
 void JointInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
-  timeval time;
-  gettimeofday(&time,NULL);
   IzhikevichNeuronSim neuronSim(this->numOfNeurons, 0.1, 0.2, -65, 2);
 
   while(true)
