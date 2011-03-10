@@ -8,7 +8,6 @@
 #include <vector>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
-#include <time.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 
