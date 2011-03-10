@@ -8,12 +8,10 @@
 #include <boost/asio.hpp>
 #include <boost/thread/mutex.hpp>
 #include <vector>
-#include <sys/time.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
-#include <time.h>
 #include <boost/lexical_cast.hpp>
 
 std::vector< std::vector<int> > VisualInputChannel::getFiring()

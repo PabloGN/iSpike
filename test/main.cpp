@@ -17,7 +17,6 @@
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
 #include <boost/thread/thread.hpp>
-#include <pthread.h>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 int main(int argc, char* argv[])
