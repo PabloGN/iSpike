@@ -1,3 +1,4 @@
 cd ./build
 del * /Q
-cmake -G "MinGW Makefiles" ../
+REM cmake -G "MinGW Makefiles" ../
+cmake -G "Visual Studio 9 2008" ../

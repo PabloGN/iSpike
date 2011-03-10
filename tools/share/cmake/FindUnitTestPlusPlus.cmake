@@ -4,11 +4,11 @@
 #
 IF(WIN32)
 set(_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS
-	F:/UnitTest++/src
+	C:/Users/daogamez/Home/Programs/UnitTest++/src
 )
 
 set(_UnitTestPlusPlus_LIB_SEARCH_DIRS
-	F:/UnitTest++/lib
+	C:/Users/daogamez/Home/Programs/UnitTest++/Debug
 )
 ELSE()
 set(_UnitTestPlusPlus_INCLUDE_SEARCH_DIRS
