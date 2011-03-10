@@ -26,6 +26,7 @@ void FileAngleReader::start()
   if(!initialised)
   {
     initialised = true;
+    this->buffer = readAngleFromFile(fileName.c_str());
   }
 }
 
@@ -57,5 +58,5 @@ std::vector<double>* readAngleFromFile(const char* fileName)
 
 FileAngleReader::FileAngleReader(std::string fileName)
 {
-  this->buffer = readAngleFromFile(fileName.c_str());
+	this->buffer = new std::vector<double>();
 }
