@@ -43,7 +43,27 @@ std::vector<double>* readAngleFromFile(const char* fileName)
 
  fileStream.close();
 
- return new std::vector<double>();
+ std::vector<double> *angles = new std::vector<double>();
+ boost::regex split_string(" ");
+ std::list<std::string> lines;
+ boost::regex_split(std::back_inserter(lines), contents, split_string);
+ while(lines.size() > 0)
+ {
+   std::string current_string = *(lines.begin());
+   lines.pop_front();
+   try
+   {
+     double angle = boost::lexical_cast<double>(current_string);
+     angles->push_back(angle);
+   }
+   catch(boost::bad_lexical_cast &)
+   {
+     std::cout << "could not convert " << current_string << " to double" << std::endl;
+     break;
+   }
+ }
+
+ return angles;
 
 }
 

@@ -18,12 +18,20 @@
 #include <iSpike/Common.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <iSpike/Property.hpp>
 
 int main(int argc, char* argv[])
 {
       //Neuron Network Size
       int width = 320;
       int height = 240;
+      Property* prop = new IntegerProperty("aaa", 69, "bbb");
+      if (prop->getType() == Property::Integer)
+      {
+        int* pValue = (int*)(prop->getValue());
+        std::cout << *pValue << std::endl;
+      }
+      return 1;
 
       ChannelController* controller = new ChannelController();
       std::map<int, std::string>::iterator i;

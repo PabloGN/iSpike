@@ -31,8 +31,12 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 SET (MAINFOLDER "${PROJECT_SOURCE_DIR}")
 SET (EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
 SET (LIBRARY_OUTPUT_PATH "${MAINFOLDER}/lib")
+
+#
+# Library build options
+#
 SET (project_build_shared 1)
-SET (project_build_static 1)
+SET (project_build_static 0)
 
 #
 # Project Search Paths
@@ -53,7 +57,7 @@ INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
 #SET(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "")
 #SET(BOOST_ALL_NO_LIB,1)
 SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0" "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0" "1.47" "1.47.0" "1.48" "1.48.0" "1.49" "1.49.0" "1.50" "1.50.0")
-SET(Boost_USE_STATIC_LIBS ON)
+#SET(Boost_USE_STATIC_LIBS ON)
 #SET(Boost_USE_MULTITHREADED ON)
 #SET(Boost_NO_EXCEPTIONS OFF)
 #SET (Boost_LIBRARYDIR "C:/Boost/boost_1_42/lib")
