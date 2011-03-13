@@ -11,13 +11,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <iSpike/Property.hpp>
+#include <map>
 
-Property* propertyArray[2] = {
-    new IntegerProperty("width", 320, "something"),
-    new IntegerProperty("height", 240, "something")
-};
-
-std::vector<Property*> JointInputChannel::properties(propertyArray, propertyArray + sizeof(propertyArray) / sizeof(Property*) );
+std::map<std::string,Property*> JointInputChannel::properties = JointInputChannel::initialiseProperties();
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {

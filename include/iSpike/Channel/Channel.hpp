@@ -2,6 +2,8 @@
 #define CHANNEL_H_
 
 #include <string>
+#include <map>
+#include <iSpike/Property.hpp>
 
 /**
  * @class Channel
@@ -28,6 +30,8 @@ protected:
   std::string description;
 
 public:
+
+  virtual ~Channel() = 0;
 
   /**
    * Retrieves the Channel Identifier

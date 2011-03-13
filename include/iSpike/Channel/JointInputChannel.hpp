@@ -15,6 +15,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <iSpike/Property.hpp>
+#include <map>
 
 /**
  * @class JointInputChannel
@@ -43,7 +44,15 @@ private:
 
 public:
 
-  static std::vector<Property*> properties;
+  static std::map<std::string,Property*> initialiseProperties()
+  {
+    std::map<std::string,Property*> properties;
+    properties["width"] = new IntegerProperty("width", 320, "This is width");
+    properties["height"] = new IntegerProperty("height", 240, "This is height");
+    return properties;
+  }
+
+  static std::map<std::string,Property*> properties;
 
   /**
    * @param The reader where the image is retrieved from

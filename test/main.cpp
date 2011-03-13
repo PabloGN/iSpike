@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <iSpike/ChannelController.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/Reader/YarpTextReader.hpp>
@@ -26,11 +27,11 @@ int main(int argc, char* argv[])
       //Neuron Network Size
       int width = 320;
       int height = 240;
-      for(int i = 0; i < JointInputChannel::properties.size(); i++)
+      for(std::map<std::string,Property*>::iterator iter = JointInputChannel::properties.begin(); iter != JointInputChannel::properties.end(); ++iter)
       {
-        if(JointInputChannel::properties[i]->getType() == Property::Integer)
+        if(iter->second->getType() == Property::Integer)
         {
-          IntegerProperty* currentProperty = (IntegerProperty*)JointInputChannel::properties[i];
+          IntegerProperty* currentProperty = (IntegerProperty*) iter->second;
           std::cout << currentProperty->getName() << " " << currentProperty->getValue() << " " << currentProperty->getDescription() << std::endl;
         }
       }
