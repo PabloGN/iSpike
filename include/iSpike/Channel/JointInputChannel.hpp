@@ -14,7 +14,7 @@
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-
+#include <iSpike/Property.hpp>
 
 /**
  * @class JointInputChannel
@@ -42,6 +42,8 @@ private:
   double maxAngle;
 
 public:
+
+  static std::vector<Property*> properties;
 
   /**
    * @param The reader where the image is retrieved from

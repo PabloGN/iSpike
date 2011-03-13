@@ -14,6 +14,7 @@
 #include <iSpike/Reader/YarpTextReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Channel/VisualInputChannel.hpp>
+#include <iSpike/Channel/JointInputChannel.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
 #include <boost/thread/thread.hpp>
@@ -25,11 +26,13 @@ int main(int argc, char* argv[])
       //Neuron Network Size
       int width = 320;
       int height = 240;
-      Property* prop = new IntegerProperty("aaa", 69, "bbb");
-      if (prop->getType() == Property::Integer)
+      for(int i = 0; i < JointInputChannel::properties.size(); i++)
       {
-        int* pValue = (int*)(prop->getValue());
-        std::cout << *pValue << std::endl;
+        if(JointInputChannel::properties[i]->getType() == Property::Integer)
+        {
+          IntegerProperty* currentProperty = (IntegerProperty*)JointInputChannel::properties[i];
+          std::cout << currentProperty->getName() << " " << currentProperty->getValue() << " " << currentProperty->getDescription() << std::endl;
+        }
       }
       return 1;
 

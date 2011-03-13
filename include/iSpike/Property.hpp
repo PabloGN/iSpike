@@ -28,8 +28,6 @@ class Property
 
   public:
 
-    virtual void* getValue() = 0;
-
     ValueType getType()
     {
       return this->type;
@@ -57,9 +55,9 @@ class IntegerProperty : public Property
 
   public:
 
-    void* getValue()
+    int getValue()
     {
-      return &(this->value);
+      return this->value;
     }
 
     IntegerProperty(std::string paramName, int paramValue, std::string paramDescription)
@@ -81,9 +79,9 @@ class DoubleProperty : public Property
 
   public:
 
-    void* getValue()
+    double getValue()
     {
-      return &(this->value);
+      return this->value;
     }
 
     DoubleProperty(std::string paramName, double paramValue, std::string paramDescription)
@@ -105,9 +103,9 @@ class StringProperty : public Property
 
   public:
 
-    void* getValue()
+    std::string getValue()
     {
-      return &(this->value);
+      return this->value;
     }
 
     StringProperty(std::string paramName, std::string paramValue, std::string paramDescription)
