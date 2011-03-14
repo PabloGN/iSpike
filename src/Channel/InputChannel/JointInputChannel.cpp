@@ -13,13 +13,6 @@
 #include <iSpike/Property.hpp>
 #include <map>
 
-InputChannelDescription JointInputChannel::channelDescription(
-    "Joint Input Channel",
-    "This is a joint input channel",
-    "Angle Reader",
-    JointInputChannel::initialiseProperties()
-);
-
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
   boost::mutex::scoped_lock lock(this->mutex);
@@ -86,7 +79,7 @@ void JointInputChannel::start()
   }
 }
 
-JointInputChannel::JointInputChannel(AngleReader* reader, std::map<std::string,Property*> properties)
+void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
   this->buffer = new std::vector< std::vector<int> >();

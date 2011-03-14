@@ -17,21 +17,23 @@
 class ReaderFactory {
 
 private:
-  static std::vector<ReaderDescription> readerList;
-  static std::vector<ReaderDescription> initialiseReaderList()
-  {
-    std::vector<ReaderDescription> readerList;
-
-    readerList.push_back(FileAngleReader::readerDescription);
-    return readerList;
-  }
+  std::vector<ReaderDescription> readerList;
 
 public:
 
   /*
+   * Default constructor
+   * Initialises the list of readers, if you've made a new reader, add it here!
+   */
+  ReaderFactory()
+  {
+    this->readerList.push_back(FileAngleReader().getReaderDescription());
+  }
+
+  /*
    * Returns all readers of a particular type
    */
-  static std::vector<ReaderDescription> getReadersOfType(std::string readerType)
+  std::vector<ReaderDescription> getReadersOfType(std::string readerType)
   {
     std::vector<ReaderDescription> result;
     for(int i = 0; i < readerList.size(); i++)

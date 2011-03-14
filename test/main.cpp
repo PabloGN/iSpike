@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
       //get all input channels and output them to the console
       std::vector<InputChannelDescription> inputChannelDescriptions = InputChannelFactory::getAllChannels();
       std::cout << "Available Input Channels:" << std::endl;
-      for(int i = 0; i <inputChannelDescriptions.size(); i++)
+      for(int i = 0; i < inputChannelDescriptions.size(); i++)
       {
         std::cout << i << ": " << inputChannelDescriptions[i].getChannelName() << ": " << inputChannelDescriptions[i].getChannelDescription() << std::endl;
       }
@@ -89,7 +89,8 @@ int main(int argc, char* argv[])
 
       //now find all Readers that are supported by that channel
       std::string readerType = inputChannelDescriptions[selectedChannel].getReaderType();
-      std::vector<ReaderDescription> readerDescriptions = ReaderFactory::getReadersOfType(readerType);
+      ReaderFactory readerFactory;
+      std::vector<ReaderDescription> readerDescriptions = readerFactory.getReadersOfType(readerType);
       std::cout << "Available Readers for this Channel:" << std::endl;
       for(int i = 0; i < readerDescriptions.size(); i++)
       {

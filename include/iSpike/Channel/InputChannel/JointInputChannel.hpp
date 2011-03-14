@@ -42,13 +42,15 @@ private:
   double sd;
   double minAngle;
   double maxAngle;
+  InputChannelDescription* channelDescription;
 
 public:
 
-  static InputChannelDescription channelDescription;
-
-  static std::map<std::string,Property*> initialiseProperties()
+  JointInputChannel()
   {
+    /**
+     * First define the properties of this channel
+     */
     std::map<std::string,Property*> properties;
     properties["Degree Of Freedom"] = new IntegerProperty(
           "Degree Of Freedom",
@@ -75,14 +77,26 @@ public:
           20,
           "The number of neurons to create"
         );
-    return properties;
+    /**
+     * Now let's create the description
+     */
+    this->channelDescription = new InputChannelDescription(
+          "Joint Input Channel",
+          "This is a joint input channel",
+          "Angle Reader",
+          properties
+        );
+  }
+
+  void initialise(AngleReader* reader)
+  {
+    initialise(reader, channelDescription->getChannelProperties());
   }
 
   /**
    * @param The reader where the image is retrieved from
    */
-
-  JointInputChannel(AngleReader* reader, std::map<std::string,Property*> properties = JointInputChannel::channelDescription.getChannelProperties());
+  void initialise(AngleReader* reader, std::map<std::string,Property*> properties);
 
   /**
    *  Initialises the channel and starts the conversion thread
@@ -119,6 +133,11 @@ public:
   bool isInitialised()
   {
     return this->initialised;
+  }
+
+  InputChannelDescription getChannelDescription()
+  {
+    return *(channelDescription);
   }
 
 };

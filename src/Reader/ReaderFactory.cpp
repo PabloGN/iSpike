@@ -5,5 +5,3 @@
  *      Author: cembo
  */
 #include <iSpike/Reader/ReaderFactory.hpp>
-
-std::vector<ReaderDescription> ReaderFactory::readerList = ReaderFactory::initialiseReaderList();

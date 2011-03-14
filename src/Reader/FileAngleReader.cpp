@@ -17,13 +17,6 @@
 #include <boost/lexical_cast.hpp>
 #include <iSpike/Property.hpp>
 
-ReaderDescription FileAngleReader::readerDescription(
-    "Joint Input Channel",
-    "This is a joint input channel",
-    "Angle Reader",
-    FileAngleReader::initialiseProperties()
-);
-
 std::vector<double> FileAngleReader::getData()
 {
   return *(this->buffer);
@@ -84,8 +77,8 @@ void FileAngleReader::start()
   }
 }
 
-FileAngleReader::FileAngleReader(std::map<std::string,Property*> properties)
+void FileAngleReader::initialise(std::map<std::string,Property*> properties)
 {
 	this->buffer = new std::vector<double>();
-	//this->fileName = ((StringProperty*)(properties["Filename"]))->getValue();
+	this->fileName = ((StringProperty*)(properties["Filename"]))->getValue();
 }

@@ -13,6 +13,7 @@
 #include <iSpike/Property.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
+#include <string>
 #include <vector>
 
 /**
@@ -34,20 +35,33 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string fileName;
+  ReaderDescription* readerDescription;
 
 public:
 
-  static ReaderDescription readerDescription;
-
-  static std::map<std::string,Property*> initialiseProperties()
+  /*
+   * The default constructor, only initialises the default parameters and the description
+   */
+  FileAngleReader()
   {
+    /**
+     * First define the properties of this reader
+     */
     std::map<std::string,Property*> properties;
-    properties["Degree Of Freedom"] = new IntegerProperty(
-          "Degree Of Freedom",
-          0,
-          "The degree of freedom to read from this joint"
+    properties["Filename"] = new StringProperty(
+          "Filename",
+          "anglesIn.txt",
+          "The file where the angles will be read from"
         );
-    return properties;
+    /**
+     * Now let's create the description
+     */
+    this->readerDescription = new ReaderDescription(
+          "File Angle Reader",
+          "This is a file angle reader",
+          "Angle Reader",
+          properties
+        );
   }
 
   /**
@@ -55,16 +69,25 @@ public:
    */
   std::vector<double> getData();
 
-  /**
-   * Constructor
-   * @param fileName The filename where the joints are read from
-   */
-  FileAngleReader(std::map<std::string,Property*> properties = FileAngleReader::readerDescription.getReaderProperties());
+  void initialise()
+  {
+    initialise(readerDescription->getReaderProperties());
+  }
 
   /**
-   * Initialises the reader and starts the main thread
+   * Initialises the properties of the reader
+   */
+  void initialise(std::map<std::string,Property*> properties);
+
+  /**
+   * Starts the reader
    */
   void start();
+
+  ReaderDescription getReaderDescription() const
+  {
+      return *(readerDescription);
+  }
 
   std::string getFileName()
   {

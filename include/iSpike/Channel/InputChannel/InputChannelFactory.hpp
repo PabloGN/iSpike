@@ -22,7 +22,7 @@ private:
   static std::vector<InputChannelDescription> initialiseChannelList()
   {
     std::vector<InputChannelDescription> channelList;
-    channelList.push_back(JointInputChannel::channelDescription);
+    channelList.push_back(JointInputChannel().getChannelDescription());
     return channelList;
   }
 
@@ -35,8 +35,8 @@ public:
 
   static InputChannel* create(std::string channelName, Reader* reader)
   {
-    if(channelName == "Joint Input Channel")
-      return new JointInputChannel((AngleReader*)reader);
+    //if(channelName == "Joint Input Channel")
+    //  return new JointInputChannel((AngleReader*)reader);
   }
 };
 
