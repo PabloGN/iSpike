@@ -2,7 +2,7 @@
 #define OUTPUTCHANNEL_H_
 #include <string>
 #include <vector>
-#include "Channel.hpp"
+#include <iSpike/Channel/Channel.hpp>
 
 /**
  * @class OutputChannel

@@ -10,11 +10,12 @@
 
 #include <string>
 #include <vector>
-#include <iSpike/Channel/InputChannel.hpp>
+#include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <iSpike/Property.hpp>
+#include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
 #include <map>
 
 /**
@@ -44,25 +45,49 @@ private:
 
 public:
 
+  static InputChannelDescription channelDescription;
+
   static std::map<std::string,Property*> initialiseProperties()
   {
     std::map<std::string,Property*> properties;
-    properties["width"] = new IntegerProperty("width", 320, "This is width");
-    properties["height"] = new IntegerProperty("height", 240, "This is height");
+    properties["Degree Of Freedom"] = new IntegerProperty(
+          "Degree Of Freedom",
+          0,
+          "The degree of freedom to read from this joint"
+        );
+    properties["Standard Deviation"] = new DoubleProperty(
+          "Standard Deviation",
+          2,
+          "The standard deviation to apply to the angles"
+        );
+    properties["Minimum Angle"] = new DoubleProperty(
+          "Minimum Angle",
+          -90,
+          "The minimum angle to read"
+        );
+    properties["Maximum Angle"] = new DoubleProperty(
+          "Maximum Angle",
+          90,
+          "The maximum angle to read"
+        );
+    properties["Number Of Neurons"] = new IntegerProperty(
+          "Number Of Neurons",
+          20,
+          "The number of neurons to create"
+        );
     return properties;
   }
-
-  static std::map<std::string,Property*> properties;
 
   /**
    * @param The reader where the image is retrieved from
    */
-  JointInputChannel(AngleReader* reader);
+
+  JointInputChannel(AngleReader* reader, std::map<std::string,Property*> properties = JointInputChannel::channelDescription.getChannelProperties());
 
   /**
    *  Initialises the channel and starts the conversion thread
    */
-  void start(std::vector<std::string> arguments);
+  void start();
 
   /**
    * Retrieves the spike pattern

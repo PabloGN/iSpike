@@ -2,7 +2,7 @@
 #define INPUTCHANNEL_H_
 #include <string>
 #include <vector>
-#include "Channel.hpp"
+#include <iSpike/Channel/Channel.hpp>
 
 /**
  * @class InputChannel
@@ -25,7 +25,7 @@ public:
   /**
    * Initialised the channel
    */
-  virtual void start(std::vector<std::string> arguments) = 0;
+  virtual void start() = 0;
 
   virtual void step() = 0;
 };

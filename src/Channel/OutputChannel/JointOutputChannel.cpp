@@ -4,7 +4,7 @@
  *  Created on: 23 Feb 2011
  *      Author: Edgars Lazdins
  */
-#include <iSpike/Channel/JointOutputChannel.hpp>
+#include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 

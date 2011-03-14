@@ -1,4 +1,4 @@
-#include <iSpike/Channel/VisualInputChannel.hpp>
+#include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
 #include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>

@@ -89,7 +89,7 @@ class DoubleProperty : public Property
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
-      this->type = Property::Integer;
+      this->type = Property::Double;
     }
 };
 
@@ -113,7 +113,7 @@ class StringProperty : public Property
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
-      this->type = Property::Integer;
+      this->type = Property::String;
     }
 };
 

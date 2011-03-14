@@ -10,34 +10,95 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <iSpike/ChannelController.hpp>
-#include <iSpike/YarpConnection.hpp>
-#include <iSpike/Reader/YarpTextReader.hpp>
-#include <iSpike/Reader/YarpVisualReader.hpp>
-#include <iSpike/Channel/VisualInputChannel.hpp>
-#include <iSpike/Channel/JointInputChannel.hpp>
-#include <iSpike/Bitmap.hpp>
-#include <iSpike/Common.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <iSpike/Reader/ReaderFactory.hpp>
+#include <iSpike/Reader/FileAngleReader.hpp>
+#include <iSpike/Reader/ReaderDescription.hpp>
 #include <iSpike/Property.hpp>
+#include <iSpike/Channel/InputChannel/InputChannelFactory.hpp>
+#include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
+//#include <iSpike/ChannelController.hpp>
+//#include <iSpike/YarpConnection.hpp>
+//#include <iSpike/Reader/YarpTextReader.hpp>
+//#include <iSpike/Reader/YarpVisualReader.hpp>
+//#include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
+//#include <iSpike/Bitmap.hpp>
+//#include <iSpike/Common.hpp>
+//#include <boost/thread/thread.hpp>
+//#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 
 int main(int argc, char* argv[])
 {
       //Neuron Network Size
       int width = 320;
       int height = 240;
-      for(std::map<std::string,Property*>::iterator iter = JointInputChannel::properties.begin(); iter != JointInputChannel::properties.end(); ++iter)
+      //get all input channels and output them to the console
+      std::vector<InputChannelDescription> inputChannelDescriptions = InputChannelFactory::getAllChannels();
+      std::cout << "Available Input Channels:" << std::endl;
+      for(int i = 0; i <inputChannelDescriptions.size(); i++)
       {
-        if(iter->second->getType() == Property::Integer)
+        std::cout << i << ": " << inputChannelDescriptions[i].getChannelName() << ": " << inputChannelDescriptions[i].getChannelDescription() << std::endl;
+      }
+
+      //let the user pick a channel
+      std::cout << "Please select a channel:" << std::endl;
+      int selectedChannel;
+      std::cin >> selectedChannel;
+
+      //get the properties for that channel and let the user provide values
+      std::map<std::string,Property*> channelProperties = inputChannelDescriptions[selectedChannel].getChannelProperties();
+      std::map<std::string, Property*> constructedProperties;
+      for(std::map<std::string,Property*>::iterator iter = channelProperties.begin(); iter != channelProperties.end(); ++iter)
+      {
+        std::cout << iter->second->getName();
+        if(iter->second->getType() == Property::Double)
         {
-          IntegerProperty* currentProperty = (IntegerProperty*) iter->second;
-          std::cout << currentProperty->getName() << " " << currentProperty->getValue() << " " << currentProperty->getDescription() << std::endl;
+            double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            double readValue;
+            std::cin >> readValue;
+            constructedProperties[iter->second->getName()] = new DoubleProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
+        } else if(iter->second->getType() == Property::Integer)
+        {
+            int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            int readValue;
+            std::cin >> readValue;
+            constructedProperties[iter->second->getName()] = new IntegerProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
+        } else if(iter->second->getType() == Property::String)
+        {
+            std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            std::string readValue;
+            std::cin >> readValue;
+            constructedProperties[iter->second->getName()] = new StringProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
         }
       }
-      return 1;
 
-      ChannelController* controller = new ChannelController();
+      //now find all Readers that are supported by that channel
+      std::string readerType = inputChannelDescriptions[selectedChannel].getReaderType();
+      std::vector<ReaderDescription> readerDescriptions = ReaderFactory::getReadersOfType(readerType);
+      std::cout << "Available Readers for this Channel:" << std::endl;
+      for(int i = 0; i < readerDescriptions.size(); i++)
+      {
+        std::cout << i << ": " << readerDescriptions[i].getReaderName() << ": " << readerDescriptions[i].getReaderDescription() << std::endl;
+      }
+      return 1;
+}
+
+      /*ChannelController* controller = new ChannelController();
       std::map<int, std::string>::iterator i;
       std::map<int,std::string>* inputChannels = controller->getInputChannels();
       std::cout << "Input Channels:" << std::endl;
@@ -50,7 +111,7 @@ int main(int argc, char* argv[])
 
       char* inputValues[] = {"0", "2", "-90", "90", "20"};
       std::vector<std::string> inputArguments(inputValues, inputValues + sizeof(inputValues) / sizeof(char*) );
-      controller->inputChannelSubscribe(1, inputArguments);
+      controller->inputChannelSubscribe(1);
       char* outputValues[] = {"-90", "90", "0.1", "20"};
       std::vector<std::string> outputArguments(outputValues, outputValues + sizeof(outputValues) / sizeof(char*) );
       controller->outputChannelSubscribe(1, outputArguments);
@@ -84,7 +145,7 @@ int main(int argc, char* argv[])
 
 //return UnitTest::RunAllTests();
 
-/*//if any spikes have been fired
+if any spikes have been fired
 if(spikes.size() > 0 )
 {
   //create a grayscale image buffer

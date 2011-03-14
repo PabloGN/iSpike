@@ -8,7 +8,7 @@
 #ifndef JOINTOUTPUTCHANNEL_HPP_
 #define JOINTOUTPUTCHANNEL_HPP_
 
-#include <iSpike/Channel/OutputChannel.hpp>
+#include <iSpike/Channel/OutputChannel/OutputChannel.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>

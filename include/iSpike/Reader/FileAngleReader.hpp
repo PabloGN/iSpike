@@ -9,6 +9,8 @@
 #define FILEANGLEREADER_HPP_
 
 #include <iSpike/Reader/AngleReader.hpp>
+#include <iSpike/Reader/ReaderDescription.hpp>
+#include <iSpike/Property.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <vector>
@@ -35,6 +37,19 @@ private:
 
 public:
 
+  static ReaderDescription readerDescription;
+
+  static std::map<std::string,Property*> initialiseProperties()
+  {
+    std::map<std::string,Property*> properties;
+    properties["Degree Of Freedom"] = new IntegerProperty(
+          "Degree Of Freedom",
+          0,
+          "The degree of freedom to read from this joint"
+        );
+    return properties;
+  }
+
   /**
    * Retrieves the vector of joint angles
    */
@@ -44,7 +59,7 @@ public:
    * Constructor
    * @param fileName The filename where the joints are read from
    */
-  FileAngleReader(std::string fileName);
+  FileAngleReader(std::map<std::string,Property*> properties = FileAngleReader::readerDescription.getReaderProperties());
 
   /**
    * Initialises the reader and starts the main thread

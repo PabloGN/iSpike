@@ -11,9 +11,9 @@
 #include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Reader/YarpAngleReader.hpp>
-#include <iSpike/Channel/VisualInputChannel.hpp>
-#include <iSpike/Channel/JointInputChannel.hpp>
-#include <iSpike/Channel/JointOutputChannel.hpp>
+#include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
+#include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
+#include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
 #include <iSpike/Writer/FileAngleWriter.hpp>
@@ -97,9 +97,9 @@ ChannelController::ChannelController()
   this->inputChannelDirectory = new std::map<int, InputChannel*>();
   this->outputChannelDirectory = new std::map<int, OutputChannel*>();
   //YarpAngleReader* jointReader = new YarpAngleReader("/icubSim/left_arm/state:o", "127.0.0.1", "10006");
-  FileAngleReader* jointReader = new FileAngleReader("anglesIn.txt");
-  JointInputChannel* readerChannel = new JointInputChannel(jointReader);
-  this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, readerChannel));
+  //FileAngleReader* jointReader = new FileAngleReader();
+  //JointInputChannel* readerChannel = new JointInputChannel(jointReader);
+  //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, readerChannel));
   //YarpAngleWriter* jointWriter = new YarpAngleWriter("/icubSim/left_arm/rpc:i", "127.0.0.1", "10006");
   FileAngleWriter* jointWriter = new FileAngleWriter("anglesOut.txt");
   JointOutputChannel* writerChannel = new JointOutputChannel(jointWriter);
@@ -109,12 +109,12 @@ ChannelController::ChannelController()
   //this->inputChannelDirectory->insert(std::pair<int, InputChannel*>(1, new VisualInputChannel(fileReader)));
 }
 
-void ChannelController::inputChannelSubscribe(int channelId, std::vector<std::string> channelArguments)
+void ChannelController::inputChannelSubscribe(int channelId)
 {
   std::map<int, InputChannel*>::iterator iter = inputChannelDirectory->find(channelId);
   if (iter != inputChannelDirectory->end() )
   {
-    iter->second->start(channelArguments);
+    iter->second->start();
   } else {
     std::cout << "Iterator is empty!" << std::endl;
   }

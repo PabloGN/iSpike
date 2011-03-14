@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-#include <iSpike/Channel/InputChannel.hpp>
+#include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/VisualFilter/VisualFilter.hpp>

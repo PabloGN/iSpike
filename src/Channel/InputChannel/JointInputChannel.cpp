@@ -1,4 +1,4 @@
-#include <iSpike/Channel/JointInputChannel.hpp>
+#include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iostream>
 #include <fstream>
@@ -13,7 +13,12 @@
 #include <iSpike/Property.hpp>
 #include <map>
 
-std::map<std::string,Property*> JointInputChannel::properties = JointInputChannel::initialiseProperties();
+InputChannelDescription JointInputChannel::channelDescription(
+    "Joint Input Channel",
+    "This is a joint input channel",
+    "Angle Reader",
+    JointInputChannel::initialiseProperties()
+);
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
@@ -70,31 +75,26 @@ void JointInputChannel::step()
   this->wait_condition.notify_all();
 }
 
-void JointInputChannel::start(std::vector<std::string> arguments)
+void JointInputChannel::start()
 {
   if(!initialised)
   {
-    if(arguments.size() != 5)
-      std::cout << "incorrect number of arguments" << std::endl;
-    else
-    {
-      this->buffer = new std::vector< std::vector<int> >();
-      this->degreeOfFreedom = boost::lexical_cast<int>(arguments[0]);
-      this->sd = boost::lexical_cast<double>(arguments[1]);
-      this->minAngle = boost::lexical_cast<double>(arguments[2]);
-      this->maxAngle = boost::lexical_cast<double>(arguments[3]);
-      this->numOfNeurons = boost::lexical_cast<int>(arguments[4]);
       this->reader->start();
       this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this))));
       initialised = true;
       std::cout << "initialised" << std::endl;
-    }
   }
 }
 
-JointInputChannel::JointInputChannel(AngleReader* reader)
+JointInputChannel::JointInputChannel(AngleReader* reader, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
+  this->buffer = new std::vector< std::vector<int> >();
+  this->degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
+  this->sd = ((DoubleProperty*)(properties["Standard Deviation"]))->getValue();
+  this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
+  this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
+  this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
   this->setReader(reader);
   this->description = "A Joint Input Channel. Arguments: [ degreeOfFreedom, sd, minAngle, maxAngle, numOfNeurons ]";
 }
