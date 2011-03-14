@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 #include <iSpike/Channel/Channel.hpp>
+#include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/mutex.hpp>
 
 /**
  * @class InputChannel
@@ -15,6 +18,11 @@
  *
  */
 class InputChannel : public Channel {
+protected:
+  InputChannelDescription* channelDescription;
+  boost::condition wait_condition;
+  boost::mutex mutex, wait_mutex;
+
 public:
 
   /**
@@ -28,6 +36,11 @@ public:
   virtual void start() = 0;
 
   virtual void step() = 0;
+
+  InputChannelDescription getChannelDescription()
+  {
+    return *(channelDescription);
+  }
 };
 
 #endif /* INPUTCHANNEL_H_ */

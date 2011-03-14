@@ -12,8 +12,6 @@
 #include <vector>
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Reader/YarpAngleReader.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <iSpike/Property.hpp>
 #include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
 #include <map>
@@ -34,15 +32,12 @@ private:
   AngleReader* reader;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
-  boost::condition wait_condition;
-  boost::mutex mutex, wait_mutex;
   bool initialised;
   int numOfNeurons;
   int degreeOfFreedom;
   double sd;
   double minAngle;
   double maxAngle;
-  InputChannelDescription* channelDescription;
 
 public:
 
@@ -133,11 +128,6 @@ public:
   bool isInitialised()
   {
     return this->initialised;
-  }
-
-  InputChannelDescription getChannelDescription()
-  {
-    return *(channelDescription);
   }
 
 };

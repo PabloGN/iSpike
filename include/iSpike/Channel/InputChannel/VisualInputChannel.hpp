@@ -15,6 +15,7 @@
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/VisualFilter/VisualFilter.hpp>
 #include <iSpike/NeuronSim/NeuronSim.hpp>
+#include <iSpike/Property.hpp>
 #include <boost/thread/mutex.hpp>
 
 /**
@@ -38,13 +39,68 @@ private:
   VisualDataReducer* dataReducer;
   VisualFilter* filter;
   NeuronSim* neuronSim;
+  double parameterA;
+  double parameterB;
+  double parameterC;
+  double parameterD;
+  int numOfNeurons;
 
 public:
+
+  VisualInputChannel()
+  {
+    /**
+     * First define the properties of this channel
+     */
+    std::map<std::string,Property*> properties;
+    properties["Number Of Neurons"] = new IntegerProperty(
+          "Number Of Neurons",
+          76800,
+          "The number of neurons to create"
+        );
+    properties["Parameter A"] = new DoubleProperty(
+          "Parameter A",
+          0.1,
+          "Parameter A of the Izhikevich Neuron Model"
+        );
+    properties["Parameter B"] = new DoubleProperty(
+          "Parameter B",
+          0.2,
+          "Parameter B of the Izhikevich Neuron Model"
+        );
+    properties["Parameter C"] = new DoubleProperty(
+          "Parameter C",
+          -65,
+          "Parameter C of the Izhikevich Neuron Model"
+        );
+    properties["Parameter D"] = new DoubleProperty(
+          "Parameter D",
+          2,
+          "Parameter D of the Izhikevich Neuron Model"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->channelDescription = new InputChannelDescription(
+          "Visual Input Channel",
+          "This is a visual input channel",
+          "Visual Reader",
+          properties
+        );
+  }
+
+  /*
+   * Initialises the channel with the default parameters
+   */
+  void initialise(VisualReader* reader)
+  {
+    initialise(reader, channelDescription->getChannelProperties());
+  }
 
   /**
    * @param The reader where the image is retrieved from
    */
-  VisualInputChannel(VisualReader* reader);
+  void initialise(VisualReader* reader, std::map<std::string,Property*> properties);
 
   /**
    *  Initialised the channel and starts the conversion thread
@@ -80,6 +136,8 @@ public:
   {
     return this->initialised;
   }
+
+  void step();
 
 };
 

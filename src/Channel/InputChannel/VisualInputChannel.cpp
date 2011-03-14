@@ -27,9 +27,6 @@ void VisualInputChannel::workerFunction()
   std::cout << "The thread has started." << std::endl;
   while(true)
   {
-    boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
-    boost::posix_time::time_duration start( time.time_of_day() );
-
     //std::cout << "Trying to retrieve the image..." << std::endl;
     Bitmap rPlusGMinus = this->filter->getRPlusGMinus();
     if(rPlusGMinus.getWidth() > 0)
@@ -44,12 +41,9 @@ void VisualInputChannel::workerFunction()
       this->buffer->push_back(*(this->neuronSim->getSpikes(voltages)));
       delete voltages;
     }
-    //std::cout << this->buffer->size() << std::endl;
-    //boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-    time = boost::posix_time::microsec_clock::local_time();
-    boost::posix_time::time_duration finish( time.time_of_day() );
-    //boost::this_thread::sleep(boost::posix_time::microseconds(1000 - (finish.total_microseconds() - start.total_microseconds())));
-    //std::cout << finish.total_microseconds() - start.total_microseconds() << "yo" << std::endl;
+    std::cout << "About to yield..." << std::endl;
+    boost::mutex::scoped_lock lk(this->wait_mutex);
+    this->wait_condition.wait(lk);
   }
 }
 
@@ -67,8 +61,21 @@ void VisualInputChannel::start()
   }
 }
 
-VisualInputChannel::VisualInputChannel(VisualReader* reader)
+/*
+ * Initialises the properties of this channel
+ */
+void VisualInputChannel::initialise(VisualReader* reader, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
   this->setReader(reader);
+  this->parameterA = ((DoubleProperty*)(properties["Parameter A"]))->getValue();
+  this->parameterB = ((DoubleProperty*)(properties["Parameter B"]))->getValue();
+  this->parameterC = ((DoubleProperty*)(properties["Parameter C"]))->getValue();
+  this->parameterD = ((DoubleProperty*)(properties["Parameter D"]))->getValue();
+  this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
+}
+
+void VisualInputChannel::step()
+{
+  this->wait_condition.notify_all();
 }

@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
       //get the properties for that channel and let the user provide values
       std::map<std::string,Property*> channelProperties = inputChannelDescriptions[selectedChannel].getChannelProperties();
-      std::map<std::string, Property*> constructedProperties;
+      std::map<std::string, Property*> constructedChannelProperties;
       for(std::map<std::string,Property*>::iterator iter = channelProperties.begin(); iter != channelProperties.end(); ++iter)
       {
         std::cout << iter->second->getName();
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
             std::cout << "(" << defaultValue << "):" << std::endl;
             double readValue;
             std::cin >> readValue;
-            constructedProperties[iter->second->getName()] = new DoubleProperty(
+            constructedChannelProperties[iter->second->getName()] = new DoubleProperty(
                 iter->second->getName(),
                 readValue,
                 iter->second->getDescription()
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
             std::cout << "(" << defaultValue << "):" << std::endl;
             int readValue;
             std::cin >> readValue;
-            constructedProperties[iter->second->getName()] = new IntegerProperty(
+            constructedChannelProperties[iter->second->getName()] = new IntegerProperty(
                 iter->second->getName(),
                 readValue,
                 iter->second->getDescription()
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
             std::cout << "(" << defaultValue << "):" << std::endl;
             std::string readValue;
             std::cin >> readValue;
-            constructedProperties[iter->second->getName()] = new StringProperty(
+            constructedChannelProperties[iter->second->getName()] = new StringProperty(
                 iter->second->getName(),
                 readValue,
                 iter->second->getDescription()
@@ -96,6 +96,85 @@ int main(int argc, char* argv[])
       {
         std::cout << i << ": " << readerDescriptions[i].getReaderName() << ": " << readerDescriptions[i].getReaderDescription() << std::endl;
       }
+
+      //let the user pick a reader
+      std::cout << "Please select a reader:" << std::endl;
+      int selectedReader;
+      std::cin >> selectedReader;
+
+      //get the properties for that reader and let the user provide values
+      std::map<std::string,Property*> readerProperties = readerDescriptions[selectedReader].getReaderProperties();
+      std::map<std::string, Property*> constructedReaderProperties;
+      for(std::map<std::string,Property*>::iterator iter = readerProperties.begin(); iter != readerProperties.end(); ++iter)
+      {
+        std::cout << iter->second->getName();
+        if(iter->second->getType() == Property::Double)
+        {
+            double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            double readValue;
+            std::cin >> readValue;
+            constructedReaderProperties[iter->second->getName()] = new DoubleProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
+        } else if(iter->second->getType() == Property::Integer)
+        {
+            int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            int readValue;
+            std::cin >> readValue;
+            constructedReaderProperties[iter->second->getName()] = new IntegerProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
+        } else if(iter->second->getType() == Property::String)
+        {
+            std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
+            std::cout << "(" << defaultValue << "):" << std::endl;
+            std::string readValue;
+            std::cin >> readValue;
+            constructedReaderProperties[iter->second->getName()] = new StringProperty(
+                iter->second->getName(),
+                readValue,
+                iter->second->getDescription()
+              );
+        }
+      }
+
+      Reader* reader = readerFactory.create(readerDescriptions[selectedReader].getReaderName(), constructedReaderProperties);
+      InputChannelFactory channelFactory;
+      InputChannel* channel = channelFactory.create(inputChannelDescriptions[selectedChannel].getChannelName(), reader, constructedChannelProperties);
+      channel->start();
+
+      std::vector< std::vector<int> > spikes;
+
+      while(true)
+      {
+        //get fired spikes
+        spikes = channel->getFiring();
+        channel->step();
+        std::cout << spikes.size() << std::endl;
+
+        if(spikes.size() > 0)
+        {
+          /*for(unsigned int i = 0; i < spikes.size(); i++)
+          {
+            controller->setFiring(1, &(spikes.at(i)));
+            controller->stepOutputChannel(1);
+          }*/
+          std::cout << "[";
+          for(unsigned int i = 0; i < spikes.front().size(); i++)
+          {
+            std::cout << spikes.front().at(i) << ",";
+          }
+          std::cout << "]" << std::endl;
+        }
+        boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+      }
+
       return 1;
 }
 

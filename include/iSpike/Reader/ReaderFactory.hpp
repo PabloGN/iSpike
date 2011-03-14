@@ -47,10 +47,14 @@ public:
   /*
    * Creates a particular reader
    */
-  static Reader* create(std::string readerName)
+  static Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
   {
-    //if(channelName == "File Angle Reader")
-    //  return new FileAngleReader((AngleReader*)reader);
+    if(readerName == "File Angle Reader")
+    {
+      FileAngleReader* result = new FileAngleReader();
+      result->initialise(readerProperties);
+      return result;
+    }
   }
 };
 

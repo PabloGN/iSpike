@@ -73,6 +73,7 @@ void FileAngleReader::start()
   if(!initialised)
   {
     initialised = true;
+    std::cout << "Reading angled from: " << fileName << std::endl;
     this->buffer = readAngleFromFile(fileName.c_str());
   }
 }
