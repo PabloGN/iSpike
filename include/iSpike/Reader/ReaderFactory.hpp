@@ -13,6 +13,8 @@
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
 #include <iSpike/Reader/FileVisualReader.hpp>
+#include <iSpike/Reader/YarpAngleReader.hpp>
+#include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Reader/ReaderDescription.hpp>
 
 class ReaderFactory {
@@ -30,6 +32,8 @@ public:
   {
     this->readerList.push_back(FileAngleReader().getReaderDescription());
     this->readerList.push_back(FileVisualReader().getReaderDescription());
+    this->readerList.push_back(YarpAngleReader().getReaderDescription());
+    this->readerList.push_back(YarpVisualReader().getReaderDescription());
   }
 
   /*
@@ -58,6 +62,12 @@ public:
     } else if(readerName == "File Visual Reader")
     {
       result = new FileVisualReader();
+    } else if(readerName == "Yarp Angle Reader")
+    {
+      result = new YarpAngleReader();
+    } else if(readerName == "Yarp Visual Reader")
+    {
+      result = new YarpVisualReader();
     } else {
       throw std::logic_error("Invalid reader type");
     }

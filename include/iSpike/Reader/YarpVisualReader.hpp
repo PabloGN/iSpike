@@ -37,16 +37,47 @@ private:
 
 public:
 
+  /*
+   * The default constructor, only initialises the default parameters and the description
+   */
+  YarpVisualReader()
+  {
+    /**
+     * First define the properties of this reader
+     */
+    std::map<std::string,Property*> properties;
+    properties["Yarp IP"] = new StringProperty(
+          "Yarp IP",
+          "127.0.0.1",
+          "The Yarp nameserver IP Address"
+        );
+    properties["Yarp Port"] = new StringProperty(
+          "Yarp Port",
+          "10000",
+          "The Yarp nameserver Port"
+        );
+    properties["Port Name"] = new StringProperty(
+          "Port Name",
+          "/icubSim/left_arm/state:o",
+          "The Yarp Port name"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->readerDescription = new ReaderDescription(
+          "Yarp Visual Reader",
+          "This is a Yarp visual reader",
+          "Visual Reader",
+          properties
+        );
+  }
+
   /**
    * Retrieves the image
    */
   Bitmap getData();
 
-  /**
-   * Constructor
-   * @param portName The YARP port where the image is read from
-   */
-  YarpVisualReader(std::string portName, std::string yarpIP, std::string yarpPort);
+  void initialise(std::map<std::string,Property*> properties);
 
   /**
    * Initialises the reader and starts the main thread

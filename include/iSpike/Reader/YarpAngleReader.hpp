@@ -11,6 +11,7 @@
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
+#include <iSpike/Property.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <vector>
@@ -38,16 +39,47 @@ private:
 
 public:
 
+  /*
+   * The default constructor, only initialises the default parameters and the description
+   */
+  YarpAngleReader()
+  {
+    /**
+     * First define the properties of this reader
+     */
+    std::map<std::string,Property*> properties;
+    properties["Yarp IP"] = new StringProperty(
+          "Yarp IP",
+          "127.0.0.1",
+          "The Yarp nameserver IP Address"
+        );
+    properties["Yarp Port"] = new StringProperty(
+          "Yarp Port",
+          "10000",
+          "The Yarp nameserver Port"
+        );
+    properties["Port Name"] = new StringProperty(
+          "Port Name",
+          "/icubSim/left_arm/state:o",
+          "The Yarp Port name"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->readerDescription = new ReaderDescription(
+          "Yarp Angle Reader",
+          "This is a Yarp angle reader",
+          "Angle Reader",
+          properties
+        );
+  }
+
   /**
    * Retrieves the vector of joint angles
    */
   std::vector<double> getData();
 
-  /**
-   * Constructor
-   * @param portName The YARP port where the joints are read from
-   */
-  YarpAngleReader(std::string portName, std::string yarpIP, std::string yarpPort);
+  void initialise(std::map<std::string,Property*> properties);
 
   /**
    * Initialises the reader and starts the main thread

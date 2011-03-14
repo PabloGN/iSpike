@@ -51,10 +51,13 @@ void YarpVisualReader::workerFunction()
   }
 }
 
-YarpVisualReader::YarpVisualReader(std::string portName, std::string yarpIP, std::string yarpPort)
+void YarpVisualReader::initialise(std::map<std::string,Property*> properties)
 {
-  this->setPortName(portName);
+  this->setPortName(((StringProperty*)(properties["Port Name"]))->getValue());
   this->buffer = new Bitmap(0,0,0,NULL);
   this->initialised = false;
-  this->yarpConnection = new YarpConnection(yarpIP, yarpPort);
+  this->yarpConnection = new YarpConnection(
+      ((StringProperty*)(properties["Yarp IP"]))->getValue(),
+      ((StringProperty*)(properties["Yarp Port"]))->getValue()
+      );
 }

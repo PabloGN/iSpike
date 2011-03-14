@@ -16,6 +16,7 @@
 #include <iSpike/Property.hpp>
 #include <iSpike/Channel/InputChannel/InputChannelFactory.hpp>
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
+#include <boost/lexical_cast.hpp>
 //#include <iSpike/ChannelController.hpp>
 //#include <iSpike/YarpConnection.hpp>
 //#include <iSpike/Reader/YarpTextReader.hpp>
@@ -43,6 +44,7 @@ int main(int argc, char* argv[])
       std::cout << "Please select a channel:" << std::endl;
       int selectedChannel;
       std::cin >> selectedChannel;
+      std::cin.ignore();
 
       //get the properties for that channel and let the user provide values
       std::map<std::string,Property*> channelProperties = inputChannelDescriptions[selectedChannel].getChannelProperties();
@@ -54,35 +56,56 @@ int main(int argc, char* argv[])
         {
             double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
             std::cout << "(" << defaultValue << "):" << std::endl;
-            double readValue;
-            std::cin >> readValue;
+            std::string readValue;
+            double parameterValue;
+            std::getline(std::cin,readValue);
+            if(readValue == "")
+            {
+              parameterValue = defaultValue;
+            } else {
+              parameterValue = boost::lexical_cast<double>(readValue);
+            }
             constructedChannelProperties[iter->second->getName()] = new DoubleProperty(
                 iter->second->getName(),
-                readValue,
+                parameterValue,
                 iter->second->getDescription()
               );
         } else if(iter->second->getType() == Property::Integer)
         {
-            int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
-            std::cout << "(" << defaultValue << "):" << std::endl;
-            int readValue;
-            std::cin >> readValue;
-            constructedChannelProperties[iter->second->getName()] = new IntegerProperty(
-                iter->second->getName(),
-                readValue,
-                iter->second->getDescription()
-              );
+          int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
+          std::cout << "(" << defaultValue << "):" << std::endl;
+          std::string readValue;
+          int parameterValue;
+          std::getline(std::cin,readValue);
+          if(readValue == "")
+          {
+            parameterValue = defaultValue;
+          } else {
+            parameterValue = boost::lexical_cast<int>(readValue);
+          }
+          constructedChannelProperties[iter->second->getName()] = new IntegerProperty(
+              iter->second->getName(),
+              parameterValue,
+              iter->second->getDescription()
+            );
         } else if(iter->second->getType() == Property::String)
         {
-            std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
-            std::cout << "(" << defaultValue << "):" << std::endl;
-            std::string readValue;
-            std::cin >> readValue;
-            constructedChannelProperties[iter->second->getName()] = new StringProperty(
-                iter->second->getName(),
-                readValue,
-                iter->second->getDescription()
-              );
+          std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
+          std::cout << "(" << defaultValue << "):" << std::endl;
+          std::string readValue;
+          std::string parameterValue;
+          std::getline(std::cin,readValue);
+          if(readValue == "")
+          {
+            parameterValue = defaultValue;
+          } else {
+            parameterValue = readValue;
+          }
+          constructedChannelProperties[iter->second->getName()] = new StringProperty(
+              iter->second->getName(),
+              parameterValue,
+              iter->second->getDescription()
+            );
         }
       }
 
@@ -99,6 +122,7 @@ int main(int argc, char* argv[])
       std::cout << "Please select a reader:" << std::endl;
       int selectedReader;
       std::cin >> selectedReader;
+      std::cin.ignore();
 
       //get the properties for that reader and let the user provide values
       std::map<std::string,Property*> readerProperties = readerDescriptions[selectedReader].getReaderProperties();
@@ -108,37 +132,58 @@ int main(int argc, char* argv[])
         std::cout << iter->second->getName();
         if(iter->second->getType() == Property::Double)
         {
-            double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
-            std::cout << "(" << defaultValue << "):" << std::endl;
-            double readValue;
-            std::cin >> readValue;
-            constructedReaderProperties[iter->second->getName()] = new DoubleProperty(
-                iter->second->getName(),
-                readValue,
-                iter->second->getDescription()
-              );
+          double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
+          std::cout << "(" << defaultValue << "):" << std::endl;
+          std::string readValue;
+          double parameterValue;
+          std::getline(std::cin,readValue);
+          if(readValue == "")
+          {
+            parameterValue = defaultValue;
+          } else {
+            parameterValue = boost::lexical_cast<double>(readValue);
+          }
+          constructedReaderProperties[iter->second->getName()] = new DoubleProperty(
+              iter->second->getName(),
+              parameterValue,
+              iter->second->getDescription()
+            );
         } else if(iter->second->getType() == Property::Integer)
         {
-            int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
-            std::cout << "(" << defaultValue << "):" << std::endl;
-            int readValue;
-            std::cin >> readValue;
-            constructedReaderProperties[iter->second->getName()] = new IntegerProperty(
-                iter->second->getName(),
-                readValue,
-                iter->second->getDescription()
-              );
+          int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
+          std::cout << "(" << defaultValue << "):" << std::endl;
+          std::string readValue;
+          int parameterValue;
+          std::getline(std::cin,readValue);
+          if(readValue == "")
+          {
+            parameterValue = defaultValue;
+          } else {
+            parameterValue = boost::lexical_cast<int>(readValue);
+          }
+          constructedReaderProperties[iter->second->getName()] = new IntegerProperty(
+              iter->second->getName(),
+              parameterValue,
+              iter->second->getDescription()
+            );
         } else if(iter->second->getType() == Property::String)
         {
-            std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
-            std::cout << "(" << defaultValue << "):" << std::endl;
-            std::string readValue;
-            std::cin >> readValue;
-            constructedReaderProperties[iter->second->getName()] = new StringProperty(
-                iter->second->getName(),
-                readValue,
-                iter->second->getDescription()
-              );
+          std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
+          std::cout << "(" << defaultValue << "):" << std::endl;
+          std::string readValue;
+          std::string parameterValue;
+          std::getline(std::cin,readValue);
+          if(readValue == "")
+          {
+            parameterValue = defaultValue;
+          } else {
+            parameterValue = readValue;
+          }
+          constructedReaderProperties[iter->second->getName()] = new StringProperty(
+              iter->second->getName(),
+              parameterValue,
+              iter->second->getDescription()
+            );
         }
       }
 
