@@ -9,7 +9,6 @@
 #define FILEANGLEREADER_HPP_
 
 #include <iSpike/Reader/AngleReader.hpp>
-#include <iSpike/Reader/ReaderDescription.hpp>
 #include <iSpike/Property.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
@@ -35,7 +34,6 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string fileName;
-  ReaderDescription* readerDescription;
 
 public:
 
@@ -69,11 +67,6 @@ public:
    */
   std::vector<double> getData();
 
-  void initialise()
-  {
-    initialise(readerDescription->getReaderProperties());
-  }
-
   /**
    * Initialises the properties of the reader
    */
@@ -83,11 +76,6 @@ public:
    * Starts the reader
    */
   void start();
-
-  ReaderDescription getReaderDescription() const
-  {
-      return *(readerDescription);
-  }
 
   std::string getFileName()
   {

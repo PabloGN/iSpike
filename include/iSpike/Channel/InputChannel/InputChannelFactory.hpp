@@ -41,6 +41,13 @@ public:
       JointInputChannel* channel = new JointInputChannel();
       channel->initialise((AngleReader*)reader, channelProperties);
       return channel;
+    } else if(channelName == "Visual Input Channel")
+    {
+      VisualInputChannel* channel = new VisualInputChannel();
+      channel->initialise((VisualReader*)reader, channelProperties);
+      return channel;
+    } else {
+      throw std::logic_error("Invalid channel type");
     }
   }
 };

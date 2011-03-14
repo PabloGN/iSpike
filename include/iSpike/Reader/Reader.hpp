@@ -8,6 +8,8 @@
 #ifndef READER_HPP_
 #define READER_HPP_
 
+#include <iSpike/Reader/ReaderDescription.hpp>
+
 /**
  * @class Reader
  * @brief Reader class
@@ -20,9 +22,21 @@
  */
 class Reader {
 
-private:
+protected:
+  ReaderDescription* readerDescription;
 
 public:
+  ReaderDescription getReaderDescription() const
+  {
+      return *(readerDescription);
+  }
+
+  void initialise()
+  {
+    initialise(readerDescription->getReaderProperties());
+  }
+
+  virtual void initialise(std::map<std::string,Property*> properties) = 0;
 
 };
 

@@ -12,6 +12,7 @@
 #include <iSpike/Reader/Reader.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
+#include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Reader/ReaderDescription.hpp>
 
 class ReaderFactory {
@@ -28,6 +29,7 @@ public:
   ReaderFactory()
   {
     this->readerList.push_back(FileAngleReader().getReaderDescription());
+    this->readerList.push_back(FileVisualReader().getReaderDescription());
   }
 
   /*
@@ -49,12 +51,18 @@ public:
    */
   static Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
   {
+    Reader* result;
     if(readerName == "File Angle Reader")
     {
-      FileAngleReader* result = new FileAngleReader();
-      result->initialise(readerProperties);
-      return result;
+      result = new FileAngleReader();
+    } else if(readerName == "File Visual Reader")
+    {
+      result = new FileVisualReader();
+    } else {
+      throw std::logic_error("Invalid reader type");
     }
+    result->initialise(readerProperties);
+    return result;
   }
 };
 

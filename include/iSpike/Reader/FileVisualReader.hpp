@@ -33,16 +33,37 @@ private:
 
 public:
 
+  /*
+   * The default constructor, only initialises the default parameters and the description
+   */
+  FileVisualReader()
+  {
+    /**
+     * First define the properties of this reader
+     */
+    std::map<std::string,Property*> properties;
+    properties["Filename"] = new StringProperty(
+          "Filename",
+          "image.ppm",
+          "Path to a PPM format image"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->readerDescription = new ReaderDescription(
+          "File Visual Reader",
+          "This is a file visual reader",
+          "Visual Reader",
+          properties
+        );
+  }
+
   /**
    * Retrieves the image
    */
   Bitmap getData();
 
-  /**
-   * Constructor
-   * @param filename The path to the image
-   */
-  FileVisualReader(const char* filename);
+  void initialise(std::map<std::string,Property*> properties);
 
   /**
    * Initialises the reader and starts the execution of the main thread
