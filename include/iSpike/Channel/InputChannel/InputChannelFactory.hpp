@@ -18,23 +18,22 @@
 class InputChannelFactory {
 
 private:
-  static std::vector<InputChannelDescription> channelList;
-  static std::vector<InputChannelDescription> initialiseChannelList()
-  {
-    std::vector<InputChannelDescription> channelList;
-    channelList.push_back(JointInputChannel().getChannelDescription());
-    channelList.push_back(VisualInputChannel().getChannelDescription());
-    return channelList;
-  }
+  std::vector<InputChannelDescription> channelList;
 
 public:
 
-  static std::vector<InputChannelDescription> getAllChannels()
+  InputChannelFactory()
+  {
+    this->channelList.push_back(JointInputChannel().getChannelDescription());
+    this->channelList.push_back(VisualInputChannel().getChannelDescription());
+  }
+
+  std::vector<InputChannelDescription> getAllChannels()
   {
     return channelList;
   }
 
-  static InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties)
+  InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties)
   {
     if(channelName == "Joint Input Channel")
     {

@@ -49,7 +49,7 @@ public:
   /*
    * Creates a particular reader
    */
-  static Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
+  Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
   {
     Reader* result;
     if(readerName == "File Angle Reader")
