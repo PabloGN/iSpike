@@ -11,12 +11,14 @@
 #include <sstream>
 #include <iostream>
 
-YarpAngleWriter::YarpAngleWriter(std::string portName, std::string yarpIP, std::string yarpPort)
+void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
-  this->setPortName(portName);
+  this->setPortName(((StringProperty*)(properties["Port Name"]))->getValue());
   this->angleList = new std::queue<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection(yarpIP, yarpPort);
+  this->yarpConnection = new YarpConnection(
+      ((StringProperty*)(properties["Yarp IP"]))->getValue(),
+      ((StringProperty*)(properties["Yarp Port"]))->getValue());
 }
 
 void YarpAngleWriter::addAngle(double angle)

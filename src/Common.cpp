@@ -7,6 +7,7 @@
 
 #include <iSpike/Common.hpp>
 #include <iSpike/Bitmap.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -51,4 +52,69 @@ unsigned char* Common::normaliseImage(unsigned char* image, int size)
   for(int i = 0; i < size; i++)
     result[i] = image[i] * 255 / max;
   return result;
+}
+
+std::map<std::string, Property*> Common::getProperties(std::map<std::string,Property*> defaultProperties)
+{
+  std::map<std::string, Property*> resultProperties;
+  for(std::map<std::string,Property*>::iterator iter = defaultProperties.begin(); iter != defaultProperties.end(); ++iter)
+  {
+    std::cout << iter->second->getName();
+    if(iter->second->getType() == Property::Double)
+    {
+      double defaultValue = ((DoubleProperty*)(iter->second))->getValue();
+      std::cout << "(" << defaultValue << "):" << std::endl;
+      std::string readValue;
+      double parameterValue;
+      std::getline(std::cin,readValue);
+      if(readValue == "")
+      {
+        parameterValue = defaultValue;
+      } else {
+        parameterValue = boost::lexical_cast<double>(readValue);
+      }
+      resultProperties[iter->second->getName()] = new DoubleProperty(
+          iter->second->getName(),
+          parameterValue,
+          iter->second->getDescription()
+        );
+    } else if(iter->second->getType() == Property::Integer)
+    {
+      int defaultValue = ((IntegerProperty*)(iter->second))->getValue();
+      std::cout << "(" << defaultValue << "):" << std::endl;
+      std::string readValue;
+      int parameterValue;
+      std::getline(std::cin,readValue);
+      if(readValue == "")
+      {
+        parameterValue = defaultValue;
+      } else {
+        parameterValue = boost::lexical_cast<int>(readValue);
+      }
+      resultProperties[iter->second->getName()] = new IntegerProperty(
+          iter->second->getName(),
+          parameterValue,
+          iter->second->getDescription()
+        );
+    } else if(iter->second->getType() == Property::String)
+    {
+      std::string defaultValue = ((StringProperty*)(iter->second))->getValue();
+      std::cout << "(" << defaultValue << "):" << std::endl;
+      std::string readValue;
+      std::string parameterValue;
+      std::getline(std::cin,readValue);
+      if(readValue == "")
+      {
+        parameterValue = defaultValue;
+      } else {
+        parameterValue = readValue;
+      }
+      resultProperties[iter->second->getName()] = new StringProperty(
+          iter->second->getName(),
+          parameterValue,
+          iter->second->getDescription()
+        );
+    }
+  }
+  return resultProperties;
 }

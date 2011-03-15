@@ -16,14 +16,16 @@ private:
     std::string channelName;
     std::string channelDescription;
     std::string writerType;
+    std::map<std::string,Property*> channelProperties;
 
 public:
 
-    OutputChannelDescription(std::string channelName, std::string channelDescription, std::string writerType)
+    OutputChannelDescription(std::string channelName, std::string channelDescription, std::string writerType, std::map<std::string,Property*> channelProperties)
     {
       this->channelName = channelName;
       this->channelDescription = channelDescription;
       this->writerType = writerType;
+      this->channelProperties = channelProperties;
     }
 
     std::string getChannelDescription() const
@@ -39,6 +41,11 @@ public:
     std::string getWriterType() const
     {
         return writerType;
+    }
+
+    std::map<std::string,Property*> getChannelProperties() const
+    {
+      return channelProperties;
     }
 
 };

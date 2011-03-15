@@ -14,31 +14,25 @@ void JointOutputChannel::setFiring(std::vector<int>* buffer)
   this->buffer->push(*buffer);
 }
 
-void JointOutputChannel::start(std::vector<std::string> arguments)
+void JointOutputChannel::start()
 {
   if(!initialised)
   {
-    if(arguments.size() != 4)
-      std::cout << "incorrect number of arguments" << std::endl;
-    else
-    {
-      this->buffer = new std::queue< std::vector<int> >();
-      this->maxAngle = boost::lexical_cast<double>(arguments[0]);
-      this->minAngle = boost::lexical_cast<double>(arguments[1]);
-      this->rateOfDecay = boost::lexical_cast<double>(arguments[2]);
-      this->numOfNeurons = boost::lexical_cast<int>(arguments[3]);
-      this->writer->start();
-      this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
-      initialised = true;
-    }
+    this->buffer = new std::queue< std::vector<int> >();
+    this->writer->start();
+    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
+    initialised = true;
   }
 }
 
-JointOutputChannel::JointOutputChannel(AngleWriter* writer)
+void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
   this->setWriter(writer);
-  this->description = "A Joint Output Channel. Arguments: [ minAngle, maxAngle, rateOfDecay, numOfNeurons ]";
+  this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
+  this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
+  this->rateOfDecay = ((DoubleProperty*)(properties["Rate Of Decay"]))->getValue();
+  this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
 }
 
 void JointOutputChannel::step()

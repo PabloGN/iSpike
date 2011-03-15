@@ -13,10 +13,10 @@
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 
-FileAngleWriter::FileAngleWriter(std::string fileName)
+void FileAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
   this->angleList = new std::queue<double>();
-  this->initialised = false;
+  this->fileName = ((StringProperty*)(properties["Filename"]))->getValue();
 }
 
 void FileAngleWriter::addAngle(double angle)

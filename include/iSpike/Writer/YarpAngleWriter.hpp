@@ -15,6 +15,8 @@
 #include <boost/thread.hpp>
 #include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/YarpConnection.hpp>
+#include <iSpike/Property.hpp>
+#include <iSpike/Writer/WriterDescription.hpp>
 
 class YarpAngleWriter : public AngleWriter {
 
@@ -29,11 +31,42 @@ private:
 
 public:
 
-  /**
-   * Constructor
-   * @param portName The YARP port where the joints commands are written to
+  /*
+   * The default constructor, only initialises the default parameters and the description
    */
-  YarpAngleWriter(std::string portName, std::string yarpIP, std::string yarpPort);
+  YarpAngleWriter()
+  {
+    /**
+     * First define the properties of this writer
+     */
+    std::map<std::string,Property*> properties;
+    properties["Yarp IP"] = new StringProperty(
+          "Yarp IP",
+          "127.0.0.1",
+          "The Yarp nameserver IP Address"
+        );
+    properties["Yarp Port"] = new StringProperty(
+          "Yarp Port",
+          "10000",
+          "The Yarp nameserver Port"
+        );
+    properties["Port Name"] = new StringProperty(
+          "Port Name",
+          "/icubSim/left_arm/rpc:i",
+          "The Yarp Port name"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->writerDescription = new WriterDescription(
+          "Yarp Angle Writer",
+          "This is a Yarp angle writer",
+          "Angle Writer",
+          properties
+        );
+  }
+
+  void initialise(std::map<std::string,Property*> properties);
 
   /**
    * Adds an angle to the processing queue

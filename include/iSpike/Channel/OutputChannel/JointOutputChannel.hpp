@@ -33,6 +33,43 @@ private:
 
 public:
 
+  JointOutputChannel()
+  {
+    /**
+     * First define the properties of this channel
+     */
+    std::map<std::string,Property*> properties;
+    properties["Minimum Angle"] = new DoubleProperty(
+          "Minimum Angle",
+          -90,
+          "The minimum angle to read"
+        );
+    properties["Maximum Angle"] = new DoubleProperty(
+          "Maximum Angle",
+          90,
+          "The maximum angle to read"
+        );
+    properties["Rate Of Decay"] = new DoubleProperty(
+          "Rate Of Decay",
+          0.2,
+          "The rate of decay of the angle variables"
+        );
+    properties["Number Of Neurons"] = new IntegerProperty(
+          "Number Of Neurons",
+          100,
+          "The number of neurons to create"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->channelDescription = new OutputChannelDescription(
+          "Joint Output Channel",
+          "This channel converts a pattern of spikes into an angle and writes it",
+          "Angle Writer",
+          properties
+        );
+  }
+
   /**
    * Sets the current spike pattern
    */
@@ -41,7 +78,7 @@ public:
   /**
    * Initialises the channel
    */
-  void start(std::vector<std::string> arguments);
+  void start();
 
   AngleWriter* getWriter() const
   {
@@ -53,7 +90,12 @@ public:
       this->writer = writer;
   }
 
-  JointOutputChannel(AngleWriter* writer);
+  void initialise(AngleWriter* writer)
+  {
+    initialise(writer, channelDescription->getChannelProperties());
+  }
+
+  void initialise(AngleWriter* writer, std::map<std::string,Property*> properties);
 
   boost::shared_ptr<boost::thread> getThreadPointer()
   {

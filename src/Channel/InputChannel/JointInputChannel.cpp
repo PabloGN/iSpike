@@ -89,5 +89,4 @@ void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Pro
   this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
   this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
   this->setReader(reader);
-  this->description = "A Joint Input Channel. Arguments: [ degreeOfFreedom, sd, minAngle, maxAngle, numOfNeurons ]";
 }

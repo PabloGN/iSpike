@@ -17,6 +17,8 @@
 #include <boost/thread.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <boost/lexical_cast.hpp>
+#include <iSpike/Property.hpp>
+#include <iSpike/Writer/WriterDescription.hpp>
 
 class FileAngleWriter : public AngleWriter {
 
@@ -30,7 +32,29 @@ private:
 
 public:
 
-  FileAngleWriter(std::string fileName);
+  FileAngleWriter()
+  {
+    /**
+     * First define the properties of this writer
+     */
+    std::map<std::string,Property*> properties;
+    properties["Filename"] = new StringProperty(
+          "Filename",
+          "anglesOut.txt",
+          "The file where the angles will be written to"
+        );
+    /**
+     * Now let's create the description
+     */
+    this->writerDescription = new WriterDescription(
+          "File Angle Writer",
+          "This is a file angle writer",
+          "Angle Writer",
+          properties
+        );
+  }
+
+  void initialise(std::map<std::string,Property*> properties);
 
   /**
    * Adds an angle to the processing queue

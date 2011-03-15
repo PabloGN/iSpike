@@ -9,6 +9,8 @@
 #define WRITERDESCRIPTION_HPP_
 
 #include <string>
+#include <map>
+#include <iSpike/Property.hpp>
 
 class WriterDescription {
 
@@ -16,14 +18,16 @@ private:
     std::string writerName;
     std::string writerDescription;
     std::string writerType;
+    std::map<std::string,Property*> writerProperties;
 
 public:
 
-    WriterDescription(std::string writerName, std::string writerDescription, std::string writerType)
+    WriterDescription(std::string writerName, std::string writerDescription, std::string writerType, std::map<std::string,Property*> writerProperties)
     {
       this->writerName = writerName;
       this->writerDescription = writerDescription;
       this->writerType = writerType;
+      this->writerProperties = writerProperties;
     }
 
     std::string getWriterDescription() const
@@ -39,6 +43,11 @@ public:
     std::string getWriterType() const
     {
         return writerType;
+    }
+
+    std::map<std::string,Property*> getWriterProperties() const
+    {
+      return writerProperties;
     }
 
 };
