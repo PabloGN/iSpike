@@ -12,43 +12,82 @@
 #include <map>
 #include <iSpike/Property.hpp>
 
+/**
+ * @class WriterDescription
+ * @brief Writer Description class
+ *
+ * This class describes a Writer.
+ *
+ * @author Edgars Lazdins
+ *
+ */
 class WriterDescription {
 
 private:
-    std::string writerName;
-    std::string writerDescription;
-    std::string writerType;
-    std::map<std::string,Property*> writerProperties;
+  /// Name of the Writer
+  std::string writerName;
+
+  ///Writer's description
+  std::string writerDescription;
+
+  ///Type of a Writer this is
+  std::string writerType;
+
+  ///A map of the Writer's properties
+  std::map<std::string,Property*> writerProperties;
 
 public:
 
-    WriterDescription(std::string writerName, std::string writerDescription, std::string writerType, std::map<std::string,Property*> writerProperties)
-    {
-      this->writerName = writerName;
-      this->writerDescription = writerDescription;
-      this->writerType = writerType;
-      this->writerProperties = writerProperties;
-    }
+  /**
+   *  Default constructor, creates a new Writer Description with the given parameters
+   *  @param writerName Name of the Writer
+   *  @param writerDescription Description for the Writer
+   *  @param writerType The type of a Writer this is
+   *  @param writerProperties A map of the Writer's properties
+   */
+  WriterDescription(std::string writerName, std::string writerDescription, std::string writerType, std::map<std::string,Property*> writerProperties)
+  {
+    this->writerName = writerName;
+    this->writerDescription = writerDescription;
+    this->writerType = writerType;
+    this->writerProperties = writerProperties;
+  }
 
-    std::string getWriterDescription() const
-    {
-        return writerDescription;
-    }
+  /**
+   * Returns the Writer's description
+   * @return Description of the Reader
+   */
+  std::string getWriterDescription() const
+  {
+      return writerDescription;
+  }
 
-    std::string getWriterName() const
-    {
-        return writerName;
-    }
+  /**
+   * Returns the name of the Writer
+   * @return Name of the Writer
+   */
+  std::string getWriterName() const
+  {
+      return writerName;
+  }
 
-    std::string getWriterType() const
-    {
-        return writerType;
-    }
+  /**
+   * Returns the Writer's type
+   * @return Writer's type
+   */
+  std::string getWriterType() const
+  {
+      return writerType;
+  }
 
-    std::map<std::string,Property*> getWriterProperties() const
-    {
-      return writerProperties;
-    }
+  /**
+   * Returns a map of the Writer's properties
+   * @return Map of the Writer's properties
+   */
+  std::map<std::string,Property*> getWriterProperties() const
+  {
+    return writerProperties;
+  }
 
 };
 

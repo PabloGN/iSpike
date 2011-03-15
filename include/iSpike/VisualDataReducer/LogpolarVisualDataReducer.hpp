@@ -17,7 +17,7 @@
 typedef std::map< std::pair< int,int >, std::pair< int,int > > CoordMapType;
 
 /**
- * @class Log Polar Visual Data Reducer
+ * @class LogPolarVisualDataReducer
  * @brief Log Polar Visual Data Reducer class
  *
  * This class represents a Log Polar Visual Data Reducer capable of transforming an image
@@ -71,6 +71,11 @@ private:
 
 public:
 
+  /**
+   * Default constructor, produces a LogPolarVisualDataReducer
+   * @param reader The associated Reader
+   * @param queryInterval How often the Reader is queried
+   */
   LogPolarVisualDataReducer(VisualReader* reader, int queryInterval);
   Bitmap getReducedImage()
   {

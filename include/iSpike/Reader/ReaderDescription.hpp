@@ -12,43 +12,82 @@
 #include <map>
 #include <iSpike/Property.hpp>
 
+/**
+ * @class ReaderDescription
+ * @brief Reader Description class
+ *
+ * This class describes a Reader.
+ *
+ * @author Edgars Lazdins
+ *
+ */
 class ReaderDescription {
 
 private:
-    std::string readerName;
-    std::string readerDescription;
-    std::string readerType;
-    std::map<std::string,Property*> readerProperties;
+  ///Name of the Reader
+  std::string readerName;
+
+  ///Description of the Reader
+  std::string readerDescription;
+
+  /// Type of the Reader
+  std::string readerType;
+
+  ///Reader's properties
+  std::map<std::string,Property*> readerProperties;
 
 public:
 
-    ReaderDescription(std::string readerName, std::string readerDescription, std::string readerType, std::map<std::string,Property*> readerProperties)
-    {
-      this->readerName = readerName;
-      this->readerDescription = readerDescription;
-      this->readerType = readerType;
-      this->readerProperties = readerProperties;
-    }
+  /**
+   *  Default constructor, creates a new Reader Description with the given parameters
+   *  @param readerName Name of the Reader
+   *  @param readerDescription Description for the Reader
+   *  @param readerType The type of a Reader this is
+   *  @param readerProperties A map of the Reader's properties
+   */
+  ReaderDescription(std::string readerName, std::string readerDescription, std::string readerType, std::map<std::string,Property*> readerProperties)
+  {
+    this->readerName = readerName;
+    this->readerDescription = readerDescription;
+    this->readerType = readerType;
+    this->readerProperties = readerProperties;
+  }
 
-    std::string getReaderDescription() const
-    {
-        return readerDescription;
-    }
+  /**
+   * Returns the Reader's description
+   * @return Description of the Reader
+   */
+  std::string getReaderDescription() const
+  {
+      return readerDescription;
+  }
 
-    std::string getReaderName() const
-    {
-        return readerName;
-    }
+  /**
+   * Returns the name of the Reader
+   * @return Name of the Reader
+   */
+  std::string getReaderName() const
+  {
+      return readerName;
+  }
 
-    std::string getReaderType() const
-    {
-        return readerType;
-    }
+  /**
+   * Returns the Reader's type
+   * @return Reader's type
+   */
+  std::string getReaderType() const
+  {
+      return readerType;
+  }
 
-    std::map<std::string,Property*> getReaderProperties() const
-    {
-      return readerProperties;
-    }
+  /**
+   * Returns a map of the Reader's properties
+   * @return Map of the Reader's properties
+   */
+  std::map<std::string,Property*> getReaderProperties() const
+  {
+    return readerProperties;
+  }
 
 };
 

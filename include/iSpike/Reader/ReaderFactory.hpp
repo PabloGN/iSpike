@@ -17,14 +17,21 @@
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include <iSpike/Reader/ReaderDescription.hpp>
 
+/**
+ * @class ReaderFactory
+ * @brief A Factory of Readers
+ *
+ * The Reader Factory can list all Readers available in the system and can produce a particular type of a Reader
+ */
 class ReaderFactory {
 
 private:
+  /// A list of available readers
   std::vector<ReaderDescription> readerList;
 
 public:
 
-  /*
+  /**
    * Default constructor
    * Initialises the list of readers, if you've made a new reader, add it here!
    */
@@ -36,8 +43,10 @@ public:
     this->readerList.push_back(YarpVisualReader().getReaderDescription());
   }
 
-  /*
+  /**
    * Returns all readers of a particular type
+   * @param readerType The type of a reader we are interested in
+   * @return A list of all readers of a particular type
    */
   std::vector<ReaderDescription> getReadersOfType(std::string readerType)
   {
@@ -50,22 +59,25 @@ public:
     return result;
   }
 
-  /*
-   * Creates a particular reader
+  /**
+   * Creates and initialises a particular reader
+   * @param readerName Type of a Reader we want to create
+   * @param readerProperties Initialisation properties for the new Reader
+   * @return A new Reader
    */
-  Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
+  Reader* create(std::string readerType, std::map<std::string,Property*> readerProperties)
   {
     Reader* result;
-    if(readerName == "File Angle Reader")
+    if(readerType == "File Angle Reader")
     {
       result = new FileAngleReader();
-    } else if(readerName == "File Visual Reader")
+    } else if(readerType == "File Visual Reader")
     {
       result = new FileVisualReader();
-    } else if(readerName == "Yarp Angle Reader")
+    } else if(readerType == "Yarp Angle Reader")
     {
       result = new YarpAngleReader();
-    } else if(readerName == "Yarp Visual Reader")
+    } else if(readerType == "Yarp Visual Reader")
     {
       result = new YarpVisualReader();
     } else {
