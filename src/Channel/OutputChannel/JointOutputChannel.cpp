@@ -7,6 +7,7 @@
 #include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
@@ -37,7 +38,7 @@ void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Pr
 
 void JointOutputChannel::step()
 {
-  this->threadPointer->interrupt();
+	this->wait_condition.notify_all();
 }
 
 void JointOutputChannel::workerFunction()
@@ -69,7 +70,7 @@ void JointOutputChannel::workerFunction()
       std::cout << "[";
       for(unsigned int i = 0; i < variables.size(); i++)
       {
-        //variables[i] = variables[i] * exp(-(this->rateOfDecay));
+        variables[i] = variables[i] * exp(-(this->rateOfDecay));
         std::cout << variables[i] << ", ";
       }
       std::cout << "]" << std::endl;
