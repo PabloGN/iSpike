@@ -35,6 +35,7 @@ void JointInputChannel::workerFunction()
     std::vector<double> voltages(this->numOfNeurons);
     if(angles.size() > 0)
     {
+      std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
       for(int i = 0; i < this->numOfNeurons; i++)
       {
         double currentAngle;
@@ -43,7 +44,6 @@ void JointInputChannel::workerFunction()
         else
           currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * i + this->minAngle;
         double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(this->sd,2));
-        std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(this->sd,2));
         voltages[i] = main * exp(-exponent);
       }
