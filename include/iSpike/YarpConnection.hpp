@@ -23,51 +23,18 @@ class YarpConnection {
 
 private:
   std::map<std::string, YarpPortDetails*>* portMap;
-  bool initialised;
   tcp::socket* connectionSocket;
   boost::asio::io_service io_service;
 
-public:
-
-  YarpConnection(std::string ip, std::string port);
-
-  std::map<std::string, YarpPortDetails*>* getPortMap()
-  {
-    return portMap;
-  }
-
   /**
    * Read text from a previously connected socket
-   * @param socket The socket to read from
    * @return The text that has been read
    */
   std::string read_text();
 
   /**
-   * Read text until a given string is received
-   * @param socket The socket to read from
-   * @param until The string where we stop
-   * @return The text that has been read including the stop characters
-   */
-  std::string read_until(std::string until);
-
-  /**
-   * Write text contents to a previously opened socket
-   * @param socket The socket to write to
-   * @param message The message to be written
-   * @return something
-   */
-  int write_text(std::string message);
-
-  /**
-   * Register a new port with the nameserver?
-   */
-  std::string register_port(std::string port);
-
-  /**
    * Read binary contents from a previously opened socket
    * as per http://eris.liralab.it/yarpdoc/yarp_protocol.html
-   * @param socket A previously opened socket
    * @param buffer Contents will go here
    * @param length How much of the contents to read
    */
@@ -76,31 +43,71 @@ public:
   /**
    * Write binary contents to a previously opened socket
    * as per http://eris.liralab.it/yarpdoc/yarp_protocol.html
-   * @param socket A previously opened socket
    * @param buffer The contents to write
    */
   int write_binary(unsigned char* buffer, int length);
 
   /**
+   * Disconnect the given socket
+   */
+  void disconnect();
+
+  /**
+   * Reads a Yarp binary data header
+   * @return Size of the header
+   */
+  int read_data_header();
+
+  /**
+   * Reads an integer value from the Yarp connection
+   * @return the value read
+   */
+  int read_int(unsigned char* buf);
+
+public:
+
+  /**
+   * Default constructor, creates a new Yarp Connection
+   * @param ip IP address of a Yarp nameserver
+   * @param port Yarp nameserver port
+   */
+  YarpConnection(std::string ip, std::string port);
+
+  /**
+   * Retrieves a map of Yarp ports available on the nameserver
+   * @return A map of Yarp ports
+   */
+  std::map<std::string, YarpPortDetails*>* getPortMap()
+  {
+    return portMap;
+  }
+
+  /**
+   * Read text until a given string is received
+   * @param until The string where we stop
+   * @return The text that has been read including the stop characters
+   */
+  std::string read_until(std::string until);
+
+  /**
+   * Write text contents to a previously opened socket
+   * @param message The message to be written
+   * @return something
+   */
+  int write_text(std::string message);
+
+  /**
    * Connect to a given YARP port
    * @param ip The IP address of the Yarp server
    * @param port The port number to connect to
-   * @param socket The socket to use for connection
    * @return true if connected, false otherwise
    */
   int connect_to_port(std::string ip, std::string port);
 
   /**
-   * Disconnect the given socket
-   * @param socket The socket to disconnect
-   */
-  void disconnect();
-
-  /**
    * Reverses the connection to enable text to be read
    * It will no longer be possible to write to this
    * port
-   * @param socket The connection to be reversed
    */
   void prepare_to_read_text();
 
@@ -108,20 +115,14 @@ public:
    * Reverses the connection to enable binary contents to be
    * read. It will no longer be possible to write to this
    * port
-   * @param socket The connection to be reversed
    */
   void prepare_to_read_binary();
 
+  /**
+   * Retrieves a bitmap image across a Yarp connection
+   * @return The retrieved Bitmap
+   */
   Bitmap* read_image();
-
-  int read_data_header();
-
-  int read_int(unsigned char* buf);
-
-  bool getInitialised() const
-  {
-      return initialised;
-  }
 
 };
 
