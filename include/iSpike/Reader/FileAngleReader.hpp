@@ -2,7 +2,7 @@
  * FileAngleReader.hpp
  *
  *  Created on: 9 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef FILEANGLEREADER_HPP_

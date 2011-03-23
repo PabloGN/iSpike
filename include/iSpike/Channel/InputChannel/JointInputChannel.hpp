@@ -2,7 +2,7 @@
  * JointInputChannel.hpp
  *
  *  Created on: 31 Dec 2010
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef JOINTINPUTCHANNEL_HPP_

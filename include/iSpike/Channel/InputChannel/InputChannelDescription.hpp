@@ -2,7 +2,7 @@
  * InputChannelDescription.hpp
  *
  *  Created on: 13 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef INPUTCHANNELDESCRIPTION_HPP_

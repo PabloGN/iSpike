@@ -2,7 +2,7 @@
  * FileAngleWriter.hpp
  *
  *  Created on: 9 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef FILEANGLEWRITER_HPP_

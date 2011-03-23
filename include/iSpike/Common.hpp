@@ -2,7 +2,7 @@
  * Common.hpp
  *
  *  Created on: 7 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef COMMON_HPP_

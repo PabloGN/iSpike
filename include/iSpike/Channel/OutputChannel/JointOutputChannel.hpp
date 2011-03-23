@@ -2,7 +2,7 @@
  * JointOutputChannel.hpp
  *
  *  Created on: 22 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef JOINTOUTPUTCHANNEL_HPP_

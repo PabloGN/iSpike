@@ -2,7 +2,7 @@
  * ChannelController.hpp
  *
  *  Created on: 7 Jan 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef CHANNELCONTROLLER_HPP_

@@ -2,6 +2,6 @@
  * ReaderFactory.cpp
  *
  *  Created on: 13 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 #include <iSpike/Reader/ReaderFactory.hpp>

@@ -2,7 +2,7 @@
  * OutputChannelFactory.hpp
  *
  *  Created on: 13 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef OUTPUTCHANNELFACTORY_HPP_

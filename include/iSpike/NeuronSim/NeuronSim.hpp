@@ -2,7 +2,7 @@
  * NeuronSim.hpp
  *
  *  Created on: 6 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef NEURONSIM_HPP_

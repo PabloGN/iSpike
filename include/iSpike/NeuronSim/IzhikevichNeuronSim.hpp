@@ -2,7 +2,7 @@
  * IzhikevichNeuronSim.hpp
  *
  *  Created on: 6 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef IZHIKEVICHNEURONSIM_HPP_

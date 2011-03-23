@@ -2,7 +2,7 @@
  * LogpolarVisualDataReducer.hpp
  *
  *  Created on: 5 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef LOGPOLARVISUALDATAREDUCER_HPP_

@@ -2,7 +2,7 @@
  * Bitmap.hpp
  *
  *  Created on: 6 Jan 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef BITMAP_HPP_

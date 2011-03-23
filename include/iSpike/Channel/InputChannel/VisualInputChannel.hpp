@@ -2,7 +2,7 @@
  * VisualInputChannel.hpp
  *
  *  Created on: 31 Dec 2010
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef VISUALINPUTCHANNEL_HPP_

@@ -2,7 +2,7 @@
  * FileVisualReader.hpp
  *
  *  Created on: 1 Jan 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef FILEVISUALREADER_HPP_

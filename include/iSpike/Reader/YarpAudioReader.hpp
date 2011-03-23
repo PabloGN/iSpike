@@ -2,7 +2,7 @@
  * AudioReader.hpp
  *
  *  Created on: 1 Jan 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef YARPAUDIOREADER_HPP_

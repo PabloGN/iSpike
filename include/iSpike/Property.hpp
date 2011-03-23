@@ -2,7 +2,7 @@
  * Property.hpp
  *
  *  Created on: 12 Mar 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef PROPERTY_HPP_

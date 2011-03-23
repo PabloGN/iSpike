@@ -2,7 +2,7 @@
  * Writer.hpp
  *
  *  Created on: 23 Feb 2011
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef WRITER_HPP_

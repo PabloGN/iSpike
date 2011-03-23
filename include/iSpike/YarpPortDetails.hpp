@@ -2,7 +2,7 @@
  * YarpPortDetails.hpp
  *
  *  Created on: 31 Dec 2010
- *      Author: cembo
+ *      Author: Edgars Lazdins
  */
 
 #ifndef YARPPORTDETAILS_HPP_
