@@ -50,19 +50,19 @@ public:
 
   /**
    * Creates a particular Input Channel
-   * @param channelType Type of Input Channel to create
+   * @param channelName Type of Input Channel to create
    * @param reader A reader for the new Input Channel
    * @param channelProperties A map of properties for the new Input Channel
    * @return An initialised Input Channel of a given type
    */
-  InputChannel* create(std::string channelType, Reader* reader, std::map<std::string,Property*> channelProperties)
+  InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties)
   {
-    if(channelType == "Joint Input Channel")
+    if(channelName == "Joint Input Channel")
     {
       JointInputChannel* channel = new JointInputChannel();
       channel->initialise((AngleReader*)reader, channelProperties);
       return channel;
-    } else if(channelType == "Visual Input Channel")
+    } else if(channelName == "Visual Input Channel")
     {
       VisualInputChannel* channel = new VisualInputChannel();
       channel->initialise((VisualReader*)reader, channelProperties);

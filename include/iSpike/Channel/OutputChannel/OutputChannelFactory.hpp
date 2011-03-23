@@ -47,14 +47,14 @@ public:
 
   /**
    * Creates a particular Output Channel
-   * @param channelType Type of Output Channel to create
+   * @param channelName Type of Output Channel to create
    * @param writer A writer for the new Output Channel
    * @param channelProperties A map of properties for the new Output Channel
    * @return An initialised Output Channel of a given type
    */
-  OutputChannel* create(std::string channelType, Writer* writer, std::map<std::string,Property*> channelProperties)
+  OutputChannel* create(std::string channelName, Writer* writer, std::map<std::string,Property*> channelProperties)
   {
-    if(channelType == "Joint Output Channel")
+    if(channelName == "Joint Output Channel")
     {
       JointOutputChannel* channel = new JointOutputChannel();
       channel->initialise((AngleWriter*)writer, channelProperties);

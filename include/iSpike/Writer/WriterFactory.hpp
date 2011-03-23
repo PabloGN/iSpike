@@ -58,17 +58,17 @@ public:
 
   /**
    * Creates a particular writer
-   * @param writerType Type of a Writer we want to create
+   * @param writerName Type of a Writer we want to create
    * @param writerProperties A map of properties for the new Writer
    * @return An initialised Writer of a given type
    */
-  Writer* create(std::string writerType, std::map<std::string,Property*> writerProperties)
+  Writer* create(std::string writerName, std::map<std::string,Property*> writerProperties)
   {
     Writer* result;
-    if(writerType == "File Angle Writer")
+    if(writerName == "File Angle Writer")
     {
       result = new FileAngleWriter();
-    } else if(writerType == "Yarp Angle Writer")
+    } else if(writerName == "Yarp Angle Writer")
     {
       result = new YarpAngleWriter();
     } else {

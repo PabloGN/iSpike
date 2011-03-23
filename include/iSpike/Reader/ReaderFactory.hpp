@@ -65,19 +65,19 @@ public:
    * @param readerProperties Initialisation properties for the new Reader
    * @return A new Reader
    */
-  Reader* create(std::string readerType, std::map<std::string,Property*> readerProperties)
+  Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
   {
     Reader* result;
-    if(readerType == "File Angle Reader")
+    if(readerName == "File Angle Reader")
     {
       result = new FileAngleReader();
-    } else if(readerType == "File Visual Reader")
+    } else if(readerName == "File Visual Reader")
     {
       result = new FileVisualReader();
-    } else if(readerType == "Yarp Angle Reader")
+    } else if(readerName == "Yarp Angle Reader")
     {
       result = new YarpAngleReader();
-    } else if(readerType == "Yarp Visual Reader")
+    } else if(readerName == "Yarp Visual Reader")
     {
       result = new YarpVisualReader();
     } else {
