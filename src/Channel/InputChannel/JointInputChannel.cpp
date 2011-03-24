@@ -31,7 +31,7 @@ void JointInputChannel::workerFunction()
     ///calculate the standard deviation as a percentage of the image
     ///3 standard deviations in each direction cover almost all of the range
     int totalNeurons = this->width * this->height;
-    double standardDeviation = totalNeurons / 6;
+    double standardDeviation = (totalNeurons * this->sd) / 6;
 
     std::vector<double> angles = this->reader->getData();
     std::vector<double> currents(this->width * this->height);
@@ -52,6 +52,7 @@ void JointInputChannel::workerFunction()
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
         ///Update the current map with the value for this angle
         currents[i] = main * exp(-exponent);
+        std::cout << "Angle: " << currentAngle << "Current: " << main * exp(-exponent) << std::endl;
       }
 
       boost::mutex::scoped_lock lock(this->mutex);

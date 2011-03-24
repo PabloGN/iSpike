@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
       int typeOfChannel;
       std::cin >> typeOfChannel;
       std::cin.ignore();
+      Channel* createdChannel;
       if(typeOfChannel == 1)
       {
         ReaderFactory readerFactory;
@@ -91,6 +92,7 @@ int main(int argc, char* argv[])
         Reader* reader = readerFactory.create(readerDescriptions[selectedReader].getReaderName(), constructedReaderProperties);
         InputChannel* channel = channelFactory.create(inputChannelDescriptions[selectedChannel].getChannelName(), reader, constructedChannelProperties);
         channel->start();
+        createdChannel = channel;
       } else if(typeOfChannel == 2)
       {
         OutputChannelFactory outputFactory;
@@ -141,6 +143,27 @@ int main(int argc, char* argv[])
         Writer* writer = writerFactory.create(writerDescriptions[selectedWriter].getWriterName(), constructedWriterProperties);
         OutputChannel* channel = outputFactory.create(outputChannelDescriptions[selectedChannel].getChannelName(), writer, constructedChannelProperties);
         channel->start();
+        createdChannel = channel;
+      }
+      while(true)
+      {
+        boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+        createdChannel->step();
+        if(typeOfChannel == 1)
+        {
+          std::vector<std::vector<int> > firings = ((InputChannel*)createdChannel)->getFiring();
+           std::cout << "[";
+           if (!firings.empty())
+           for(unsigned int i = 0; i < firings.front().size(); i++)
+           {
+             std::cout << firings.front().at(i) << ",";
+           }
+           std::cout << "]" << std::endl;
+        }
+        else
+        {
+
+        }
       }
       return 1;
 }
