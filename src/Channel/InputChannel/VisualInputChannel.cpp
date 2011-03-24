@@ -72,8 +72,13 @@ void VisualInputChannel::start()
     this->buffer = new std::vector< std::vector<int> >();
     this->reader->start();
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 100);
+<<<<<<< .mine
+    this->filter = new DOGVisualFilter(this->dataReducer, 100);
+    this->neuronSim = new IzhikevichNeuronSim(320*240, 0.1, 0.2, -65, 2, 20, 0);
+=======
     this->filter = new DOGVisualFilter(this->dataReducer, 100, 3, 2);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD);
+>>>>>>> .r48
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;
   }
