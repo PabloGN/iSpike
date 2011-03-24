@@ -26,7 +26,6 @@ private:
   boost::condition wait_condition;
   boost::mutex mutex, wait_mutex;
   bool initialised;
-  int numOfNeurons;
   double minAngle;
   double maxAngle;
   double rateOfDecay;

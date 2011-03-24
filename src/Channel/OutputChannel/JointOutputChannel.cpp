@@ -45,7 +45,7 @@ void JointOutputChannel::step()
 
 void JointOutputChannel::workerFunction()
 {
-  std::vector<double> variables(this->numOfNeurons,0);
+  std::vector<double> variables(this->width * this->height,0);
   while(true)
   {
     bool enoughFrames = false;
@@ -80,7 +80,7 @@ void JointOutputChannel::workerFunction()
       double weightSum = 0;
       for(unsigned int j = 0; j < variables.size(); j++)
       {
-        double currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * j + this->minAngle;
+        double currentAngle = (this->maxAngle - this->minAngle) / ((this->width * this->height)-1) * j + this->minAngle;
         angleSum += variables[j] * currentAngle;
         weightSum += variables[j];
       }
