@@ -10,6 +10,7 @@
 #include <boost/mpl/vector.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/YarpPortDetails.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -99,39 +100,19 @@ YarpConnection::YarpConnection(std::string ip, std::string port)
 
 int YarpConnection::connect_to_port(std::string ip, std::string port)
 {
-  try
-      {
-        boost::asio::io_service io_service;
-        //this->connectionSocket = new tcp::socket(io_service);
-        int intPort = boost::lexical_cast<int>(port);
-        boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), intPort);
-        /*tcp::resolver resolver(io_service);
-        tcp::resolver::query query(boost::asio::ip::tcp::v4(), ip, port);
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end;*/
-        boost::system::error_code error = boost::asio::error::host_not_found;
+	boost::asio::io_service io_service;
+	int intPort = boost::lexical_cast<int>(port);
+	boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), intPort);
+	boost::system::error_code error = boost::asio::error::host_not_found;
 
-        this->connectionSocket->close();
-        this->connectionSocket->connect(endpoint, error);
+	this->connectionSocket->close();
+	this->connectionSocket->connect(endpoint, error);
 
-        /*while (error && endpoint_iterator != end)
-        {
-          this->connectionSocket->close();
-          boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
-          endpoint_iterator++;
-          this->connectionSocket->connect(endpoint, error);
-        }*/
-        if (error || !this->connectionSocket->is_open())
-        {
-          throw boost::system::system_error(error);
-        }
-        return true;
-      }
-      catch (std::exception& e)
-      {
-        std::cerr << e.what() << std::endl;
-        return false;
-      }
+	if (error || !this->connectionSocket->is_open())
+	{
+	  throw ISpikeException(error.message());
+	}
+	return true;
 }
 
 void YarpConnection::disconnect(){
@@ -162,8 +143,7 @@ void YarpConnection::prepare_to_read_binary()
   // Check for acknowledgement
   read_binary(hdr,8);
   if (hdr[7]!='P') {
-      //printf("Cannot make connection handshake\n");
-      //exit(1);
+	  throw ISpikeException("Cannot make connection handshake");
   }
 
   // Send header for payload (a command to reverse connection)
@@ -196,16 +176,14 @@ int YarpConnection::read_data_header()
   read_binary(load_hdr,8);
   for (i=0; i<8; i++) {
       if (load_hdr[i]!=load_hdr_ref[i]) {
-          std::cout << "Unexpected data received";
-          //exit(1);
+          throw ISpikeException("Unexpected data received");
       }
   }
   unsigned char load_hdr2[10];
   load_hdr2[1] = 0;
   read_binary(load_hdr2,10);
   if (load_hdr2[1]!=1) {
-    std::cout << "Corrupt data received";
-      //exit(1);
+    throw ISpikeException("Corrupt data received");
   }
   int blocks = load_hdr2[0];
   int len = 0;
@@ -221,10 +199,8 @@ int YarpConnection::read_data_header()
   }
   read_binary((unsigned char *)load_len,4);
   for (i=0; i<4; i++) {
-      if (load_len[i]!=0) {
-        std::cout << "Unexpected lengths received";
-          //exit(1);
-      }
+      if (load_len[i]!=0)
+    	  throw ISpikeException("Unexpected lengths received");
   }
 
   // extract the port header part
@@ -234,22 +210,19 @@ int YarpConnection::read_data_header()
   len -= 8;
   port_message_len -= 8;
   if (command_header[4]!='~') {
-    std::cout << "Unexpected port command received\n";
-      //exit(1);
+	  throw ISpikeException("Unexpected port command received");
   }
   unsigned char cmd[256] = "?";
   cmd[0] = command_header[5];
   if (cmd[0]=='\0') {
       if (port_message_len>sizeof(cmd)) {
-        std::cout << "Port command too big\n";
-          //exit(1);
+    	  throw ISpikeException("Port command too big\n");
       }
       read_binary(cmd,port_message_len);
       len -= port_message_len;
   }
   if (cmd[0]!='d') {
-    std::cout << "Unexpected port command!";
-      //exit(1);
+	  throw ISpikeException("Unexpected port command!");
   }
 
   return len;
@@ -266,8 +239,7 @@ Bitmap* YarpConnection::read_image()
       int i;
       result = read_binary((unsigned char*)header,sizeof(header));
       if (result<0) {
-          std::cout << "Failed to read image header\n";
-          //exit(1);
+          throw ISpikeException("Failed to read image header");
       }
       unsigned char format[5] = {0,0,0,0,0};
       for (i=0; i<4; i++) {
@@ -279,8 +251,7 @@ Bitmap* YarpConnection::read_image()
       //printf("Received image, size %dx%d, pixel depth %d, format %s\n",
       //       width, height, depth, format);
       if (image_len!=width*height*depth) {
-          std::cout << "Image may have padding, yarpreadimage.c needs to be updated to deal with that.\n";
-          //exit(1);
+    	  throw ISpikeException("Image may have padding, yarpreadimage.c needs to be updated to deal with that.");
       }
       /*if (image_len>buffer_size) {
           std::cout << "Image too big to store, increase buffer size...\n";

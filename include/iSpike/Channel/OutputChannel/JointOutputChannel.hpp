@@ -54,10 +54,15 @@ public:
           0.2,
           "The rate of decay of the angle variables"
         );
-    properties["Number Of Neurons"] = new IntegerProperty(
-          "Number Of Neurons",
-          100,
-          "The number of neurons to create"
+    properties["Neuron Width"] = new IntegerProperty(
+          "Neuron Width",
+          10,
+          "Width of the neuron network"
+        );
+    properties["Neuron Height"] = new IntegerProperty(
+          "Neuron Height",
+          1,
+          "Height of the neuron network"
         );
     /**
      * Now let's create the description

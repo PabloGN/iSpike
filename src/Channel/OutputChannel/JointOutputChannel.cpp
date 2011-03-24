@@ -33,7 +33,9 @@ void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Pr
   this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
   this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
   this->rateOfDecay = ((DoubleProperty*)(properties["Rate Of Decay"]))->getValue();
-  this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
+  this->width = ((IntegerPropery*)(properties["Neuron Width"]))->getValue();
+  this->height = ((IntegerPropery*)(properties["Neuron Height"]))->getValue();
+
 }
 
 void JointOutputChannel::step()
