@@ -48,7 +48,7 @@ void VisualInputChannel::workerFunction()
       ///create a current map for the neuron simulator
       std::vector<double>* currents = new std::vector<double>(this->width * this->height);
       for(int i = 0; i < this->width; i++)
-        for(int j = 0; i < this->height; j++)
+        for(int j = 0; j < this->height; j++)
         {
           //double voltage = (unsigned int)rPlusGMinus.getContents()[i];
           ///retrieve the pixel intensity at the coordinates

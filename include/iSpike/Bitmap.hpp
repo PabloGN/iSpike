@@ -38,7 +38,8 @@ class Bitmap
     }
 
     ~Bitmap(){
-      delete this->contents;
+    	if((this->width * this->height * this->depth) > 0)
+    		delete this->contents;
     }
 
     unsigned char *getContents() const
