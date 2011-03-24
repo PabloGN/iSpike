@@ -46,6 +46,17 @@ class Bitmap
         return contents;
     }
 
+    /**
+     * Returns a pointer to the corresponding pixel in the image
+     * @return pointer to the pixel in image
+     */
+    unsigned char* getPixel(int x, int y)
+    {
+      if( x >= 0 && x < this->width
+          && y >= 0 && y < this->height)
+        return contents + (this->width * y) + x;
+    }
+
     int getDepth() const
     {
         return depth;

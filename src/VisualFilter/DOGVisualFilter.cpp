@@ -10,20 +10,36 @@
 #include <iSpike/Common.hpp>
 #include <boost/math/constants/constants.hpp>
 
-DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval)
+/**
+ * Default constructor
+ * @param reducer The Visual Data reducer where the foveated/logpolar image is retrieved from
+ * @param queryInterval How often the thread queries new information
+ * @param plusSigma The intensity of the Positive blur
+ * @param minusSigme The intensity of the Negative blur
+ */
+DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma)
 {
   this->reducer = reducer;
   this->queryInterval = queryInterval;
   this->rPlusGMinus = new Bitmap(0, 0, 0, NULL);
   this->gPlusRMinus = new Bitmap(0, 0, 0, NULL);
   this->bPlusYMinus = new Bitmap(0, 0, 0, NULL);
+  this->plusSigma = plusSigma;
+  this->minusSigma = minusSigma;
   this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DOGVisualFilter::workerFunction, this)));
 }
 
+/**
+ * Worker function, on each iteration :
+ *  * Retrives a reduced image
+ *  * Decomposes it into individual colour channels
+ *  * Blurs each of these channels
+ *  * Subtracts the channels one from another
+ *  * Normalises the resultant images
+ *  * Stores each image in the appropriate buffer
+ */
 void DOGVisualFilter::workerFunction()
 {
-  int plusSigma = 3;
-  int minusSigma = 2;
   while(true)
   {
     Bitmap reducedImage = this->reducer->getReducedImage();
@@ -33,12 +49,12 @@ void DOGVisualFilter::workerFunction()
       unsigned char* green = extractGreenChannel(&reducedImage);
       unsigned char* blue = extractBlueChannel(&reducedImage);
       unsigned char* yellow = extractYellowChannel(red, green, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* redPlusGaussian = gaussianBlur(red, plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* redMinusGaussian = gaussianBlur(red, minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* greenPlusGaussian = gaussianBlur(green, plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* greenMinusGaussian = gaussianBlur(green, minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* bluePlusGaussian = gaussianBlur(blue, plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
-      unsigned char* yellowMinusGaussian = gaussianBlur(yellow, minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* redPlusGaussian = gaussianBlur(red, this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* redMinusGaussian = gaussianBlur(red, this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* greenPlusGaussian = gaussianBlur(green, this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* greenMinusGaussian = gaussianBlur(green, this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* bluePlusGaussian = gaussianBlur(blue, this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight());
+      unsigned char* yellowMinusGaussian = gaussianBlur(yellow, this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight());
       unsigned char* rPlusGMinus = subtractImages(redPlusGaussian, greenMinusGaussian, 1, 1, reducedImage.getWidth(), reducedImage.getHeight());
       unsigned char* gPlusRMinus = subtractImages(greenPlusGaussian, redMinusGaussian, 1, 1, reducedImage.getWidth(), reducedImage.getHeight());
       unsigned char* bPlusYMinus = subtractImages(bluePlusGaussian, yellowMinusGaussian, 1, 1, reducedImage.getWidth(), reducedImage.getHeight());

@@ -43,20 +43,45 @@ private:
   double parameterB;
   double parameterC;
   double parameterD;
-  int numOfNeurons;
+  int xOffset;
+  int yOffset;
+  int opponentMap;
 
 public:
 
+  /**
+   * Default constructor, initialises the default parameters
+   */
   VisualInputChannel()
   {
     /**
      * First define the properties of this channel
      */
     std::map<std::string,Property*> properties;
-    properties["Number Of Neurons"] = new IntegerProperty(
-          "Number Of Neurons",
-          76800,
-          "The number of neurons to create"
+    properties["Image Offset X"] = new IntegerProperty(
+          "Image Offset X",
+          0,
+          "Horizontal offset in the colour oponent image"
+        );
+    properties["Image Offset Y"] = new IntegerProperty(
+          "Image Offset Y",
+          0,
+          "Vertical offset in the colour oponent image"
+        );
+    properties["Neuron Width"] = new IntegerProperty(
+          "Neuron Width",
+          320,
+          "Width of the neuron network"
+        );
+    properties["Neuron Height"] = new IntegerProperty(
+          "Neuron Height",
+          240,
+          "Height of the neuron network"
+        );
+    properties["Opponency Map"] = new IntegerProperty(
+          "Opponency Map",
+          0,
+          "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)"
         );
     properties["Parameter A"] = new DoubleProperty(
           "Parameter A",
@@ -89,7 +114,7 @@ public:
         );
   }
 
-  /*
+  /**
    * Initialises the channel with the default parameters
    */
   void initialise(VisualReader* reader)
@@ -98,7 +123,8 @@ public:
   }
 
   /**
-   * @param The reader where the image is retrieved from
+   * @param reader The reader where the image is retrieved from
+   * @param properties tThe initialisation properties
    */
   void initialise(VisualReader* reader, std::map<std::string,Property*> properties);
 

@@ -33,6 +33,8 @@ private:
   int queryInterval;
   boost::shared_ptr<boost::thread> threadPointer;
   boost::mutex mutex;
+  double plusSigma;
+  double minusSigma;
 
   /**
    * Main thread execution loop
@@ -71,7 +73,7 @@ private:
 
 public:
 
-  DOGVisualFilter(VisualDataReducer* reducer, int queryInterval);
+  DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma);
 
   /**
    * Returns Red Plus Green Minus Map

@@ -33,7 +33,6 @@ private:
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
   bool initialised;
-  int numOfNeurons;
   int degreeOfFreedom;
   double sd;
   double minAngle;
@@ -41,6 +40,9 @@ private:
 
 public:
 
+  /**
+   * Default constructor, initialises the default channel properties
+   */
   JointInputChannel()
   {
     /**
@@ -54,8 +56,8 @@ public:
         );
     properties["Standard Deviation"] = new DoubleProperty(
           "Standard Deviation",
-          2,
-          "The standard deviation to apply to the angles"
+          0.5,
+          "The standard deviation as a percentage of neurons covered"
         );
     properties["Minimum Angle"] = new DoubleProperty(
           "Minimum Angle",
@@ -67,10 +69,15 @@ public:
           90,
           "The maximum angle to read"
         );
-    properties["Number Of Neurons"] = new IntegerProperty(
-          "Number Of Neurons",
-          20,
-          "The number of neurons to create"
+    properties["Neuron Width"] = new IntegerProperty(
+          "Neuron Width",
+          10,
+          "Width of the neuron network"
+        );
+    properties["Neuron Height"] = new IntegerProperty(
+          "Neuron Height",
+          1,
+          "Height of the neuron network"
         );
     /**
      * Now let's create the description
@@ -83,13 +90,19 @@ public:
         );
   }
 
+  /**
+   * Initialises the Joint Input Channel with the default parameters
+   * @param reader The associated Angle Reader
+   */
   void initialise(AngleReader* reader)
   {
     initialise(reader, channelDescription->getChannelProperties());
   }
 
   /**
-   * @param The reader where the image is retrieved from
+   * Initialises the Joint Input Channel with the parameters provided
+   * @param reader The associated Angle Reader
+   * @param properties The initialisation property map
    */
   void initialise(AngleReader* reader, std::map<std::string,Property*> properties);
 
@@ -100,31 +113,19 @@ public:
 
   /**
    * Retrieves the spike pattern
+   * @return The spike pattern
    */
   std::vector< std::vector<int> > getFiring();
 
-  boost::shared_ptr<boost::thread> getThreadPointer()
-  {
-      return threadPointer;
-  }
-
+  /**
+   * Steps the conversion loop
+   */
   void step();
 
-  void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
-  {
-      this->threadPointer = threadPointer;
-  }
-
-  AngleReader* getReader() const
-  {
-      return reader;
-  }
-
-  void setReader(AngleReader *reader)
-  {
-      this->reader = reader;
-  }
-
+  /**
+   * Returns the current initialisation status of this channel
+   * @return Current initialisation status
+   */
   bool isInitialised()
   {
     return this->initialised;

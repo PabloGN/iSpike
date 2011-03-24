@@ -24,39 +24,42 @@ std::vector< std::vector<int> > JointInputChannel::getFiring()
 void JointInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
-  IzhikevichNeuronSim neuronSim(this->numOfNeurons, 0.1, 0.2, -65, 2);
+  IzhikevichNeuronSim neuronSim(this->width * this->height, 0.1, 0.2, -65, 2);
 
   while(true)
   {
-    //boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
-    //boost::posix_time::time_duration start( time.time_of_day() );
+    ///calculate the standard deviation as a percentage of the image
+    ///3 standard deviations in each direction cover almost all of the range
+    int totalNeurons = this->width * this->height;
+    double standardDeviation = totalNeurons / 6;
 
     std::vector<double> angles = this->reader->getData();
-    std::vector<double> voltages(this->numOfNeurons);
+    std::vector<double> currents(this->width * this->height);
     if(angles.size() > 0)
     {
       std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
-      for(int i = 0; i < this->numOfNeurons; i++)
+      ///Iterate over the each neuron
+      for(int i = 0; i < this->width * this->height; i++)
       {
         double currentAngle;
         if (i == 0)
           currentAngle = this->minAngle;
         else
-          currentAngle = (this->maxAngle - this->minAngle) / (this->numOfNeurons-1) * i + this->minAngle;
-        double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(this->sd,2));
-        double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(this->sd,2));
-        voltages[i] = main * exp(-exponent);
+          ///Generate the current angle by interpolating the angle range over the neuron count
+          currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
+        ///Put a normal distribution at the centre of the observed angle with sd as defined earlier
+        double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(standardDeviation,2));
+        double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
+        ///Update the current map with the value for this angle
+        currents[i] = main * exp(-exponent);
       }
 
       boost::mutex::scoped_lock lock(this->mutex);
-      std::vector<int>* spikes = neuronSim.getSpikes(&voltages);
+      std::vector<int>* spikes = neuronSim.getSpikes(&currents);
       this->buffer->push_back(*spikes);
       delete spikes;
     }
 
-    //time = boost::posix_time::microsec_clock::local_time();
-    //boost::posix_time::time_duration finish( time.time_of_day() );
-   // boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
     std::cout << "About to yield..." << std::endl;
     boost::mutex::scoped_lock lk(this->wait_mutex);
     this->wait_condition.wait(lk);
@@ -73,7 +76,7 @@ void JointInputChannel::start()
   if(!initialised)
   {
       this->reader->start();
-      this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this))));
+      this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this)));
       initialised = true;
       std::cout << "initialised" << std::endl;
   }
@@ -87,6 +90,7 @@ void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Pro
   this->sd = ((DoubleProperty*)(properties["Standard Deviation"]))->getValue();
   this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
   this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
-  this->numOfNeurons = ((IntegerProperty*)(properties["Number Of Neurons"]))->getValue();
-  this->setReader(reader);
+  this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
+  this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();
+  this->reader = reader;
 }
