@@ -63,7 +63,7 @@ public:
 
     std::map<std::string, YarpPortDetails*>::iterator iter;
     std::vector<std::string> yarpPortNames;
-    for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++) {
+    for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++)
     {
     	yarpPortNames.push_back(iter->first);
     }
