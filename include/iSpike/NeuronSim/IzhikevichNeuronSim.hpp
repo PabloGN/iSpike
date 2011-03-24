@@ -31,6 +31,8 @@ float c;
 float d;
 float* v;
 float* u;
+float currentFactor;
+float constantCurrent;
 
 public:
 
@@ -42,7 +44,7 @@ std::vector<int>* getSpikes(std::vector<double>* voltages);
 /**
  * Constructor, parameters a-d as in the Izhikevich model
  */
-IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d)
+IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d, float currentFactor, float constantCurrent)
 {
   this->v = new float[dimensions];
   this->u = new float[dimensions];
@@ -50,6 +52,8 @@ IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d)
   this->b = b;
   this->c = c;
   this->d = d;
+  this->currentFactor = currentFactor;
+  this->constantCurrent = constantCurrent;
   for(int n = 0; n < dimensions; n++)
   {
     v[n] = 0.0;
