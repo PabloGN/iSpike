@@ -61,13 +61,11 @@ public:
      * Iterate over them and add as options
      */
 
-    std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->begin();
+    std::map<std::string, YarpPortDetails*>::iterator iter;
     std::vector<std::string> yarpPortNames;
-    if (iter != this->portMap->end() )
+    for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++) {
     {
     	yarpPortNames.push_back(iter->first);
-    } else {
-      std::cout << "There are no ports!" << std::endl;
     }
 
     std::map<std::string,Property*> properties;
