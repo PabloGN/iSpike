@@ -36,7 +36,7 @@ SET (LIBRARY_OUTPUT_PATH "${MAINFOLDER}/lib")
 # Library build options
 #
 SET (project_build_shared 1)
-SET (project_build_static 0)
+SET (project_build_static 1)
 
 #
 # Project Search Paths
