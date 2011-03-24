@@ -24,7 +24,8 @@ std::vector< std::vector<int> > JointInputChannel::getFiring()
 void JointInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
-  IzhikevichNeuronSim neuronSim(this->width * this->height, 0.1, 0.2, -65, 2);
+  
+  IzhikevichNeuronSim neuronSim(this->numOfNeurons, 0.1, 0.2, -65, 2, 20, 0);
 
   while(true)
   {
@@ -45,8 +46,8 @@ void JointInputChannel::workerFunction()
         if (i == 0)
           currentAngle = this->minAngle;
         else
-          ///Generate the current angle by interpolating the angle range over the neuron count
-          currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
+		///Generate the current angle by interpolating the angle range over the neuron count
+        currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
         ///Put a normal distribution at the centre of the observed angle with sd as defined earlier
         double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(standardDeviation,2));
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
