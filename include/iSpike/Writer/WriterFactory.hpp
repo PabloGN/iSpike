@@ -27,6 +27,8 @@ class WriterFactory {
 private:
   /// A list of available writers
   std::vector<WriterDescription> writerList;
+  std::string ip;
+  std::string port;
 
 public:
 
@@ -37,7 +39,14 @@ public:
   WriterFactory()
   {
     writerList.push_back(FileAngleWriter().getWriterDescription());
-    writerList.push_back(YarpAngleWriter().getWriterDescription());
+  }
+
+  WriterFactory(std::string ip, std::string port)
+  {
+	writerList.push_back(FileAngleWriter().getWriterDescription());
+	writerList.push_back(YarpAngleWriter(ip, port).getWriterDescription());
+	this->ip = ip;
+	this->port = port;
   }
 
   /**
@@ -62,7 +71,10 @@ public:
    * @param writerProperties A map of properties for the new Writer
    * @return An initialised Writer of a given type
    */
-  Writer* create(std::string writerName, std::map<std::string,Property*> writerProperties)
+  Writer* create(
+			  std::string writerName,
+			  std::map<std::string,Property*> writerProperties
+		  )
   {
     Writer* result;
     if(writerName == "File Angle Writer")
@@ -70,7 +82,7 @@ public:
       result = new FileAngleWriter();
     } else if(writerName == "Yarp Angle Writer")
     {
-      result = new YarpAngleWriter();
+      result = new YarpAngleWriter(this->ip, this->port);
     } else {
       throw std::logic_error("Invalid writer type");
     }

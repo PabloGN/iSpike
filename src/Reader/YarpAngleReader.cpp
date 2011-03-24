@@ -25,22 +25,18 @@ std::vector<double> YarpAngleReader::getData()
 
 void YarpAngleReader::initialise(std::map<std::string,Property*> properties)
 {
-  this->setPortName(((StringProperty*)(properties["Port Name"]))->getValue());
+  this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
   this->buffer = new std::vector<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection(
-      ((StringProperty*)(properties["Yarp IP"]))->getValue(),
-      ((StringProperty*)(properties["Yarp Port"]))->getValue());
 }
 
 void YarpAngleReader::workerFunction()
 {
-  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
-  std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
+  std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->find(this->getPortName());
   std::string ip;
   std::string port;
   std::string type;
-  if (iter != portMap->end() )
+  if (iter != this->portMap->end() )
   {
       ip = iter->second->getIp();
       port = iter->second->getPort();

@@ -28,6 +28,8 @@ class ReaderFactory {
 private:
   /// A list of available readers
   std::vector<ReaderDescription> readerList;
+  std::string ip;
+  std::string port;
 
 public:
 
@@ -39,8 +41,16 @@ public:
   {
     this->readerList.push_back(FileAngleReader().getReaderDescription());
     this->readerList.push_back(FileVisualReader().getReaderDescription());
-    this->readerList.push_back(YarpAngleReader().getReaderDescription());
-    this->readerList.push_back(YarpVisualReader().getReaderDescription());
+  }
+
+  ReaderFactory(std::string ip, std::string port)
+  {
+	this->readerList.push_back(FileAngleReader().getReaderDescription());
+	this->readerList.push_back(FileVisualReader().getReaderDescription());
+	this->readerList.push_back(YarpAngleReader(ip, port).getReaderDescription());
+	this->readerList.push_back(YarpVisualReader(ip, port).getReaderDescription());
+	this->ip = ip;
+	this->port = port;
   }
 
   /**
@@ -65,7 +75,10 @@ public:
    * @param readerProperties Initialisation properties for the new Reader
    * @return A new Reader
    */
-  Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties)
+  Reader* create(
+		  std::string readerName,
+		  std::map<std::string,Property*> readerProperties
+		  )
   {
     Reader* result;
     if(readerName == "File Angle Reader")
@@ -76,10 +89,10 @@ public:
       result = new FileVisualReader();
     } else if(readerName == "Yarp Angle Reader")
     {
-      result = new YarpAngleReader();
+      result = new YarpAngleReader(this->ip, this->port);
     } else if(readerName == "Yarp Visual Reader")
     {
-      result = new YarpVisualReader();
+      result = new YarpVisualReader(this->ip, this->port);
     } else {
       throw std::logic_error("Invalid reader type");
     }

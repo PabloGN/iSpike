@@ -13,12 +13,9 @@
 
 void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
-  this->setPortName(((StringProperty*)(properties["Port Name"]))->getValue());
+  this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
   this->angleList = new std::queue<double>();
   this->initialised = false;
-  this->yarpConnection = new YarpConnection(
-      ((StringProperty*)(properties["Yarp IP"]))->getValue(),
-      ((StringProperty*)(properties["Yarp Port"]))->getValue());
 }
 
 void YarpAngleWriter::addAngle(double angle)
@@ -40,12 +37,11 @@ void YarpAngleWriter::workerFunction()
 {
   int degreeOfFreedom = 0;
   int sleepAmount = 1;
-  std::map<std::string, YarpPortDetails*>* portMap = this->yarpConnection->getPortMap();
-  std::map<std::string, YarpPortDetails*>::iterator iter = portMap->find(this->getPortName());
+  std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->find(this->getPortName());
   std::string ip;
   std::string port;
   std::string type;
-  if (iter != portMap->end() )
+  if (iter != this->portMap->end() )
   {
       ip = iter->second->getIp();
       port = iter->second->getPort();

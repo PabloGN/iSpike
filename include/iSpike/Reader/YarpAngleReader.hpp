@@ -15,6 +15,8 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <vector>
+#include <map>
+#include <iSpike/YarpPortDetails.hpp>
 
 /**
  * @class YarpVisualReader
@@ -36,32 +38,44 @@ private:
   bool initialised;
   std::string portName;
   YarpConnection* yarpConnection;
+  std::map<std::string, YarpPortDetails*>* portMap;
 
 public:
 
   /*
    * The default constructor, only initialises the default parameters and the description
    */
-  YarpAngleReader()
+  YarpAngleReader(std::string nameserverIP, std::string nameserverPort)
   {
     /**
      * First define the properties of this reader
      */
+
+	/**
+	 * Get the available yarp ports
+	 */
+    this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
+    this->portMap = this->yarpConnection->getPortMap();
+
+    /**
+     * Iterate over them and add as options
+     */
+
+    std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->begin();
+    std::vector<std::string> yarpPortNames;
+    if (iter != this->portMap->end() )
+    {
+    	yarpPortNames.push_back(iter->first);
+    } else {
+      std::cout << "There are no ports!" << std::endl;
+    }
+
     std::map<std::string,Property*> properties;
-    properties["Yarp IP"] = new StringProperty(
-          "Yarp IP",
-          "127.0.0.1",
-          "The Yarp nameserver IP Address"
-        );
-    properties["Yarp Port"] = new StringProperty(
-          "Yarp Port",
-          "10000",
-          "The Yarp nameserver Port"
-        );
-    properties["Port Name"] = new StringProperty(
+    properties["Port Name"] = new ComboProperty(
           "Port Name",
           "/icubSim/left_arm/state:o",
-          "The Yarp Port name"
+          "The Yarp Port name",
+          yarpPortNames
         );
     /**
      * Now let's create the description

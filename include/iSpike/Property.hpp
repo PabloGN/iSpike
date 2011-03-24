@@ -9,6 +9,7 @@
 #define PROPERTY_HPP_
 
 #include <string>
+#include <vector>
 
 /**
  * Describes a general Channel, Reader or Writer Property
@@ -20,6 +21,7 @@ class Property
           Integer,
           Double,
           String,
+          Combo
        };
   protected:
     ValueType type;
@@ -45,7 +47,7 @@ class Property
 
 };
 
-/*
+/**
  * Describer an Integer Property
  */
 class IntegerProperty : public Property
@@ -58,6 +60,11 @@ class IntegerProperty : public Property
     int getValue()
     {
       return this->value;
+    }
+
+    void setValue(int value)
+    {
+      this->value = value;
     }
 
     IntegerProperty(std::string paramName, int paramValue, std::string paramDescription)
@@ -84,6 +91,11 @@ class DoubleProperty : public Property
       return this->value;
     }
 
+    void setValue(double value)
+    {
+      this->value = value;
+    }
+
     DoubleProperty(std::string paramName, double paramValue, std::string paramDescription)
     {
       this->name = paramName;
@@ -93,7 +105,7 @@ class DoubleProperty : public Property
     }
 };
 
-/*
+/**
  * Describes a String Property
  */
 class StringProperty : public Property
@@ -108,12 +120,54 @@ class StringProperty : public Property
       return this->value;
     }
 
+    void setValue(std::string value)
+    {
+      this->value = value;
+    }
+
     StringProperty(std::string paramName, std::string paramValue, std::string paramDescription)
     {
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::String;
+    }
+};
+
+/**
+ * Describes a Combo Property
+ */
+class ComboProperty : public Property
+{
+  private:
+    std::string value;
+    std::vector<std::string> options;
+
+  public:
+
+    std::string getValue()
+    {
+      return this->value;
+    }
+
+    void setValue(int value)
+    {
+      this->value = this->options.at(value);
+    }
+
+    std::vector<std::string> getOptions()
+    {
+      return this->options;
+    }
+
+    ComboProperty(std::string paramName, std::string paramValue, std::string paramDescription,
+    		std::vector<std::string> paramOptions)
+    {
+      this->name = paramName;
+      this->value = paramValue;
+      this->description = paramDescription;
+      this->type = Property::Combo;
+      this->options = paramOptions;
     }
 };
 

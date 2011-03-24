@@ -25,7 +25,7 @@ void JointInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
   
-  IzhikevichNeuronSim neuronSim(this->numOfNeurons, 0.1, 0.2, -65, 2, 20, 0);
+  IzhikevichNeuronSim neuronSim(this->width * this->height, 0.1, 0.2, -65, 2, 20, 0);
 
   while(true)
   {
