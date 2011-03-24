@@ -92,7 +92,7 @@ YarpConnection::YarpConnection(std::string ip, std::string port)
     }
     std::map<std::string, YarpPortDetails*>::iterator it;
     for ( it=this->portMap->begin() ; it != this->portMap->end(); it++ )
-        std::cout << (*it).first << " => " << (*it).second->getPort() << std::endl;
+        std::cout << (*it).first << " => " << (*it).second->getIP() << ":" << (*it).second->getPort() << std::endl;
     //this->connectionSocket->close();
 
 }
