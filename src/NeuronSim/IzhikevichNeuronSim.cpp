@@ -18,10 +18,13 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
     fired[n] = false;
   }
   float* I = new float[voltages->size()];
+  std::cout << "Currents: ";
   for(unsigned int n = 0; n < voltages->size(); n++)
   {
-    I[n] = (float) ( ( ( voltages->at(n) ) / 16 ) + 4 );
+    I[n] = (float) ( ( ( voltages->at(n) ) * this->currentFactor ) + this->constantCurrent );
+    std::cout << I[n] << ", ";
   }
+  std::cout << std::endl;
 
   std::vector<int>* result = new std::vector<int>();
   for(unsigned int n = 0; n < voltages->size(); n++)
