@@ -25,14 +25,17 @@ void JointInputChannel::workerFunction()
 {
   std::cout << "The thread has started." << std::endl;
   
-  IzhikevichNeuronSim neuronSim(this->width * this->height, 0.1, 0.2, -65, 2, 20, 0);
+  IzhikevichNeuronSim neuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
 
   while(true)
   {
     ///calculate the standard deviation as a percentage of the image
     ///3 standard deviations in each direction cover almost all of the range
     int totalNeurons = this->width * this->height;
-    double standardDeviation = (totalNeurons * this->sd) / 6;
+    int angleDist = (this->maxAngle - this->minAngle) / totalNeurons;
+    double standardDeviation = ((totalNeurons * this->sd) / 6) * angleDist;
+
+    std::cout << "standard deviation: " << standardDeviation << std::endl;
 
     std::vector<double> angles = this->reader->getData();
     std::vector<double> currents(this->width * this->height);
@@ -94,5 +97,11 @@ void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Pro
   this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
   this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
   this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();
+  this->parameterA = ((DoubleProperty*)(properties["Parameter A"]))->getValue();
+  this->parameterB = ((DoubleProperty*)(properties["Parameter B"]))->getValue();
+  this->parameterC = ((DoubleProperty*)(properties["Parameter C"]))->getValue();
+  this->parameterD = ((DoubleProperty*)(properties["Parameter D"]))->getValue();
+  this->currentFactor = ((DoubleProperty*)(properties["Current Factor"]))->getValue();
+  this->constantCurrent = ((DoubleProperty*)(properties["Constant Current"]))->getValue();
   this->reader = reader;
 }

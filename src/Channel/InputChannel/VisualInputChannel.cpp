@@ -73,7 +73,7 @@ void VisualInputChannel::start()
     this->reader->start();
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 100);
     this->filter = new DOGVisualFilter(this->dataReducer, 100, 3, 2);
-    this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, 20, 0);
+    this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;
   }
@@ -90,6 +90,8 @@ void VisualInputChannel::initialise(VisualReader* reader, std::map<std::string,P
   this->parameterB = ((DoubleProperty*)(properties["Parameter B"]))->getValue();
   this->parameterC = ((DoubleProperty*)(properties["Parameter C"]))->getValue();
   this->parameterD = ((DoubleProperty*)(properties["Parameter D"]))->getValue();
+  this->currentFactor = ((DoubleProperty*)(properties["Current Factor"]))->getValue();
+  this->constantCurrent = ((DoubleProperty*)(properties["Constant Current"]))->getValue();
   this->opponentMap = ((IntegerProperty*)(properties["Opponency Map"]))->getValue();
   this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
   this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();

@@ -43,6 +43,8 @@ private:
   double parameterB;
   double parameterC;
   double parameterD;
+  double currentFactor;
+  double constantCurrent;
   int xOffset;
   int yOffset;
   int opponentMap;
@@ -102,6 +104,16 @@ public:
           "Parameter D",
           2,
           "Parameter D of the Izhikevich Neuron Model"
+        );
+    properties["Current Factor"] = new DoubleProperty(
+          "Current Factor",
+          20,
+          "Incoming current is multiplied by this value"
+        );
+    properties["Constant Current"] = new DoubleProperty(
+          "Constant Current",
+          0,
+          "This value is added to the incoming current"
         );
     /**
      * Now let's create the description

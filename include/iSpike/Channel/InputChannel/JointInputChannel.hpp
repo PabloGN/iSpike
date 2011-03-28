@@ -37,6 +37,12 @@ private:
   double sd;
   double minAngle;
   double maxAngle;
+  double parameterA;
+  double parameterB;
+  double parameterC;
+  double parameterD;
+  double currentFactor;
+  double constantCurrent;
 
 public:
 
@@ -78,6 +84,36 @@ public:
           "Neuron Height",
           1,
           "Height of the neuron network"
+        );
+    properties["Parameter A"] = new DoubleProperty(
+          "Parameter A",
+          0.1,
+          "Parameter A of the Izhikevich Neuron Model"
+        );
+    properties["Parameter B"] = new DoubleProperty(
+          "Parameter B",
+          0.2,
+          "Parameter B of the Izhikevich Neuron Model"
+        );
+    properties["Parameter C"] = new DoubleProperty(
+          "Parameter C",
+          -65,
+          "Parameter C of the Izhikevich Neuron Model"
+        );
+    properties["Parameter D"] = new DoubleProperty(
+          "Parameter D",
+          2,
+          "Parameter D of the Izhikevich Neuron Model"
+        );
+    properties["Current Factor"] = new DoubleProperty(
+          "Current Factor",
+          200,
+          "Incoming current is multiplied by this value"
+        );
+    properties["Constant Current"] = new DoubleProperty(
+          "Constant Current",
+          0,
+          "This value is added to the incoming current"
         );
     /**
      * Now let's create the description

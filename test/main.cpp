@@ -17,6 +17,8 @@
 #include <iSpike/Channel/InputChannel/InputChannelFactory.hpp>
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <fstream>
 #include <iSpike/Channel/OutputChannel/OutputChannelDescription.hpp>
 #include <iSpike/Channel/OutputChannel/OutputChannelFactory.hpp>
 #include <iSpike/Channel/OutputChannel/OutputChannel.hpp>
@@ -32,6 +34,38 @@
 #include <iSpike/Common.hpp>
 //#include <boost/thread/thread.hpp>
 //#include <boost/date_time/posix_time/posix_time_types.hpp>
+
+void writePatternToFile(const char* fileName, std::vector<int> pattern, int numOfNeurons)
+{
+ std::ofstream fileStream;
+
+ fileStream.open(fileName, std::fstream::out | std::fstream::app);
+
+ if (!fileStream) {
+   std::cout << "Can't write angles: " << fileName << std::endl;
+   exit(1);
+ }
+
+ //fileStream << boost::lexical_cast<std::string>(angle) << std::endl;
+ for( int i = 0; i < numOfNeurons; i++ )
+ {
+	 if(std::find(pattern.begin(), pattern.end(), i)!=pattern.end())
+	 {
+		 fileStream << "1,";
+	 } else {
+		 fileStream << "0,";
+	 }
+ }
+ fileStream << std::endl;
+
+ if (fileStream.fail()) {
+   std::cout << "Can't write angles: " << fileName << std::endl;
+   exit(1);
+ }
+
+ fileStream.close();
+
+}
 
 
 int main(int argc, char* argv[])
@@ -145,6 +179,7 @@ int main(int argc, char* argv[])
         channel->start();
         createdChannel = channel;
       }
+      int numOfNeurons = 5;
       while(true)
       {
         boost::this_thread::sleep(boost::posix_time::milliseconds(200));
@@ -152,13 +187,16 @@ int main(int argc, char* argv[])
         if(typeOfChannel == 1)
         {
           std::vector<std::vector<int> > firings = ((InputChannel*)createdChannel)->getFiring();
-           std::cout << "[";
+           std::cout << "Spiked Neurons: [";
            if (!firings.empty())
+           {
            for(unsigned int i = 0; i < firings.front().size(); i++)
            {
              std::cout << firings.front().at(i) << ",";
            }
            std::cout << "]" << std::endl;
+           writePatternToFile("spikes.txt", firings.front(), numOfNeurons);
+           }
         }
         else
         {
