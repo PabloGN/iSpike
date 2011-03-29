@@ -8,6 +8,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
+#include <fstream>
 
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
@@ -20,8 +21,11 @@ void JointOutputChannel::start()
   if(!initialised)
   {
     this->buffer = new std::queue< std::vector<int> >();
+    std::cout << "1";
     this->writer->start();
+    std::cout << "2";
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
+    std::cout << "3";
     initialised = true;
   }
 }
@@ -30,6 +34,7 @@ void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Pr
 {
   this->initialised = false;
   this->setWriter(writer);
+  std::cout << "before properties";
   this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
   this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
   this->rateOfDecay = ((DoubleProperty*)(properties["Rate Of Decay"]))->getValue();
@@ -68,13 +73,19 @@ void JointOutputChannel::workerFunction()
        * Decay the variables according to the following function:
        * N(t+1) = N(t)*e^(-rateOfDecay)
        */
+      std::ofstream fileStream;
+
+      fileStream.open("variables.txt", std::fstream::out | std::fstream::app);
       std::cout << "Variables" << std::endl;
       std::cout << "[";
       for(unsigned int i = 0; i < variables.size(); i++)
       {
         variables[i] = variables[i] * exp(-(this->rateOfDecay));
         std::cout << variables[i] << ", ";
+        fileStream << variables[i] << ",";
       }
+      fileStream << std::endl;
+      fileStream.close();
       std::cout << "]" << std::endl;
       double angleSum = 0;
       double weightSum = 0;

@@ -56,6 +56,11 @@ public:
 
   void initialise(std::map<std::string,Property*> properties);
 
+  void initialise()
+  {
+    initialise(writerDescription->getWriterProperties());
+  }
+
   /**
    * Adds an angle to the processing queue
    */

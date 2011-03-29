@@ -22,7 +22,7 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
   for(unsigned int n = 0; n < voltages->size(); n++)
   {
     I[n] = (float) ( ( ( voltages->at(n) ) * this->currentFactor ) + this->constantCurrent );
-    std::cout << I[n] << ", ";
+    //std::cout << I[n] << ", ";
   }
   std::cout << std::endl;
 

@@ -29,7 +29,10 @@ class Bitmap
 
     Bitmap (const Bitmap& copy_from_me)
     {
-      this->width = copy_from_me.width;
+    	if(copy_from_me.width == 0)
+    		this->width = 0;
+    		else
+    			this->width = copy_from_me.width;
       this->height = copy_from_me.height;
       this->depth = copy_from_me.depth;
       int content_size = copy_from_me.width * copy_from_me.height * copy_from_me.depth;

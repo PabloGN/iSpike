@@ -32,15 +32,15 @@ void VisualInputChannel::workerFunction()
   {
     //std::cout << "Trying to retrieve the image..." << std::endl;
     ///Retrieve the colour oponent image
-    Bitmap opponentMap(0, 0, 0, NULL);
+    Bitmap* opponentMap;
     if(this->opponentMap == 0)
-      opponentMap = this->filter->getRPlusGMinus();
+      opponentMap = &(Bitmap(this->filter->getRPlusGMinus()));
     else if (this->opponentMap == 1)
-      opponentMap = this->filter->getGPlusRMinus();
+      opponentMap = &(Bitmap(this->filter->getGPlusRMinus()));
     else if(this->opponentMap == 2)
-      opponentMap = this->filter->getBPlusYMinus();
+      opponentMap = &(Bitmap(this->filter->getBPlusYMinus()));
     ///If got it
-    if(opponentMap.getWidth() > 0)
+    if(opponentMap->getWidth() > 0)
     {
       ///Lock so that we can update the buffer
       boost::mutex::scoped_lock lock(this->mutex);
@@ -52,7 +52,7 @@ void VisualInputChannel::workerFunction()
         {
           //double voltage = (unsigned int)rPlusGMinus.getContents()[i];
           ///retrieve the pixel intensity at the coordinates
-          double current = (unsigned int)opponentMap.getPixel(this->xOffset + i,this->yOffset + j);
+          double current = (unsigned int)opponentMap->getPixel(this->xOffset + i,this->yOffset + j);
           ///move it to the current map
           currents->at(j*(this->width) + i) = current;
         }
@@ -71,8 +71,8 @@ void VisualInputChannel::start()
   {
     this->buffer = new std::vector< std::vector<int> >();
     this->reader->start();
-    this->dataReducer = new LogPolarVisualDataReducer(this->reader, 100);
-    this->filter = new DOGVisualFilter(this->dataReducer, 100, 3, 2);
+    this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10);
+    this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;

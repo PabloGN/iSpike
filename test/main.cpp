@@ -179,23 +179,32 @@ int main(int argc, char* argv[])
         channel->start();
         createdChannel = channel;
       }
+
+      //FileAngleWriter* writer = new FileAngleWriter();
+      //writer->initialise();
+     //JointOutputChannel* outputChannel = new JointOutputChannel();
+      //outputChannel->initialise(writer);
+      //outputChannel->start();
       int numOfNeurons = 5;
       while(true)
       {
         boost::this_thread::sleep(boost::posix_time::milliseconds(200));
         createdChannel->step();
+        //outputChannel->step();
         if(typeOfChannel == 1)
         {
           std::vector<std::vector<int> > firings = ((InputChannel*)createdChannel)->getFiring();
            std::cout << "Spiked Neurons: [";
            if (!firings.empty())
            {
-           for(unsigned int i = 0; i < firings.front().size(); i++)
-           {
-             std::cout << firings.front().at(i) << ",";
-           }
-           std::cout << "]" << std::endl;
-           writePatternToFile("spikes.txt", firings.front(), numOfNeurons);
+			   for(unsigned int i = 0; i < firings.front().size(); i++)
+			   {
+				 //std::cout << firings.front().at(i) << ",";
+			   }
+			   std::cout << "]" << std::endl;
+			   writePatternToFile("spikes.txt", firings.front(), numOfNeurons);
+			   std::vector<int> something = *(firings.begin());
+			   //outputChannel->setFiring(&something);
            }
         }
         else

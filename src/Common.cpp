@@ -49,6 +49,8 @@ unsigned char* Common::normaliseImage(unsigned char* image, int size)
     if(max == 255)
       break;
   }
+  if(max == 0)
+	  return image;
   for(int i = 0; i < size; i++)
     result[i] = image[i] * 255 / max;
   return result;

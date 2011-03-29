@@ -55,7 +55,7 @@ public:
         );
     properties["Neuron Width"] = new IntegerProperty(
           "Neuron Width",
-          10,
+          5,
           "Width of the neuron network"
         );
     properties["Neuron Height"] = new IntegerProperty(
