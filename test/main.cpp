@@ -6,6 +6,7 @@
  *
  */
 #include "test.h"
+#include "TestReporterStdout.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -70,6 +71,9 @@ void writePatternToFile(const char* fileName, std::vector<int> pattern, int numO
 
 int main(int argc, char* argv[])
 {
+	UnitTest::TestReporterStdout reporter;
+	UnitTest::RunAllTests();
+	return 1;
       std::cout << "Select the type of Channel you want to create" << std::endl;
       std::cout << "(1)Input Channel (2)Output Channel" << std::endl;
       int typeOfChannel;
