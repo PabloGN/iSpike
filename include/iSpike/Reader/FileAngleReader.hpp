@@ -70,6 +70,14 @@ public:
   /**
    * Initialises the properties of the reader
    */
+  void initialise()
+  {
+	  initialise(this->readerDescription->getReaderProperties());
+  }
+
+  /**
+   * Initialises the properties of the reader
+   */
   void initialise(std::map<std::string,Property*> properties);
 
   /**

@@ -42,6 +42,7 @@ void JointInputChannel::workerFunction()
     if(angles.size() > 0)
     {
       std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
+      this->currentAngle = angles[this->degreeOfFreedom];
       ///Iterate over the each neuron
       for(int i = 0; i < this->width * this->height; i++)
       {
@@ -49,8 +50,8 @@ void JointInputChannel::workerFunction()
         if (i == 0)
           currentAngle = this->minAngle;
         else
-		///Generate the current angle by interpolating the angle range over the neuron count
-        currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
+        	///Generate the current angle by interpolating the angle range over the neuron count
+        	currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
         ///Put a normal distribution at the centre of the observed angle with sd as defined earlier
         double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(standardDeviation,2));
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));

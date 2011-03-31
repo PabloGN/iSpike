@@ -34,6 +34,7 @@ private:
   boost::shared_ptr<boost::thread> threadPointer;
   bool initialised;
   int degreeOfFreedom;
+  double currentAngle;
   double sd;
   double minAngle;
   double maxAngle;
@@ -45,6 +46,11 @@ private:
   double constantCurrent;
 
 public:
+
+  double getCurrentAngle()
+  {
+	  return currentAngle;
+  }
 
   /**
    * Default constructor, initialises the default channel properties

@@ -29,8 +29,14 @@ private:
   double minAngle;
   double maxAngle;
   double rateOfDecay;
+  double currentAngle;
 
 public:
+
+	double getCurrentAngle()
+	{
+		  return currentAngle;
+	}
 
   JointOutputChannel()
   {
@@ -55,7 +61,7 @@ public:
         );
     properties["Neuron Width"] = new IntegerProperty(
           "Neuron Width",
-          5,
+          10,
           "Width of the neuron network"
         );
     properties["Neuron Height"] = new IntegerProperty(

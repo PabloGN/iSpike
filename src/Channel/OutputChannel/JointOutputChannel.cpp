@@ -99,6 +99,7 @@ void JointOutputChannel::workerFunction()
       {
         double angle = angleSum / weightSum;
         std::cout << "Angle: " << angle << std::endl;
+        this->currentAngle = angle;
         this->writer->addAngle(angle);
       }
     }
