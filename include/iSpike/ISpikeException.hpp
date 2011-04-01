@@ -19,10 +19,14 @@ public:
 		this->description = description;
 	}
 
-	std::string getDescription()
-	{
-		return this->description;
+	const std::string& Msg() const {
+	    return description;
 	}
+
+	const char* what() const throw() {
+	    return description.c_str();
+	}
+
 
     ~ISpikeException() throw() {}
 };

@@ -16,6 +16,7 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iSpike/Property.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 std::vector<double> FileAngleReader::getData()
 {
@@ -30,16 +31,20 @@ std::vector<double>* readAngleFromFile(const char* fileName)
  fileStream.open(fileName, std::ios::in | std::ios::binary);
 
  if (!fileStream) {
-   std::cout << "Can't read angles: " << fileName << std::endl;
-   exit(1);
+   std::ostringstream messageStream;
+   messageStream << "Can't read angles: " << fileName;
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
  }
  fileStream >> contents;
 
  std::cout << contents;
 
  if (fileStream.fail()) {
-   std::cout << "Can't read angles: " << fileName << std::endl;
-   exit(1);
+   std::ostringstream messageStream;
+   messageStream << "Can't read angles: " << fileName;
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
  }
 
  fileStream.close();
@@ -73,7 +78,7 @@ void FileAngleReader::start()
   if(!initialised)
   {
     initialised = true;
-    std::cout << "Reading angled from: " << fileName << std::endl;
+    std::cout << "Reading angles from: " << fileName << std::endl;
     this->buffer = readAngleFromFile(fileName.c_str());
   }
 }

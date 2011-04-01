@@ -1,4 +1,4 @@
-#include "iSpike/Reader/YarpTextReader.hpp"
+#include <iSpike/Reader/YarpTextReader.hpp>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>

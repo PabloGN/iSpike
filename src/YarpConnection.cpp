@@ -92,7 +92,7 @@ YarpConnection::YarpConnection(std::string ip, std::string port)
       }
     }
     std::map<std::string, YarpPortDetails*>::iterator it;
-    for ( it=this->portMap->begin() ; it != this->portMap->end(); it++ )
+    for ( it=this->portMap->begin() ; it != this->portMap->end(); ++it )
         std::cout << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort() << std::endl;
     //this->connectionSocket->close();
 
@@ -236,14 +236,9 @@ Bitmap* YarpConnection::read_image()
       // class in src/libYARP_sig/src/Image.cpp
       unsigned char header[4*15];
       int image_len = result - sizeof(header);
-      int i;
       result = read_binary((unsigned char*)header,sizeof(header));
       if (result<0) {
           throw ISpikeException("Failed to read image header");
-      }
-      unsigned char format[5] = {0,0,0,0,0};
-      for (i=0; i<4; i++) {
-          format[i] = header[4*5+i];
       }
       int depth = read_int((unsigned char*)(header+4*8)); // header.depth
       int width = read_int((unsigned char*)(header+4*11)); // header.width

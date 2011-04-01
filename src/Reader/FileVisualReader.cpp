@@ -6,6 +6,7 @@
 #include <boost/thread.hpp>
 #include <boost/mpl/vector.hpp>
 #include <iSpike/YarpConnection.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 Bitmap FileVisualReader::getData()
 {
@@ -22,15 +23,17 @@ void FileVisualReader::start()
 
 Bitmap* readPPMImage(const char* fname)
 {
- int N, M, Q;
+ int N, M;
  char header [100], *ptr;
  std::ifstream ifp;
 
  ifp.open(fname, std::ios::in | std::ios::binary);
 
  if (!ifp) {
-   std::cout << "Can't read image: " << fname << std::endl;
-   exit(1);
+   std::ostringstream messageStream;
+   messageStream << "Can't read image: " << fname;
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
  }
 
  // read header
@@ -39,8 +42,10 @@ Bitmap* readPPMImage(const char* fname)
 
  if ( (header[0]!=80) ||    /* 'P' */
       (header[1]!=54) ) {   /* '6' */
-      std::cout << "Image " << fname << " is not PPM" << std::endl;
-      exit(1);
+   std::ostringstream messageStream;
+   messageStream << "Image " << fname << " is not PPM";
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
  }
 
  ifp.getline(header,100,'\n');
@@ -53,7 +58,6 @@ Bitmap* readPPMImage(const char* fname)
  std::cout << "Width: " << M << " Height: " << N << std::endl;
 
  ifp.getline(header,100,'\n');
- Q=strtol(header,&ptr,0);
 
  unsigned char *charImage = new unsigned char [3*M*N];
 
@@ -61,8 +65,10 @@ Bitmap* readPPMImage(const char* fname)
 
 
  if (ifp.fail()) {
-   std::cout << "Image " << fname << " has wrong size" << std::endl;
-   exit(1);
+   std::ostringstream messageStream;
+   messageStream << "Image " << fname << " has wrong size";
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
  }
 
  ifp.close();

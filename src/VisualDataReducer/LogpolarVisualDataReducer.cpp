@@ -83,10 +83,9 @@ CoordMapType* LogPolarVisualDataReducer::initialisePolarToCartesianMap(Bitmap* i
       double r = ( max_r * x ) / polarWidth;
       int cartesian_x;
       int cartesian_y;
-      double log_r;
       if(r > 0)
       {
-        log_r = ( log_max_r * x ) / polarWidth;
+        double log_r = ( log_max_r * x ) / polarWidth;
         cartesian_x = (int)floor(center_x + ( exp(log_r) * cos(theta) + 0.5));
         cartesian_y = (int)floor(center_y + ( exp(log_r) * sin(theta) + 0.5));
         polarToCartesianMap->insert(CoordMapType::value_type(std::make_pair(x,y), std::make_pair(cartesian_x,cartesian_y)));
@@ -157,7 +156,7 @@ CoordMapType* LogPolarVisualDataReducer::initialiseCartesianToPolarMap(Bitmap* i
 Bitmap* LogPolarVisualDataReducer::logPolar(Bitmap* input, int polarWidth, int polarHeight,
     CoordMapType* polarToCartesianMap)
 {
-  unsigned char* polar_buffer = (unsigned char*) malloc( polarWidth * polarHeight * input->getDepth() );
+  unsigned char* polar_buffer = new unsigned char[polarWidth * polarHeight * input->getDepth()];
   CoordMapType::const_iterator iterator;
   for(iterator = polarToCartesianMap->begin(); iterator != polarToCartesianMap->end(); ++iterator){
     int r = (*iterator).first.first;
@@ -178,7 +177,7 @@ Bitmap* LogPolarVisualDataReducer::logPolar(Bitmap* input, int polarWidth, int p
       source_ptr = new unsigned char[input->getDepth()];
       memset(source_ptr, 0, input->getDepth());
       memmove(destination_ptr, source_ptr, input->getDepth());
-      free(source_ptr);
+      delete[] source_ptr;
     }
   }
   return new Bitmap(polarWidth, polarHeight, input->getDepth(), polar_buffer);
@@ -211,7 +210,7 @@ Bitmap* LogPolarVisualDataReducer::logPolarToCartesian(Bitmap* logPolarImage, Bi
       source_ptr = new unsigned char[logPolarImage->getDepth()];
       memset(source_ptr, 0, logPolarImage->getDepth());
       memmove(destination_ptr, source_ptr, logPolarImage->getDepth());
-      free(source_ptr);
+      delete[] source_ptr;
     }
   }
   return new Bitmap(outputWidth, outputHeight, logPolarImage->getDepth(), cartesian_buffer);

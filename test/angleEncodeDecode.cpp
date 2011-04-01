@@ -1,10 +1,11 @@
-/*
- * This is an example unit test that doesn't really do anything useful.
- * It is here as a reference for you when creating additional unit tests.
- * For additional reference information, see the "test.h" header.
+/**
+ * This test creates a joint input and output channel
+ * Associates file readers/writers with the channels
+ * And executes them for varying periods of time, with varying inputs, with varying numbers of neurons
+ * While recording the results in a file
  */
- 
-#include "test.h" // Brings in the UnitTest++ framework
+
+#include <boost/test/unit_test.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
 #include <iSpike/Writer/FileAngleWriter.hpp>
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
@@ -12,16 +13,11 @@
 #include <iostream>
 #include <vector>
  
- TEST(angleEncodeDecode) // Declares a test named "sanity_check"
+ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
  {
-	 int neuronCount = 1;
-	 int angle = -90;
 	 int delay = 0;
-	 int neuronIncrement = 1;
-	 int angleIncrement = 0.1;
-	 int delayIncrement = 5;
 	 std::vector< std::vector<double> > data;
-     for(double currentAngle = -90; currentAngle < 90; currentAngle += 50)
+     for(double currentAngle = -90; currentAngle < 90; currentAngle += 10)
      {
 	 std::ofstream inputAngleStream;
 	 inputAngleStream.open("anglesIn.txt", std::fstream::out);
@@ -32,7 +28,7 @@
 			 //Create the Reader
 		 	 FileAngleReader* reader = new FileAngleReader();
 		 	 std::map<std::string,Property*> inputProperties = reader->getReaderDescription().getReaderProperties();
-		 	 Property* newFilename = new StringProperty("Filename", "/home/user/workspace/iSpike/bin/anglesIn.txt", "whatever");
+		 	 Property* newFilename = new StringProperty("Filename", "anglesIn.txt", "whatever");
 		 	inputProperties.at("Filename") = newFilename;
 		 	 reader->initialise(inputProperties);
 		 	 JointInputChannel* inputChannel = new JointInputChannel();
@@ -92,6 +88,7 @@
     		 if(j < (data[i].size() - 1))
     			 angleStream << ",";
     	 }
+    	 angleStream << std::endl;
      }
      angleStream.close();
 }

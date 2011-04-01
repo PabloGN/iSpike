@@ -1,4 +1,4 @@
-#include "iSpike/Channel/Channel.hpp"
+#include <iSpike/Channel/Channel.hpp>
 
 /**
  * This is needed to enforce this class as abstract

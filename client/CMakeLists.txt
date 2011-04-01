@@ -1,0 +1,13 @@
+FILE (GLOB_RECURSE client_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
+IF(WIN32)
+    SET (client_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME} "ws2_32")
+ELSE()
+    SET (client_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME})
+ENDIF()
+SET (client_BIN ${PROJECT_NAME}-client)
+
+IF (NOT CMAKE_CROSSCOMPILING)
+    LINK_DIRECTORIES(${MAINFOLDER}/lib/${ConfigurationName})
+    ADD_EXECUTABLE(${client_BIN} ${client_SRCS})
+    TARGET_LINK_LIBRARIES(${client_BIN} ${client_LIBS})
+ENDIF (NOT CMAKE_CROSSCOMPILING)

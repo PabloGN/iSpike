@@ -1,1 +1,1 @@
-#include "iSpike/Channel/InputChannel/InputChannel.hpp"
+#include <iSpike/Channel/InputChannel/InputChannel.hpp>

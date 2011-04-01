@@ -57,63 +57,63 @@ void DOGVisualFilter::workerFunction()
     		  extractYellowChannel(red.getContents(), green.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Common::savePPMImage("yellow.ppm", Common::produceGrayscale(yellow.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap redPlusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(red.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(red.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("redPlusGaussian.ppm", Common::produceGrayscale(redPlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap redMinusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(red.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(red.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("redMinusGaussian.ppm", Common::produceGrayscale(redMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap greenPlusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(green.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(green.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("greenPlusGaussian.ppm", Common::produceGrayscale(greenPlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap greenMinusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(green.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(green.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("greenMinusGaussian.ppm", Common::produceGrayscale(greenMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap bluePlusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(blue.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(blue.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("bluePlusGaussian.ppm", Common::produceGrayscale(bluePlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap yellowMinusGaussian(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	gaussianBlur(yellow.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        gaussianBlur(yellow.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("yellowMinusGaussian.ppm", Common::produceGrayscale(yellowMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap rPlusGMinus(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	subtractImages(redPlusGaussian.getContents(), greenMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        subtractImages(redPlusGaussian.getContents(), greenMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("rPlusGMinus.ppm", Common::produceGrayscale(rPlusGMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap gPlusRMinus(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	subtractImages(greenPlusGaussian.getContents(), redMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        subtractImages(greenPlusGaussian.getContents(), redMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("gPlusRMinus.ppm", Common::produceGrayscale(gPlusRMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap bPlusYMinus(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	subtractImages(bluePlusGaussian.getContents(), yellowMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        subtractImages(bluePlusGaussian.getContents(), yellowMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
       );
       Common::savePPMImage("bPlusYMinus.ppm", Common::produceGrayscale(bPlusYMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap* rPlusGMinusNormalised = new Bitmap(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	Common::normaliseImage(rPlusGMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        Common::normaliseImage(rPlusGMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
       );
       Common::savePPMImage("rPlusGMinusNormalised.ppm", Common::produceGrayscale(rPlusGMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap* gPlusRMinusNormalised = new Bitmap(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	Common::normaliseImage(gPlusRMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        Common::normaliseImage(gPlusRMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
       );
       Common::savePPMImage("gPlusRMinusNormalised.ppm", Common::produceGrayscale(gPlusRMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap* bPlusYMinusNormalised = new Bitmap(
-    	reducedImage.getWidth(), reducedImage.getHeight(), 1,
-    	Common::normaliseImage(bPlusYMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
+        reducedImage.getWidth(), reducedImage.getHeight(), 1,
+        Common::normaliseImage(bPlusYMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
       );
       Common::savePPMImage("bPlusYMinusNormalised.ppm", Common::produceGrayscale(bPlusYMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
       Bitmap* image = Common::produceGrayscale(rPlusGMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight());

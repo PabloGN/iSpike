@@ -44,8 +44,8 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
              result->push_back(n);
     }
   }
-  delete fired;
-  delete I;
+  delete[] I;
+  delete[] fired;
   //std::cout << "[" << v[0] << "," << u[0] << "]" << std::endl;
   return result;
 }

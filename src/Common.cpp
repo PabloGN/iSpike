@@ -13,6 +13,9 @@
 #include <iostream>
 #include <fstream>
 #include <ios>
+#include <vector>
+#include <algorithm>
+#include <iSpike/ISpikeException.hpp>
 
 void Common::savePPMImage(char* filename, Bitmap* image)
 {
@@ -119,4 +122,40 @@ std::map<std::string, Property*> Common::getProperties(std::map<std::string,Prop
     }
   }
   return resultProperties;
+}
+
+void Common::writePatternToFile(const char* fileName, std::vector<int> pattern, int numOfNeurons)
+{
+ std::ofstream fileStream;
+
+ fileStream.open(fileName, std::fstream::out | std::fstream::app);
+
+ if (!fileStream) {
+   std::ostringstream messageStream;
+   messageStream << "Can't write angles: " << fileName;
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
+ }
+
+ //fileStream << boost::lexical_cast<std::string>(angle) << std::endl;
+ for( int i = 0; i < numOfNeurons; i++ )
+ {
+   if(std::find(pattern.begin(), pattern.end(), i) != pattern.end())
+   {
+     fileStream << "1,";
+   } else {
+     fileStream << "0,";
+   }
+ }
+ fileStream << std::endl;
+
+ if (fileStream.fail()) {
+   std::ostringstream messageStream;
+   messageStream << "Can't write angles: " << fileName;
+   std::string message(messageStream.str());
+   throw ISpikeException(message);
+ }
+
+ fileStream.close();
+
 }
