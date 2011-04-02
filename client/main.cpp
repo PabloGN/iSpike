@@ -22,9 +22,18 @@
 #include <iSpike/Writer/WriterDescription.hpp>
 #include <iSpike/Writer/Writer.hpp>
 #include <iSpike/Common.hpp>
+#include <iSpike/Log/Log.hpp>
 
 int main(int argc, char* argv[])
 {
+    Log::ReportingLevel() = LOG_DEBUG;
+    int count = 3;
+    LOG(LOG_DEBUG) << "A loop with " << count << " iterations";
+    for (int i = 0; i != count; ++i)
+    {
+       Log().Get(LOG_DEBUG) << "the counter i = " << i;
+    }
+
     std::cout << "Select the type of Channel you want to create" << std::endl;
     std::cout << "(1)Input Channel (2)Output Channel" << std::endl;
     int typeOfChannel;
