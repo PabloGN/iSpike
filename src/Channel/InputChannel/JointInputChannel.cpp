@@ -12,6 +12,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <iSpike/Property.hpp>
 #include <map>
+#include <iSpike/Log/Log.hpp>
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
@@ -23,11 +24,11 @@ std::vector< std::vector<int> > JointInputChannel::getFiring()
 
 void JointInputChannel::workerFunction()
 {
-  std::cout << "The thread has started." << std::endl;
+  LOG(LOG_INFO) << "The thread has started.";
   
   IzhikevichNeuronSim neuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
 
-  while(true)
+  while(!stopRequested)
   {
     ///calculate the standard deviation as a percentage of the image
     ///3 standard deviations in each direction cover almost all of the range
@@ -35,13 +36,13 @@ void JointInputChannel::workerFunction()
     int angleDist = (this->maxAngle - this->minAngle) / totalNeurons;
     double standardDeviation = ((totalNeurons * this->sd) / 6) * angleDist;
 
-    std::cout << "standard deviation: " << standardDeviation << std::endl;
+    LOG(LOG_DEBUG) << "standard deviation: " << standardDeviation;
 
     std::vector<double> angles = this->reader->getData();
     std::vector<double> currents(this->width * this->height);
     if(angles.size() > 0)
     {
-      std::cout << "Angle: " << angles[this->degreeOfFreedom] << std::endl;
+      LOG(LOG_DEBUG) << "Actual Read Angle: " << angles[this->degreeOfFreedom];
       this->currentAngle = angles[this->degreeOfFreedom];
       ///Iterate over the each neuron
       for(int i = 0; i < this->width * this->height; i++)
@@ -57,7 +58,7 @@ void JointInputChannel::workerFunction()
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
         ///Update the current map with the value for this angle
         currents[i] = main * exp(-exponent);
-        std::cout << "Angle: " << currentAngle << "Current: " << main * exp(-exponent) << std::endl;
+        LOG(LOG_DEBUG) << "Angle: " << currentAngle << " Current: " << main * exp(-exponent);
       }
 
       boost::mutex::scoped_lock lock(this->mutex);
@@ -66,10 +67,11 @@ void JointInputChannel::workerFunction()
       delete spikes;
     }
 
-    std::cout << "About to yield..." << std::endl;
+    LOG(LOG_INFO) << "About to yield...";
     boost::mutex::scoped_lock lk(this->wait_mutex);
     this->wait_condition.wait(lk);
   }
+  LOG(LOG_NOTICE) << "JointInputChannel: Exiting worker thread";
 }
 
 void JointInputChannel::step()
@@ -84,7 +86,7 @@ void JointInputChannel::start()
       this->reader->start();
       this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this)));
       initialised = true;
-      std::cout << "initialised" << std::endl;
+      LOG(LOG_INFO) << "initialised";
   }
 }
 

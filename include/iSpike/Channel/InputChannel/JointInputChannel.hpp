@@ -33,6 +33,7 @@ private:
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
   bool initialised;
+  bool stopRequested;
   int degreeOfFreedom;
   double currentAngle;
   double sd;
@@ -130,6 +131,18 @@ public:
           "Angle Reader",
           properties
         );
+  }
+
+  ~JointInputChannel()
+  {
+    if(this->initialised)
+    {
+      this->stopRequested = true;
+      this->wait_condition.notify_all();
+      this->threadPointer->join();
+      delete this->buffer;
+      this->threadPointer.reset();
+    }
   }
 
   /**

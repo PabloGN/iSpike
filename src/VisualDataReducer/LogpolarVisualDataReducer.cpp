@@ -94,23 +94,6 @@ CoordMapType* LogPolarVisualDataReducer::initialisePolarToCartesianMap(Bitmap* i
         cartesian_y = (int)floor(center_y + ( r * sin(theta)) + 0.5);
         polarToCartesianMap->insert(CoordMapType::value_type(std::make_pair(x,y), std::make_pair(cartesian_x,cartesian_y)));
       }
-      //int cartesian_x = center_x + ( exp(r) * cos(theta) );
-      //int cartesian_y = center_y + ( exp(r) * sin(theta) );
-      //int cartesian_x = (int)floor(center_x + ( r * cos(theta) ) + 0.5);
-      //int cartesian_y = (int)floor(center_y + ( r * sin(theta) ) + 0.5);
-      //polarToCartesianMap->insert(CoordMapType::value_type(std::make_pair(x,y), std::make_pair(cartesian_x,cartesian_y)));
-      if(x == 47 && y == 124)
-      {
-        //std::cout << "polartocartesian" << std::endl;
-        //std::cout << "x: " << cartesian_x << " y: " << cartesian_y << " polar_x: " << x <<
-        //    "polar_y: " << y << "theta: " << theta << " r: " << log_r << " max_r: " << max_r << std::endl;
-      }
-      //std::cout << "polar_x:" << x << "polar_y:" << y << std::endl;
-      //std::cout << "cartesian_x:" << cartesian_x << "cartesian_y:" << cartesian_y << std::endl;
-      //std::cout << "r:" << r << "theta:" << theta << std::endl;
-      //std::cout << "topLeft:" << topLeft << "topRight:" << topRight;
-      //std::cout << "bottomLeft:" << bottomLeft << "bottomRight:" << bottomRight;
-      //std::cout << "max_r:" << max_r;
     }
   return polarToCartesianMap;
 }
@@ -121,34 +104,20 @@ CoordMapType* LogPolarVisualDataReducer::initialiseCartesianToPolarMap(Bitmap* i
   CoordMapType* polarToCartesianMap = new CoordMapType();
   double center_x = image->getWidth() / 2;
   double center_y = image->getHeight() / 2;
-  //double width_r = log(getR(0, center_y, center_x, center_y));
-  //double height_r = log(getR(center_x, 0, center_x, center_y));
   double width_r = getR(0, center_y, center_x, center_y);
   double height_r = getR(center_x, 0, center_x, center_y);
   double max_r = (std::min(width_r, height_r));
-  //double log_max_r = (std::min(log(width_r), log(height_r)));
   for(int y = 0; y < image->getHeight(); y++)
     for(int x = 0; x < image->getWidth(); x++)
     {
-      //double r = log(getR(x, y, center_x, center_y));
       double r = getR(x, y, center_x, center_y);
-      //if(r > foveaRadius)
-      //  r = log(r);
       double theta = atan2(y - center_y, x - center_x);
       if(theta < 0)
         theta += 2 * boost::math::constants::pi<double>();
       int polar_x;
-      //if(r <= foveaRadius)
         polar_x = (int)floor( ( r * polarWidth) / max_r + 0.5);
-      //else
-        //polar_x = (int)floor( ( r * polarWidth) / log_max_r + 0.5);
       int polar_y = (int)floor( ( theta * polarHeight ) / ( 2 * boost::math::constants::pi<double>() ) + 0.5);
       polarToCartesianMap->insert(CoordMapType::value_type(std::make_pair(x,y), std::make_pair(polar_x,polar_y)));
-      if(x == center_x + 10 && y == center_y + 10)
-      {
-        //std::cout << "cartesiantopolar" << std::endl;
-        //std::cout << "x: " << x << " y: " << y << " polar_x: " << polar_x << "polar_y: " << polar_y << "theta: " << theta << " r: " << r << std::endl;
-      }
     }
   return polarToCartesianMap;
 }
@@ -196,13 +165,7 @@ Bitmap* LogPolarVisualDataReducer::logPolarToCartesian(Bitmap* logPolarImage, Bi
     int destination = logPolarImage->getDepth() * ( ( outputWidth * y ) + x );
     unsigned char* source_ptr;
     unsigned char* destination_ptr = cartesian_buffer + destination;
-    //std::cout << "x:" << x << "y:" << y << std::endl;
-    //std::cout << "r:" << r << "theta:" << theta << std::endl;
-    /*if(r <= foveaDiameter)
-    {
-      source_ptr = cartesianImage->getContents() + destination;
-      memmove(destination_ptr, source_ptr, logPolarImage->getDepth());
-    } else */if(r >= 0 && r < logPolarImage->getWidth() && theta >= 0 && theta < logPolarImage->getHeight()) {
+    if(r >= 0 && r < logPolarImage->getWidth() && theta >= 0 && theta < logPolarImage->getHeight()) {
       int source = logPolarImage->getDepth() * ( ( logPolarImage->getWidth() * theta ) + r );
       source_ptr = logPolarImage->getContents() + source;
       memmove(destination_ptr, source_ptr, logPolarImage->getDepth());

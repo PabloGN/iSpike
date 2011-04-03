@@ -86,6 +86,17 @@ public:
         );
   }
 
+  ~YarpAngleReader()
+  {
+    if(this->initialised)
+    {
+      this->threadPointer->interrupt();
+      this->threadPointer->join();
+      delete this->threadPointer.get();
+      delete this->buffer;
+    }
+  }
+
   /**
    * Retrieves the vector of joint angles
    */

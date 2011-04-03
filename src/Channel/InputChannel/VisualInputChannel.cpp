@@ -13,6 +13,7 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <ios>
 #include <boost/lexical_cast.hpp>
+#include <iSpike/Log/Log.hpp>
 
 std::vector< std::vector<int> > VisualInputChannel::getFiring()
 {
@@ -27,10 +28,9 @@ std::vector< std::vector<int> > VisualInputChannel::getFiring()
  */
 void VisualInputChannel::workerFunction()
 {
-  std::cout << "The thread has started." << std::endl;
+  LOG(LOG_INFO) << "The thread has started.";
   while(true)
   {
-    //std::cout << "Trying to retrieve the image..." << std::endl;
     ///Retrieve the colour oponent image
     Bitmap* opponentMap;
     if(this->opponentMap == 0)
@@ -59,7 +59,7 @@ void VisualInputChannel::workerFunction()
       this->buffer->push_back(*(this->neuronSim->getSpikes(currents)));
       delete currents;
     }
-    std::cout << "About to yield..." << std::endl;
+    LOG(LOG_INFO) << "About to yield...";
     boost::mutex::scoped_lock lk(this->wait_mutex);
     this->wait_condition.wait(lk);
   }

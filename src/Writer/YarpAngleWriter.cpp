@@ -10,6 +10,8 @@
 #include <iSpike/YarpConnection.hpp>
 #include <sstream>
 #include <iostream>
+#include <iSpike/Log/Log.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
@@ -46,9 +48,9 @@ void YarpAngleWriter::workerFunction()
       ip = iter->second->getIp();
       port = iter->second->getPort();
       type = iter->second->getType();
-      std::cout << "IP: " << ip << std::endl;
+      LOG(LOG_INFO) << "YarpAngleWriter: Yarp Port IP: " << ip << " Port: " << port;
   } else {
-    std::cout << "Iterator is empty!" << std::endl;
+    throw ISpikeException("YarpAngleWriter: Yarp IP/Port map is empty!");
   }
   this->yarpConnection->connect_to_port(ip, port);
   this->yarpConnection->write_text("CONNECT foo\n");
@@ -65,9 +67,9 @@ void YarpAngleWriter::workerFunction()
       std::ostringstream commandStream;
       commandStream << "set pos " << degreeOfFreedom << " " << angle << "\n";
       std::string command = commandStream.str();
-      std::cout << command;
+      LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
       this->yarpConnection->write_text(command);
-      std::cout << this->yarpConnection->read_until("\n");
+      LOG(LOG_DEBUG) << "YarpAngleWriter: Received reply " << this->yarpConnection->read_until("\n");
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }

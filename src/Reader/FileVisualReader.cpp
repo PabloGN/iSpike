@@ -7,6 +7,7 @@
 #include <boost/mpl/vector.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/ISpikeException.hpp>
+#include <iSpike/Log/Log.hpp>
 
 Bitmap FileVisualReader::getData()
 {
@@ -55,14 +56,13 @@ Bitmap* readPPMImage(const char* fname)
  M=strtol(header,&ptr,0);
  N=atoi(ptr);
 
- std::cout << "Width: " << M << " Height: " << N << std::endl;
+ LOG(LOG_INFO) << "FileVisualReader: Retrieved image with Width: " << M << " Height: " << N;
 
  ifp.getline(header,100,'\n');
 
  unsigned char *charImage = new unsigned char [3*M*N];
 
  ifp.read((char*)charImage, 3*M*N);
-
 
  if (ifp.fail()) {
    std::ostringstream messageStream;

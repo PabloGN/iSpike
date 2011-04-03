@@ -10,8 +10,6 @@
 
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Property.hpp>
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
 #include <string>
 #include <vector>
 
@@ -29,9 +27,6 @@ class FileAngleReader : public AngleReader {
 
 private:
   std::vector<double>* buffer;
-  boost::shared_ptr<boost::thread> threadPointer;
-  void workerFunction();
-  boost::mutex mutex;
   bool initialised;
   std::string fileName;
 
@@ -60,6 +55,11 @@ public:
           "Angle Reader",
           properties
         );
+  }
+
+  ~FileAngleReader()
+  {
+    delete this->buffer;
   }
 
   /**
@@ -103,16 +103,6 @@ public:
   void setInitialised(bool initialised)
   {
       this->initialised = initialised;
-  }
-
-  boost::shared_ptr<boost::thread> getThreadPointer() const
-  {
-      return threadPointer;
-  }
-
-  void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
-  {
-      this->threadPointer = threadPointer;
   }
 
 };

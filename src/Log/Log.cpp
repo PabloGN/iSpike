@@ -51,10 +51,10 @@ std::string Log::logLevelToString(TLogLevel level)
 std::ostringstream& Log::Get(TLogLevel level)
 {
    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-   os << "- " << now;
+   os << now;
    os << " " << this->logLevelToString(level) << ": ";
-   int size = this->logLevelToString(level).size() - 4;
-   os << std::string(size, '\t');
+   int size = 9 - this->logLevelToString(level).size();
+   os << std::string(size, ' ');
    return os;
 }
 

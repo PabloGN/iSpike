@@ -11,6 +11,7 @@
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/YarpPortDetails.hpp>
 #include <iSpike/ISpikeException.hpp>
+#include <iSpike/Log/Log.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -92,10 +93,11 @@ YarpConnection::YarpConnection(std::string ip, std::string port)
       }
     }
     std::map<std::string, YarpPortDetails*>::iterator it;
+    LOG(LOG_DEBUG) << "YarpConnection: Received the following Yarp portmap:";
     for ( it=this->portMap->begin() ; it != this->portMap->end(); ++it )
-        std::cout << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort() << std::endl;
-    //this->connectionSocket->close();
-
+    {
+        LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort();
+    }
 }
 
 int YarpConnection::connect_to_port(std::string ip, std::string port)
@@ -232,8 +234,6 @@ Bitmap* YarpConnection::read_image()
 {
   int result = read_data_header();
   if (result>=0) {
-      // get image header, see YARPImagePortContentHeader
-      // class in src/libYARP_sig/src/Image.cpp
       unsigned char header[4*15];
       int image_len = result - sizeof(header);
       result = read_binary((unsigned char*)header,sizeof(header));
@@ -243,15 +243,9 @@ Bitmap* YarpConnection::read_image()
       int depth = read_int((unsigned char*)(header+4*8)); // header.depth
       int width = read_int((unsigned char*)(header+4*11)); // header.width
       int height = read_int((unsigned char*)(header+4*12)); // header.height
-      //printf("Received image, size %dx%d, pixel depth %d, format %s\n",
-      //       width, height, depth, format);
       if (image_len!=width*height*depth) {
     	  throw ISpikeException("Image may have padding, yarpreadimage.c needs to be updated to deal with that.");
       }
-      /*if (image_len>buffer_size) {
-          std::cout << "Image too big to store, increase buffer size...\n";
-          //exit(1);
-      }*/
       unsigned char* contents = (unsigned char*)malloc(image_len);
       read_binary(contents,image_len);
       Bitmap* image = new Bitmap(width, height, depth, contents);

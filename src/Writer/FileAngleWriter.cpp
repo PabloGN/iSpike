@@ -12,6 +12,8 @@
 #include <fstream>
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
+#include <iSpike/ISpikeException.hpp>
+#include <sstream>
 
 void FileAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
@@ -38,18 +40,20 @@ void writeAngleToFile(const char* fileName, double angle)
 {
  std::ofstream fileStream;
 
- fileStream.open(fileName, std::fstream::out | std::fstream::app);
+ fileStream.open(fileName, std::fstream::out);
 
  if (!fileStream) {
-   std::cout << "Can't write angles: " << fileName << std::endl;
-   exit(1);
+   std::ostringstream errorStream;
+   errorStream << "FileAngleWriter: Could not write angles to " << fileName;
+   throw ISpikeException(errorStream.str());
  }
 
  fileStream << boost::lexical_cast<std::string>(angle) << std::endl;
 
  if (fileStream.fail()) {
-   std::cout << "Can't write angles: " << fileName << std::endl;
-   exit(1);
+   std::ostringstream errorStream;
+   errorStream << "FileAngleWriter: Could not write angles to " << fileName;
+   throw ISpikeException(errorStream.str());
  }
 
  fileStream.close();

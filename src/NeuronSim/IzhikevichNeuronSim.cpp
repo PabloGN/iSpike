@@ -9,6 +9,8 @@
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iostream>
+#include <sstream>
+#include <iSpike/Log/Log.hpp>
 
 std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
 {
@@ -18,13 +20,15 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
     fired[n] = false;
   }
   float* I = new float[voltages->size()];
-  std::cout << "Currents: ";
+  std::ostringstream currentText;
+  currentText << "Currents: ";
   for(unsigned int n = 0; n < voltages->size(); n++)
   {
     I[n] = (float) ( ( ( voltages->at(n) ) * this->currentFactor ) + this->constantCurrent );
-    //std::cout << I[n] << ", ";
+    currentText << I[n] << ", ";
   }
-  std::cout << std::endl;
+
+  LOG(LOG_DEBUG) << currentText.str();
 
   std::vector<int>* result = new std::vector<int>();
   for(unsigned int n = 0; n < voltages->size(); n++)
@@ -33,7 +37,6 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
              if(!fired[n]) {
                      this->v[n] += 0.25 * ((0.04* this->v[n] + 5.0) * this->v[n] + 140.0 - this->u[n] + I[n]);
                      this->u[n] += 0.25 * (this->a * (this->b * this->v[n] - this->u[n]));
-                     //std::cout << I[n] << ",";
                      fired[n] = v[n] >= 30.0;
              }
     }
@@ -46,7 +49,6 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
   }
   delete[] I;
   delete[] fired;
-  //std::cout << "[" << v[0] << "," << u[0] << "]" << std::endl;
   return result;
 }
 

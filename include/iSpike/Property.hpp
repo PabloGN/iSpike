@@ -74,6 +74,14 @@ class IntegerProperty : public Property
       this->description = paramDescription;
       this->type = Property::Integer;
     }
+
+    IntegerProperty (const IntegerProperty& copy_from_me)
+    {
+      this->description = copy_from_me.description;
+      this->name = copy_from_me.name;
+      this->type = copy_from_me.type;
+      this->value = copy_from_me.value;
+    }
 };
 
 /**
@@ -103,6 +111,14 @@ class DoubleProperty : public Property
       this->description = paramDescription;
       this->type = Property::Double;
     }
+
+    DoubleProperty (const DoubleProperty& copy_from_me)
+    {
+      this->description = copy_from_me.description;
+      this->name = copy_from_me.name;
+      this->type = copy_from_me.type;
+      this->value = copy_from_me.value;
+    }
 };
 
 /**
@@ -131,6 +147,14 @@ class StringProperty : public Property
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::String;
+    }
+
+    StringProperty (const StringProperty& copy_from_me)
+    {
+      this->description = copy_from_me.description;
+      this->name = copy_from_me.name;
+      this->type = copy_from_me.type;
+      this->value = copy_from_me.value;
     }
 };
 
@@ -168,6 +192,15 @@ class ComboProperty : public Property
       this->description = paramDescription;
       this->type = Property::Combo;
       this->options = paramOptions;
+    }
+
+    ComboProperty (const ComboProperty& copy_from_me)
+    {
+      this->description = copy_from_me.description;
+      this->name = copy_from_me.name;
+      this->type = copy_from_me.type;
+      this->value = copy_from_me.value;
+      this->options = copy_from_me.options;
     }
 };
 

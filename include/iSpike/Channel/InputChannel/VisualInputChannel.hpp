@@ -126,6 +126,17 @@ public:
         );
   }
 
+  ~VisualInputChannel()
+  {
+    if(this->initialised)
+    {
+      this->threadPointer->interrupt();
+      this->threadPointer->join();
+      delete this->threadPointer.get();
+      delete this->buffer;
+    }
+  }
+
   /**
    * Initialises the channel with the default parameters
    */

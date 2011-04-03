@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include <map>
 #include <iSpike/Reader/ReaderFactory.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
@@ -26,13 +27,7 @@
 
 int main(int argc, char* argv[])
 {
-    Log::ReportingLevel() = LOG_DEBUG;
-    int count = 3;
-    LOG(LOG_DEBUG) << "A loop with " << count << " iterations";
-    for (int i = 0; i != count; ++i)
-    {
-       Log().Get(LOG_DEBUG) << "the counter i = " << i;
-    }
+    Log::ReportingLevel() = LOG_INFO;
 
     std::cout << "Select the type of Channel you want to create" << std::endl;
     std::cout << "(1)Input Channel (2)Output Channel" << std::endl;
@@ -151,14 +146,16 @@ int main(int argc, char* argv[])
       if(typeOfChannel == 1)
       {
         std::vector<std::vector<int> > firings = ((InputChannel*)createdChannel)->getFiring();
-         std::cout << "Spiked Neurons: [";
+        std::ostringstream spikedNeurons;
+        spikedNeurons << "Spiked Neurons: [";
          if (!firings.empty())
          {
        for(unsigned int i = 0; i < firings.front().size(); i++)
        {
-         std::cout << firings.front().at(i) << ",";
+         spikedNeurons << firings.front().at(i) << ",";
        }
-       std::cout << "]" << std::endl;
+       spikedNeurons << "]";
+       LOG(LOG_DEBUG) << spikedNeurons.str();
        Common::writePatternToFile("spikes.txt", firings.front(), numOfNeurons);
        std::vector<int> something = *(firings.begin());
        //outputChannel->setFiring(&something);
@@ -171,109 +168,3 @@ int main(int argc, char* argv[])
     }
     return 1;
 }
-
-      /*std::vector< std::vector<int> > spikes;
-
-      while(true)
-      {
-        //get fired spikes
-        spikes = channel->getFiring();
-        channel->step();
-        std::cout << spikes.size() << std::endl;
-
-        if(spikes.size() > 0)
-        {
-          /*for(unsigned int i = 0; i < spikes.size(); i++)
-          {
-            controller->setFiring(1, &(spikes.at(i)));
-            controller->stepOutputChannel(1);
-          }*/
-         /* std::cout << "[";
-          for(unsigned int i = 0; i < spikes.front().size(); i++)
-          {
-            std::cout << spikes.front().at(i) << ",";
-          }
-          std::cout << "]" << std::endl;
-        }
-        boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-      }
-
-      return 1;
-}*/
-
-      /*ChannelController* controller = new ChannelController();
-      std::map<int, std::string>::iterator i;
-      std::map<int,std::string>* inputChannels = controller->getInputChannels();
-      std::cout << "Input Channels:" << std::endl;
-      for (i = inputChannels->begin(); i != inputChannels->end(); i++)
-        std::cout << i->first << "," << i->second << std::endl;
-      std::map<int,std::string>* outputChannels = controller->getOutputChannels();
-      std::cout << "Output Channels:" << std::endl;
-      for (i = outputChannels->begin(); i != outputChannels->end(); i++)
-        std::cout << i->first << "," << i->second << std::endl;
-
-      char* inputValues[] = {"0", "2", "-90", "90", "20"};
-      std::vector<std::string> inputArguments(inputValues, inputValues + sizeof(inputValues) / sizeof(char*) );
-      controller->inputChannelSubscribe(1);
-      char* outputValues[] = {"-90", "90", "0.1", "20"};
-      std::vector<std::string> outputArguments(outputValues, outputValues + sizeof(outputValues) / sizeof(char*) );
-      controller->outputChannelSubscribe(1, outputArguments);
-      std::vector< std::vector<int> > spikes;
-
-      while(true)
-      {
-        //get fired spikes
-        controller->stepInputChannel(1);
-        spikes = controller->getFiring(1);
-        std::cout << spikes.size() << std::endl;
-
-        if(spikes.size() > 0)
-        {
-          for(unsigned int i = 0; i < spikes.size(); i++)
-          {
-            controller->setFiring(1, &(spikes.at(i)));
-            controller->stepOutputChannel(1);
-          }
-          std::cout << "[";
-          for(unsigned int i = 0; i < spikes.front().size(); i++)
-          {
-            std::cout << spikes.front().at(i) << ",";
-          }
-          std::cout << "]" << std::endl;
-        }
-        boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-      }
-  return 1;
-}
-
-//return UnitTest::RunAllTests();
-
-if any spikes have been fired
-if(spikes.size() > 0 )
-{
-  //create a grayscale image buffer
-  unsigned char* buffer = new unsigned char[width * height];
-  for(int i = 0; i < width * height; i++)
-    buffer[i] = 0;
-
-  //for each spike frame
-  for(int i = 0; i < spikes.size(); i++)
-  {
-    //for each spike
-    for(int j = 0; j < spikes.at(i).size(); j++)
-    {
-      if(buffer[spikes.at(i).at(j)] == 0)
-      {
-        double ratio = ((double)i / spikes.size());
-        unsigned char pixelValue = (int) floor(255 * (1 - ratio) + 0.5);
-        buffer[spikes.at(i).at(j)] = pixelValue;
-      }
-    }
-  }
-  Bitmap* image = Common::produceGrayscale(buffer, width, height);
-  Common::savePPMImage("resultSpikes.ppm", image);
-  delete buffer;
-  delete image;
-} else {
-  std::cout << "length is zero" << std::endl;
-}*/

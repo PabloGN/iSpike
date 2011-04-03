@@ -16,6 +16,8 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iSpike/YarpConnection.hpp>
+#include <iSpike/Log/Log.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 std::vector<double> YarpAngleReader::getData()
 {
@@ -41,9 +43,9 @@ void YarpAngleReader::workerFunction()
       ip = iter->second->getIp();
       port = iter->second->getPort();
       type = iter->second->getType();
-      std::cout << "IP: " << ip << std::endl;
+      LOG(LOG_INFO) << "YarpAngleReader: Yarp Port IP: " << ip << " Port: " << port;
   } else {
-    std::cout << "Iterator is empty!" << std::endl;
+    throw ISpikeException("YarpAngleReader: Yarp IP/Port map is empty!");
   }
   this->yarpConnection->connect_to_port(ip, port);
   this->yarpConnection->prepare_to_read_text();
@@ -60,16 +62,8 @@ void YarpAngleReader::workerFunction()
       {
         std::string current_string = *(lines.begin());
         lines.pop_front();
-        try
-        {
-          double angle = boost::lexical_cast<double>(current_string);
-          angles->push_back(angle);
-        }
-        catch(boost::bad_lexical_cast &)
-        {
-          std::cout << "could not convert " << current_string << " to double" << std::endl;
-          break;
-        }
+        double angle = boost::lexical_cast<double>(current_string);
+        angles->push_back(angle);
       }
       boost::mutex::scoped_lock lock(this->mutex);
       delete this->buffer;

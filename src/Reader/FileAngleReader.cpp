@@ -17,6 +17,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iSpike/Property.hpp>
 #include <iSpike/ISpikeException.hpp>
+#include <iSpike/Log/Log.hpp>
 
 std::vector<double> FileAngleReader::getData()
 {
@@ -38,7 +39,7 @@ std::vector<double>* readAngleFromFile(const char* fileName)
  }
  fileStream >> contents;
 
- std::cout << contents;
+ LOG(LOG_INFO) << "FileAngleReader: Read the following angles: " << contents;
 
  if (fileStream.fail()) {
    std::ostringstream messageStream;
@@ -57,16 +58,8 @@ std::vector<double>* readAngleFromFile(const char* fileName)
  {
    std::string current_string = *(lines.begin());
    lines.pop_front();
-   try
-   {
-     double angle = boost::lexical_cast<double>(current_string);
-     angles->push_back(angle);
-   }
-   catch(boost::bad_lexical_cast &)
-   {
-     std::cout << "could not convert " << current_string << " to double" << std::endl;
-     break;
-   }
+   double angle = boost::lexical_cast<double>(current_string);
+   angles->push_back(angle);
  }
 
  return angles;
@@ -78,7 +71,7 @@ void FileAngleReader::start()
   if(!initialised)
   {
     initialised = true;
-    std::cout << "Reading angles from: " << fileName << std::endl;
+    LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
     this->buffer = readAngleFromFile(fileName.c_str());
   }
 }

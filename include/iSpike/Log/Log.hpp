@@ -25,7 +25,7 @@ enum TLogLevel {
 };
 
 #define LOG(level) \
-if (level < Log::ReportingLevel()) ; \
+if (level > Log::ReportingLevel()) ; \
 else Log().Get(level)
 
 
