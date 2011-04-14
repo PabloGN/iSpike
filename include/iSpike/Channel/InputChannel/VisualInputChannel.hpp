@@ -17,6 +17,7 @@
 #include <iSpike/NeuronSim/NeuronSim.hpp>
 #include <iSpike/Property.hpp>
 #include <boost/thread/mutex.hpp>
+#include <iSpike/VisualFilter/MovementFilter.hpp>
 
 /**
  * @class VisualInputChannel
@@ -38,6 +39,7 @@ private:
   bool initialised;
   VisualDataReducer* dataReducer;
   VisualFilter* filter;
+  MovementFilter* movementFilter;
   NeuronSim* neuronSim;
   double parameterA;
   double parameterB;

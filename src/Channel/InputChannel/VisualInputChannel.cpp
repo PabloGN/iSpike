@@ -39,6 +39,8 @@ void VisualInputChannel::workerFunction()
       opponentMap = &(Bitmap(this->filter->getGPlusRMinus()));
     else if(this->opponentMap == 2)
       opponentMap = &(Bitmap(this->filter->getBPlusYMinus()));
+    else if(this->opponentMap == 3)
+      opponentMap = &(Bitmap(this->movementFilter->getMovementMap()));
     ///If got it
     if(opponentMap->getWidth() > 0)
     {
@@ -73,6 +75,7 @@ void VisualInputChannel::start()
     this->reader->start();
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10);
     this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2);
+    this->movementFilter = new MovementFilter(this->filter, 1);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;

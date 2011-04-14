@@ -27,6 +27,14 @@ class Bitmap
       this->contents = contents;
     }
 
+    Bitmap(int width, int height, int depth)
+    {
+      this->width = width;
+      this->height = height;
+      this->depth = depth;
+      this->contents = new unsigned char[width * height * depth];
+    }
+
     Bitmap (const Bitmap& copy_from_me)
     {
     	if(copy_from_me.width == 0)
