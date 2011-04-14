@@ -40,6 +40,7 @@ class Log
      std::ostringstream& Get(TLogLevel level = LOG_INFO);
   public:
      static TLogLevel& ReportingLevel();
+     static int currentId;
   protected:
      std::ostringstream os;
   private:

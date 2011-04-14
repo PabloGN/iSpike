@@ -34,6 +34,7 @@ private:
   boost::shared_ptr<boost::thread> threadPointer;
   bool initialised;
   bool stopRequested;
+  bool sleeping;
   int degreeOfFreedom;
   double currentAngle;
   double sd;
@@ -114,7 +115,7 @@ public:
         );
     properties["Current Factor"] = new DoubleProperty(
           "Current Factor",
-          200,
+          400,
           "Incoming current is multiplied by this value"
         );
     properties["Constant Current"] = new DoubleProperty(
@@ -135,14 +136,21 @@ public:
 
   ~JointInputChannel()
   {
+    LOG(LOG_DEBUG) << "Entering JointInputChannel destructor";
     if(this->initialised)
     {
+      LOG(LOG_DEBUG) << "Setting stop requested to true";
       this->stopRequested = true;
-      this->wait_condition.notify_all();
+      LOG(LOG_DEBUG) << "Waking up the thread";
+      {
+        this->wait_condition.notify_all();
+      }
+      LOG(LOG_DEBUG) << "Waiting";
       this->threadPointer->join();
       delete this->buffer;
       this->threadPointer.reset();
     }
+    LOG(LOG_DEBUG) << "Exiting JointInputChannel destructor";
   }
 
   /**

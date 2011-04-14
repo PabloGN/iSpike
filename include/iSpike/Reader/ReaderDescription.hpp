@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <iSpike/Property.hpp>
+#include <iSpike/Log/Log.hpp>
 
 /**
  * @class ReaderDescription
@@ -53,6 +54,40 @@ public:
     this->readerProperties = readerProperties;
   }
 
+  ReaderDescription(const ReaderDescription& copy_from_me)
+  {
+    this->readerProperties = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.readerProperties.begin(); iter != copy_from_me.readerProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      this->readerProperties[iter->first] = newProperty;
+    }
+  }
+
+  ~ReaderDescription()
+  {
+    for(std::map<std::string,Property*>::iterator iter = readerProperties.begin(); iter != readerProperties.end(); ++iter)
+    {
+      delete iter->second;
+    }
+    readerProperties.clear();
+  }
+
   /**
    * Returns the Reader's description
    * @return Description of the Reader
@@ -86,7 +121,28 @@ public:
    */
   std::map<std::string,Property*> getReaderProperties() const
   {
-    return readerProperties;
+    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = this->readerProperties.begin(); iter != this->readerProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      result[iter->first] = newProperty;
+      }
+      return result;
   }
 
 };

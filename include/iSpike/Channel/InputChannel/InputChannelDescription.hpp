@@ -51,6 +51,43 @@ public:
     this->channelProperties = channelProperties;
   }
 
+  ~InputChannelDescription()
+  {
+    for(std::map<std::string,Property*>::iterator iter = channelProperties.begin(); iter != channelProperties.end(); ++iter)
+    {
+      delete iter->second;
+    }
+    channelProperties.clear();
+  }
+
+  InputChannelDescription(const InputChannelDescription& copy_from_me)
+  {
+    this->channelName = copy_from_me.channelName;
+    this->channelDescription = copy_from_me.channelDescription;
+    this->readerType = copy_from_me.readerType;
+    this->channelProperties = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.channelProperties.begin(); iter != copy_from_me.channelProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      this->channelProperties[iter->first] = newProperty;
+    }
+  }
+
   /**
    * Retrieves the Channel description
    * @return Channel description
@@ -84,7 +121,28 @@ public:
    */
   std::map<std::string,Property*> getChannelProperties() const
   {
-    return channelProperties;
+    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = this->channelProperties.begin(); iter != this->channelProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      result[iter->first] = newProperty;
+      }
+      return result;
   }
 
 };

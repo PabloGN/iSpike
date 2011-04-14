@@ -20,10 +20,15 @@
 class InputChannel : public Channel {
 protected:
   InputChannelDescription* channelDescription;
-  boost::condition wait_condition;
+  boost::condition_variable wait_condition;
   boost::mutex mutex, wait_mutex;
 
 public:
+
+  virtual ~InputChannel()
+  {
+    delete this->channelDescription;
+  }
 
   /**
    * Retrieves the spike pattern

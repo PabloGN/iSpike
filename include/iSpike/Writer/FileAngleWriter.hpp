@@ -29,6 +29,7 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string fileName;
+  bool stopRequested;
 
 public:
 
@@ -52,6 +53,16 @@ public:
           "Angle Writer",
           properties
         );
+  }
+
+  ~FileAngleWriter()
+  {
+    if(this->initialised)
+    {
+      this->stopRequested = true;
+      this->threadPointer->join();
+      this->threadPointer.reset();
+    }
   }
 
   void initialise(std::map<std::string,Property*> properties);

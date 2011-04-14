@@ -14,11 +14,14 @@
 #include <boost/lexical_cast.hpp>
 #include <iSpike/ISpikeException.hpp>
 #include <sstream>
+#include <iSpike/Log/Log.hpp>
 
 void FileAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
+  this->initialised = false;
   this->angleList = new std::queue<double>();
   this->fileName = ((StringProperty*)(properties["Filename"]))->getValue();
+  this->stopRequested = false;
 }
 
 void FileAngleWriter::addAngle(double angle)
@@ -63,7 +66,7 @@ void writeAngleToFile(const char* fileName, double angle)
 void FileAngleWriter::workerFunction()
 {
   int sleepAmount = 1;
-  while(true)
+  while(!stopRequested)
   {
     if(this->angleList->size() > 0)
     {
@@ -72,7 +75,12 @@ void FileAngleWriter::workerFunction()
         boost::mutex::scoped_lock lock(this->mutex);
         this->angleList->pop();
       }
+      try{
       writeAngleToFile(this->getFileName().c_str(), angle);
+      } catch (ISpikeException& e)
+      {
+        LOG(LOG_ERROR) << e.what();
+      }
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
   }

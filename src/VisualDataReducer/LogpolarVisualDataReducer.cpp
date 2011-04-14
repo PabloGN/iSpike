@@ -32,6 +32,7 @@ void LogPolarVisualDataReducer::workerFunction()
       CoordMapType* cartesianToPolarMap = initialiseCartesianToPolarMap(&rawImage, polarWidth, polarHeight, 60);
       Bitmap* logPolarImage = logPolar(&rawImage, polarWidth, polarHeight, polarToCartesianMap);
       Common::savePPMImage("logPolar.ppm", logPolarImage);
+      Bitmap* cartesianImage = logPolarToCartesian(logPolarImage, logPolarImage->getWidth(), logPolarImage->getHeight(), cartesianToPolarMap);
       if(logPolarImage != NULL)
       {
         boost::mutex::scoped_lock lock(this->mutex);
@@ -152,8 +153,7 @@ Bitmap* LogPolarVisualDataReducer::logPolar(Bitmap* input, int polarWidth, int p
   return new Bitmap(polarWidth, polarHeight, input->getDepth(), polar_buffer);
 }
 
-Bitmap* LogPolarVisualDataReducer::logPolarToCartesian(Bitmap* logPolarImage, Bitmap* cartesianImage, int outputWidth, int outputHeight, int foveaDiameter,
-    CoordMapType* cartesianToPolarMap)
+Bitmap* LogPolarVisualDataReducer::logPolarToCartesian(Bitmap* logPolarImage, int outputWidth, int outputHeight, CoordMapType* cartesianToPolarMap)
 {
   unsigned char* cartesian_buffer = (unsigned char*) malloc( outputWidth * outputHeight * logPolarImage->getDepth() );
   CoordMapType::const_iterator iterator;

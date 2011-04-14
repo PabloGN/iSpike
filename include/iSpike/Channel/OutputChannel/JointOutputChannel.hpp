@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <iSpike/Writer/AngleWriter.hpp>
+#include <iSpike/Log/Log.hpp>
 
 class JointOutputChannel : public OutputChannel {
 private:
@@ -23,13 +24,15 @@ private:
   AngleWriter* writer;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
-  boost::condition wait_condition;
+  boost::condition_variable wait_condition;
   boost::mutex mutex, wait_mutex;
   bool initialised;
   double minAngle;
   double maxAngle;
   double rateOfDecay;
   double currentAngle;
+  bool stopRequested;
+  bool sleeping;
 
 public:
 
@@ -56,7 +59,7 @@ public:
         );
     properties["Rate Of Decay"] = new DoubleProperty(
           "Rate Of Decay",
-          0.2,
+          0.005,
           "The rate of decay of the angle variables"
         );
     properties["Neuron Width"] = new IntegerProperty(
@@ -82,13 +85,21 @@ public:
 
   ~JointOutputChannel()
   {
+    LOG(LOG_DEBUG) << "Entering JointOutputChannel destructor";
     if(this->initialised)
     {
-      this->threadPointer->interrupt();
+      LOG(LOG_DEBUG) << "Setting stop requested to true";
+      this->stopRequested = true;
+      LOG(LOG_DEBUG) << "Waking up the thread";
+      {
+        this->wait_condition.notify_all();
+      }
+      LOG(LOG_DEBUG) << "Waiting";
       this->threadPointer->join();
-      delete this->threadPointer.get();
       delete this->buffer;
+      this->threadPointer.reset();
     }
+    LOG(LOG_DEBUG) << "Exiting JointOutputChannel destructor";
   }
 
   /**

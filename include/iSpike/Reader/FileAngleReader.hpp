@@ -57,10 +57,10 @@ public:
         );
   }
 
-  ~FileAngleReader()
+  /*~FileAngleReader()
   {
     delete this->buffer;
-  }
+  }*/
 
   /**
    * Retrieves the vector of joint angles

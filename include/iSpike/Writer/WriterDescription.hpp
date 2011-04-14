@@ -53,6 +53,40 @@ public:
     this->writerProperties = writerProperties;
   }
 
+  WriterDescription(const WriterDescription& copy_from_me)
+  {
+    this->writerProperties = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.writerProperties.begin(); iter != copy_from_me.writerProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      this->writerProperties[iter->first] = newProperty;
+    }
+  }
+
+  ~WriterDescription()
+  {
+    for(std::map<std::string,Property*>::iterator iter = writerProperties.begin(); iter != writerProperties.end(); ++iter)
+    {
+      delete iter->second;
+    }
+    writerProperties.clear();
+  }
+
   /**
    * Returns the Writer's description
    * @return Description of the Reader
@@ -86,7 +120,28 @@ public:
    */
   std::map<std::string,Property*> getWriterProperties() const
   {
-    return writerProperties;
+    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+    for(std::map<std::string,Property*>::const_iterator iter = this->writerProperties.begin(); iter != this->writerProperties.end(); ++iter)
+    {
+      Property* newProperty;
+      switch(iter->second->getType())
+      {
+      case Property::Integer:
+        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Double:
+        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::String:
+        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription());
+        break;
+      case Property::Combo:
+        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions());
+        break;
+      }
+      result[iter->first] = newProperty;
+      }
+      return result;
   }
 
 };

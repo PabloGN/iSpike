@@ -45,6 +45,11 @@ class Property
       return this->description;
     }
 
+    virtual ~Property()
+    {
+
+    }
+
 };
 
 /**

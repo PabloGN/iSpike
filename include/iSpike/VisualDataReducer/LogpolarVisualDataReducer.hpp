@@ -59,8 +59,7 @@ private:
   /**
    * Maps the logpolar image to cartesian space
    */
-  Bitmap* logPolarToCartesian(Bitmap* logPolarImage, Bitmap* cartesianImage, int outputWidth, int outputHeight, int foveaDiameter,
-      CoordMapType* cartesianToPolarMap);
+  Bitmap* logPolarToCartesian(Bitmap* logPolarImage, int outputWidth, int outputHeight, CoordMapType* cartesianToPolarMap);
 
   /**
    * Retrieves the R parameter - distance from center

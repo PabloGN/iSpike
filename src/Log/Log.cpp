@@ -9,6 +9,8 @@
 #include <boost/date_time.hpp>
 #include <stdio.h>
 
+int Log::currentId = 0;
+
 TLogLevel& Log::ReportingLevel()
 {
   static TLogLevel reportingLevel(LOG_DEBUG);
@@ -52,9 +54,10 @@ std::ostringstream& Log::Get(TLogLevel level)
 {
    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
    os << now;
-   os << " " << this->logLevelToString(level) << ": ";
+   os << " " << this->logLevelToString(level) << ": " << currentId << ": ";
    int size = 9 - this->logLevelToString(level).size();
    os << std::string(size, ' ');
+   currentId++;
    return os;
 }
 

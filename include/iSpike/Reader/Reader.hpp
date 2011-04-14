@@ -9,6 +9,7 @@
 #define READER_HPP_
 
 #include <iSpike/Reader/ReaderDescription.hpp>
+#include <iSpike/Log/Log.hpp>
 
 /**
  * @class Reader
@@ -37,6 +38,11 @@ public:
   }
 
   virtual void initialise(std::map<std::string,Property*> properties) = 0;
+
+  virtual ~Reader()
+  {
+    delete this->readerDescription;
+  }
 
 };
 

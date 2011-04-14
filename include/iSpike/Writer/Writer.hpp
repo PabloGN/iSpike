@@ -36,6 +36,11 @@ public:
     }
 
     virtual void initialise(std::map<std::string,Property*> properties) = 0;
+
+    virtual ~Writer()
+    {
+      delete this->writerDescription;
+    }
 };
 
 #endif /* WRITER_HPP_ */

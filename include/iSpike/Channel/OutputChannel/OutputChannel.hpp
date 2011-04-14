@@ -25,6 +25,11 @@ protected:
   boost::mutex mutex, wait_mutex;
 public:
 
+  virtual ~OutputChannel()
+  {
+    delete this->channelDescription;
+  }
+
   /**
    * Sets the current spike pattern
    */

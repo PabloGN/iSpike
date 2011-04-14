@@ -13,6 +13,8 @@
 #include <iSpike/Property.hpp>
 #include <map>
 #include <iSpike/Log/Log.hpp>
+#include <boost/timer.hpp>
+
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
 {
@@ -24,25 +26,28 @@ std::vector< std::vector<int> > JointInputChannel::getFiring()
 
 void JointInputChannel::workerFunction()
 {
-  LOG(LOG_INFO) << "The thread has started.";
+  LOG(LOG_INFO) << "The thread has started. " << stopRequested;
   
   IzhikevichNeuronSim neuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
-
+  std::ofstream timeStream;
+  //timeStream.open("timings.txt", std::fstream::out | std::fstream::app);
   while(!stopRequested)
   {
+    boost::timer t;
     ///calculate the standard deviation as a percentage of the image
     ///3 standard deviations in each direction cover almost all of the range
     int totalNeurons = this->width * this->height;
     int angleDist = (this->maxAngle - this->minAngle) / totalNeurons;
     double standardDeviation = ((totalNeurons * this->sd) / 6) * angleDist;
 
-    LOG(LOG_DEBUG) << "standard deviation: " << standardDeviation;
+    LOG(LOG_INFO) << "standard deviation: " << standardDeviation;
 
     std::vector<double> angles = this->reader->getData();
     std::vector<double> currents(this->width * this->height);
     if(angles.size() > 0)
     {
-      LOG(LOG_DEBUG) << "Actual Read Angle: " << angles[this->degreeOfFreedom];
+      double initial = t.elapsed();
+      LOG(LOG_INFO) << "Actual Read Angle: " << angles[this->degreeOfFreedom];
       this->currentAngle = angles[this->degreeOfFreedom];
       ///Iterate over the each neuron
       for(int i = 0; i < this->width * this->height; i++)
@@ -58,24 +63,47 @@ void JointInputChannel::workerFunction()
         double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
         ///Update the current map with the value for this angle
         currents[i] = main * exp(-exponent);
+        /*std::ostringstream currentText;
+        currentText << "Angle: " << currentAngle << " Currents: ";
+        for(unsigned int n = 0; n < currents.size(); n++)
+        {
+          currentText << currents[n] << ", ";
+        }
+        LOG(LOG_DEBUG) << currentText.str();*/
         LOG(LOG_DEBUG) << "Angle: " << currentAngle << " Current: " << main * exp(-exponent);
+        /*std::ofstream currentStream;
+        currentStream.open("currents.txt", std::fstream::out | std::fstream::app);
+        for(unsigned int n = 0; n < currents.size(); n++)
+        {
+          currentStream << currents[n] << ", ";
+        }
+        currentStream << std::endl;
+        currentStream.close();*/
       }
-
+      double prespikes = t.elapsed() - initial;
       boost::mutex::scoped_lock lock(this->mutex);
       std::vector<int>* spikes = neuronSim.getSpikes(&currents);
+      double postspikes = t.elapsed() - prespikes;
       this->buffer->push_back(*spikes);
       delete spikes;
+      //timeStream << this->width << "," << prespikes << "," << postspikes << std::endl;
     }
-
-    LOG(LOG_INFO) << "About to yield...";
-    boost::mutex::scoped_lock lk(this->wait_mutex);
-    this->wait_condition.wait(lk);
+    if(!stopRequested)
+    {
+      LOG(LOG_DEBUG) << "JointInputChannel: Falling asleep...";
+      boost::mutex::scoped_lock lk(this->wait_mutex);
+      this->sleeping = true;
+      this->wait_condition.wait(lk);
+      this->sleeping = false;
+    }
   }
-  LOG(LOG_NOTICE) << "JointInputChannel: Exiting worker thread";
+  //timeStream.close();
+  LOG(LOG_INFO) << "JointInputChannel: Exiting worker thread";
 }
 
 void JointInputChannel::step()
 {
+  while(!this->sleeping){}
   this->wait_condition.notify_all();
 }
 
@@ -107,4 +135,6 @@ void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Pro
   this->currentFactor = ((DoubleProperty*)(properties["Current Factor"]))->getValue();
   this->constantCurrent = ((DoubleProperty*)(properties["Constant Current"]))->getValue();
   this->reader = reader;
+  this->stopRequested = false;
+  this->sleeping = false;
 }

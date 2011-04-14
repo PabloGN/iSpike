@@ -20,15 +20,15 @@ std::vector<int>* IzhikevichNeuronSim::getSpikes(std::vector<double>* voltages)
     fired[n] = false;
   }
   float* I = new float[voltages->size()];
-  std::ostringstream currentText;
-  currentText << "Currents: ";
+  //std::ostringstream currentText;
+  //currentText << "Izhikevich Currents: ";
   for(unsigned int n = 0; n < voltages->size(); n++)
   {
     I[n] = (float) ( ( ( voltages->at(n) ) * this->currentFactor ) + this->constantCurrent );
-    currentText << I[n] << ", ";
+  //  currentText << I[n] << ", ";
   }
 
-  LOG(LOG_DEBUG) << currentText.str();
+  //LOG(LOG_DEBUG) << currentText.str();
 
   std::vector<int>* result = new std::vector<int>();
   for(unsigned int n = 0; n < voltages->size(); n++)
