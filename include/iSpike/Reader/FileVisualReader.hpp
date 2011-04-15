@@ -59,10 +59,10 @@ public:
         );
   }
 
-  ~FileVisualReader()
+  /*~FileVisualReader()
   {
     delete this->buffer;
-  }
+  }*/
 
   /**
    * Retrieves the image

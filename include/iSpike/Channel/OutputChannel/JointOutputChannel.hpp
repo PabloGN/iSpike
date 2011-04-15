@@ -155,6 +155,21 @@ public:
 
   void step();
 
+  void updateProperties(std::map<std::string,Property*> properties)
+  {
+        if(this->initialised)
+        {
+          this->stopRequested = true;
+          {
+            this->wait_condition.notify_all();
+          }
+          this->threadPointer->join();
+          this->stopRequested = false;
+          this->updateProperties(properties, false);
+          this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
+        }
+  }
+
 };
 
 #endif /* JOINTOUTPUTCHANNEL_HPP_ */

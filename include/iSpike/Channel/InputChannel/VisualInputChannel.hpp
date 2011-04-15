@@ -35,6 +35,8 @@ private:
   VisualReader* reader;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;
+  bool stopRequested;
+  bool sleeping;
   boost::mutex mutex;
   bool initialised;
   VisualDataReducer* dataReducer;
@@ -145,13 +147,37 @@ public:
 
   ~VisualInputChannel()
   {
+    std::cout << "destructor";
+    LOG(LOG_DEBUG) << "Entering VisualInputChannel destructor";
     if(this->initialised)
     {
-      this->threadPointer->interrupt();
+      LOG(LOG_DEBUG) << "Setting stop requested to true";
+      this->stopRequested = true;
+      LOG(LOG_DEBUG) << "Waking up the thread";
+      {
+        this->wait_condition.notify_all();
+      }
+      LOG(LOG_DEBUG) << "Waiting";
       this->threadPointer->join();
-      delete this->threadPointer.get();
       delete this->buffer;
+      this->threadPointer.reset();
     }
+    LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
+  }
+
+  void updateProperties(std::map<std::string,Property*> properties)
+  {
+        if(this->initialised)
+        {
+          this->stopRequested = true;
+          {
+            this->wait_condition.notify_all();
+          }
+          this->threadPointer->join();
+          this->stopRequested = false;
+          this->updateProperties(properties, false);
+          this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
+        }
   }
 
   /**

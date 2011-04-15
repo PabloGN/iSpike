@@ -34,6 +34,11 @@ public:
   virtual ~Channel() = 0;
 
   /**
+   * Enables updating channel properties during run-time
+   */
+  virtual void updateProperties(std::map<std::string,Property*> properties) = 0;
+
+  /**
    * Retrieves the Channel Identifier
    * @return Channel Identifier
    */

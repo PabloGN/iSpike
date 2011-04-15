@@ -27,7 +27,7 @@
 
 int main(int argc, char* argv[])
 {
-    Log::ReportingLevel() = LOG_DEBUG;
+    Log::ReportingLevel() = LOG_INFO;
 
     std::cout << "Select the type of Channel you want to create" << std::endl;
     std::cout << "(1)Input Channel (2)Output Channel" << std::endl;

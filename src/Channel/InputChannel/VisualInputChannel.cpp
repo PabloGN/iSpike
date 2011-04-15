@@ -30,7 +30,7 @@ std::vector< std::vector<int> > VisualInputChannel::getFiring()
 void VisualInputChannel::workerFunction()
 {
   LOG(LOG_INFO) << "The thread has started.";
-  while(true)
+  while(!stopRequested)
   {
     ///Retrieve the colour oponent image
     Bitmap* opponentMap;
@@ -62,9 +62,14 @@ void VisualInputChannel::workerFunction()
       this->buffer->push_back(*(this->neuronSim->getSpikes(currents)));
       delete currents;
     }
-    LOG(LOG_INFO) << "About to yield...";
-    boost::mutex::scoped_lock lk(this->wait_mutex);
-    this->wait_condition.wait(lk);
+    if(!stopRequested)
+    {
+      LOG(LOG_DEBUG) << "VisualInputChannel: Falling asleep...";
+      boost::mutex::scoped_lock lk(this->wait_mutex);
+      this->sleeping = true;
+      this->wait_condition.wait(lk);
+      this->sleeping = false;
+    }
   }
 }
 
@@ -152,10 +157,13 @@ void VisualInputChannel::initialise(VisualReader* reader, std::map<std::string,P
 {
   this->initialised = false;
   this->setReader(reader);
+  this->stopRequested = false;
+  this->sleeping = false;
   this->updateProperties(properties, true);
 }
 
 void VisualInputChannel::step()
 {
+  while(!this->sleeping){}
   this->wait_condition.notify_all();
 }

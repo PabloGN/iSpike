@@ -150,8 +150,24 @@ public:
         );
   }
 
+  void updateProperties(std::map<std::string,Property*> properties)
+  {
+        if(this->initialised)
+        {
+          this->stopRequested = true;
+          {
+            this->wait_condition.notify_all();
+          }
+          this->threadPointer->join();
+          this->stopRequested = false;
+          this->updateProperties(properties, false);
+          this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointInputChannel::workerFunction, this)));
+        }
+  }
+
   ~JointInputChannel()
   {
+    std::cout << "destructor";
     LOG(LOG_DEBUG) << "Entering JointInputChannel destructor";
     if(this->initialised)
     {
