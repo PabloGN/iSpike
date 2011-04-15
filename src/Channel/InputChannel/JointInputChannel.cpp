@@ -14,6 +14,7 @@
 #include <map>
 #include <iSpike/Log/Log.hpp>
 #include <boost/timer.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 
 std::vector< std::vector<int> > JointInputChannel::getFiring()
@@ -118,23 +119,76 @@ void JointInputChannel::start()
   }
 }
 
+/**
+ * Updates the properties by first checking if any are read-only
+ */
+void JointInputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly)
+{
+  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
+  {
+    if(!updateReadOnly)
+      ///Check if any of the properties are read only
+      if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
+        throw ISpikeException("Cannot update read-only parameters");
+
+    ///Update the properties, this is ugly and should be improved
+    std::string paramName = iter->second->getName();
+    switch (iter->second->getType())
+    {
+      case Property::Integer:
+      {
+        int value = ((IntegerProperty*)(iter->second))->getValue();
+        if(paramName == "Degree Of Freedom")
+          this->degreeOfFreedom = value;
+        else if (paramName == "Neuron Width")
+          this->width = value;
+        else if (paramName == "Neuron Height")
+          this->height = value;
+        break;
+      }
+      case Property::Double:
+      {
+        double value = ((DoubleProperty*)(iter->second))->getValue();
+        if(paramName == "Standard Deviation")
+          this->sd = value;
+        else if (paramName == "Minimum Angle")
+          this->minAngle = value;
+        else if (paramName == "Maximum Angle")
+          this->maxAngle = value;
+        else if (paramName == "Parameter A")
+          this->parameterA = value;
+        else if (paramName == "Parameter B")
+          this->parameterB = value;
+        else if (paramName == "Parameter C")
+          this->parameterC = value;
+        else if (paramName == "Parameter D")
+          this->parameterD = value;
+        else if (paramName == "Current Factor")
+          this->currentFactor = value;
+        else if (paramName == "Constant Current")
+          this->constantCurrent = value;
+        break;
+      }
+      case Property::Combo:
+      case Property::String:
+      {
+        std::string value;
+        if(iter->second->getType() == Property::String)
+          value = ((StringProperty*)(iter->second))->getValue();
+        else
+          value = ((ComboProperty*)(iter->second))->getValue();
+        break;
+      }
+    }
+  }
+}
+
 void JointInputChannel::initialise(AngleReader* reader, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
   this->buffer = new std::vector< std::vector<int> >();
-  this->degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
-  this->sd = ((DoubleProperty*)(properties["Standard Deviation"]))->getValue();
-  this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
-  this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
-  this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
-  this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();
-  this->parameterA = ((DoubleProperty*)(properties["Parameter A"]))->getValue();
-  this->parameterB = ((DoubleProperty*)(properties["Parameter B"]))->getValue();
-  this->parameterC = ((DoubleProperty*)(properties["Parameter C"]))->getValue();
-  this->parameterD = ((DoubleProperty*)(properties["Parameter D"]))->getValue();
-  this->currentFactor = ((DoubleProperty*)(properties["Current Factor"]))->getValue();
-  this->constantCurrent = ((DoubleProperty*)(properties["Constant Current"]))->getValue();
   this->reader = reader;
   this->stopRequested = false;
   this->sleeping = false;
+  this->updateProperties(properties, true);
 }

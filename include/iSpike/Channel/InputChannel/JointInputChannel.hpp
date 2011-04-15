@@ -47,6 +47,9 @@ private:
   double currentFactor;
   double constantCurrent;
 
+protected:
+  void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+
 public:
 
   double getCurrentAngle()
@@ -63,65 +66,78 @@ public:
      * First define the properties of this channel
      */
     std::map<std::string,Property*> properties;
+    this->initialised = false;
     properties["Degree Of Freedom"] = new IntegerProperty(
           "Degree Of Freedom",
           0,
-          "The degree of freedom to read from this joint"
+          "The degree of freedom to read from this joint",
+          true
         );
     properties["Standard Deviation"] = new DoubleProperty(
           "Standard Deviation",
           0.5,
-          "The standard deviation as a percentage of neurons covered"
+          "The standard deviation as a percentage of neurons covered",
+          true
         );
     properties["Minimum Angle"] = new DoubleProperty(
           "Minimum Angle",
           -90,
-          "The minimum angle to read"
+          "The minimum angle to read",
+          true
         );
     properties["Maximum Angle"] = new DoubleProperty(
           "Maximum Angle",
           90,
-          "The maximum angle to read"
+          "The maximum angle to read",
+          true
         );
     properties["Neuron Width"] = new IntegerProperty(
           "Neuron Width",
           10,
-          "Width of the neuron network"
+          "Width of the neuron network",
+          true
         );
     properties["Neuron Height"] = new IntegerProperty(
           "Neuron Height",
           1,
-          "Height of the neuron network"
+          "Height of the neuron network",
+          true
         );
     properties["Parameter A"] = new DoubleProperty(
           "Parameter A",
           0.1,
-          "Parameter A of the Izhikevich Neuron Model"
+          "Parameter A of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter B"] = new DoubleProperty(
           "Parameter B",
           0.2,
-          "Parameter B of the Izhikevich Neuron Model"
+          "Parameter B of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter C"] = new DoubleProperty(
           "Parameter C",
           -65,
-          "Parameter C of the Izhikevich Neuron Model"
+          "Parameter C of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter D"] = new DoubleProperty(
           "Parameter D",
           2,
-          "Parameter D of the Izhikevich Neuron Model"
+          "Parameter D of the Izhikevich Neuron Model",
+          true
         );
     properties["Current Factor"] = new DoubleProperty(
           "Current Factor",
           400,
-          "Incoming current is multiplied by this value"
+          "Incoming current is multiplied by this value",
+          true
         );
     properties["Constant Current"] = new DoubleProperty(
           "Constant Current",
           0,
-          "This value is added to the incoming current"
+          "This value is added to the incoming current",
+          true
         );
     /**
      * Now let's create the description

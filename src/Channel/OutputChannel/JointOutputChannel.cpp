@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iSpike/Log/Log.hpp>
 #include <sstream>
+#include <iSpike/ISpikeException.hpp>
 
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
@@ -30,6 +31,56 @@ void JointOutputChannel::start()
   }
 }
 
+/**
+ * Updates the properties by first checking if any are read-only
+ */
+void JointOutputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly)
+{
+  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
+  {
+    if(!updateReadOnly)
+      ///Check if any of the properties are read only
+      if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
+        throw ISpikeException("Cannot update read-only parameters");
+
+    ///Update the properties, this is ugly and should be improved
+    std::string paramName = iter->second->getName();
+    switch (iter->second->getType())
+    {
+      case Property::Integer:
+      {
+        int value = ((IntegerProperty*)(iter->second))->getValue();
+        if (paramName == "Neuron Width")
+          this->width = value;
+        else if (paramName == "Neuron Height")
+          this->height = value;
+        break;
+      }
+      case Property::Double:
+      {
+        double value = ((DoubleProperty*)(iter->second))->getValue();
+        if (paramName == "Minimum Angle")
+          this->minAngle = value;
+        else if (paramName == "Maximum Angle")
+          this->maxAngle = value;
+        else if (paramName == "Rate Of Decay")
+          this->rateOfDecay = value;
+        break;
+      }
+      case Property::Combo:
+      case Property::String:
+      {
+        std::string value;
+        if(iter->second->getType() == Property::String)
+          value = ((StringProperty*)(iter->second))->getValue();
+        else
+          value = ((ComboProperty*)(iter->second))->getValue();
+        break;
+      }
+    }
+  }
+}
+
 void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Property*> properties)
 {
   LOG(LOG_DEBUG) << "Entering JointOutputChannel initialisation";
@@ -37,12 +88,7 @@ void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Pr
   this->stopRequested = false;
   this->sleeping = false;
   this->setWriter(writer);
-  this->maxAngle = ((DoubleProperty*)(properties["Maximum Angle"]))->getValue();
-  this->minAngle = ((DoubleProperty*)(properties["Minimum Angle"]))->getValue();
-  this->rateOfDecay = ((DoubleProperty*)(properties["Rate Of Decay"]))->getValue();
-  this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
-  this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();
-
+  this->updateProperties(properties, true);
 }
 
 void JointOutputChannel::step()

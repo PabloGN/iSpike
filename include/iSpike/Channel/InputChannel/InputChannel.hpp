@@ -22,6 +22,7 @@ protected:
   InputChannelDescription* channelDescription;
   boost::condition_variable wait_condition;
   boost::mutex mutex, wait_mutex;
+  virtual void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) = 0;
 
 public:
 

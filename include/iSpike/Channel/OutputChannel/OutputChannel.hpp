@@ -23,6 +23,7 @@ protected:
   OutputChannelDescription* channelDescription;
   boost::condition wait_condition;
   boost::mutex mutex, wait_mutex;
+  virtual void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) = 0;
 public:
 
   virtual ~OutputChannel()

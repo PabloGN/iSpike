@@ -35,8 +35,10 @@ public:
    */
   InputChannelFactory()
   {
+    LOG(LOG_DEBUG) << "Before.";
     this->channelList.push_back(JointInputChannel().getChannelDescription());
     this->channelList.push_back(VisualInputChannel().getChannelDescription());
+    LOG(LOG_DEBUG) << "After.";
   }
 
   /**

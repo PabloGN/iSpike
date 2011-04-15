@@ -14,6 +14,7 @@
 #include <ios>
 #include <boost/lexical_cast.hpp>
 #include <iSpike/Log/Log.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 std::vector< std::vector<int> > VisualInputChannel::getFiring()
 {
@@ -83,23 +84,75 @@ void VisualInputChannel::start()
 }
 
 /**
+ * Updates the properties by first checking if any are read-only
+ */
+void VisualInputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly)
+{
+  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
+  {
+    if(!updateReadOnly)
+      ///Check if any of the properties are read only
+      if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
+        throw ISpikeException("Cannot update read-only parameters");
+
+    ///Update the properties, this is ugly and should be improved
+    std::string paramName = iter->second->getName();
+    switch (iter->second->getType())
+    {
+      case Property::Integer:
+      {
+        int value = ((IntegerProperty*)(iter->second))->getValue();
+        if(paramName == "Opponency Map")
+          this->opponentMap = value;
+        else if (paramName == "Neuron Width")
+          this->width = value;
+        else if (paramName == "Neuron Height")
+          this->height = value;
+        else if (paramName == "Image Offset X")
+          this->xOffset = value;
+        else if (paramName == "Image Offset Y")
+          this->yOffset = value;
+        break;
+      }
+      case Property::Double:
+      {
+        double value = ((DoubleProperty*)(iter->second))->getValue();
+        if (paramName == "Parameter A")
+          this->parameterA = value;
+        else if (paramName == "Parameter B")
+          this->parameterB = value;
+        else if (paramName == "Parameter C")
+          this->parameterC = value;
+        else if (paramName == "Parameter D")
+          this->parameterD = value;
+        else if (paramName == "Current Factor")
+          this->currentFactor = value;
+        else if (paramName == "Constant Current")
+          this->constantCurrent = value;
+        break;
+      }
+      case Property::Combo:
+      case Property::String:
+      {
+        std::string value;
+        if(iter->second->getType() == Property::String)
+          value = ((StringProperty*)(iter->second))->getValue();
+        else
+          value = ((ComboProperty*)(iter->second))->getValue();
+        break;
+      }
+    }
+  }
+}
+
+/**
  * Initialises the properties of this channel
  */
 void VisualInputChannel::initialise(VisualReader* reader, std::map<std::string,Property*> properties)
 {
   this->initialised = false;
   this->setReader(reader);
-  this->parameterA = ((DoubleProperty*)(properties["Parameter A"]))->getValue();
-  this->parameterB = ((DoubleProperty*)(properties["Parameter B"]))->getValue();
-  this->parameterC = ((DoubleProperty*)(properties["Parameter C"]))->getValue();
-  this->parameterD = ((DoubleProperty*)(properties["Parameter D"]))->getValue();
-  this->currentFactor = ((DoubleProperty*)(properties["Current Factor"]))->getValue();
-  this->constantCurrent = ((DoubleProperty*)(properties["Constant Current"]))->getValue();
-  this->opponentMap = ((IntegerProperty*)(properties["Opponency Map"]))->getValue();
-  this->width = ((IntegerProperty*)(properties["Neuron Width"]))->getValue();
-  this->height = ((IntegerProperty*)(properties["Neuron Height"]))->getValue();
-  this->xOffset = ((IntegerProperty*)(properties["Image Offset X"]))->getValue();
-  this->yOffset = ((IntegerProperty*)(properties["Image Offset Y"]))->getValue();
+  this->updateProperties(properties, true);
 }
 
 void VisualInputChannel::step()

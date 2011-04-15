@@ -44,7 +44,8 @@ public:
     properties["Filename"] = new StringProperty(
           "Filename",
           "anglesIn.txt",
-          "The file where the angles will be read from"
+          "The file where the angles will be read from",
+          true
         );
     /**
      * Now let's create the description

@@ -45,7 +45,8 @@ public:
     properties["Filename"] = new StringProperty(
           "Filename",
           "image.ppm",
-          "Path to a PPM format image"
+          "Path to a PPM format image",
+          true
         );
     /**
      * Now let's create the description

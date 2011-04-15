@@ -35,6 +35,7 @@ public:
 
   FileAngleWriter()
   {
+    this->initialised = false;
     /**
      * First define the properties of this writer
      */
@@ -42,7 +43,8 @@ public:
     properties["Filename"] = new StringProperty(
           "Filename",
           "anglesOut.txt",
-          "The file where the angles will be written to"
+          "The file where the angles will be written to",
+          true
         );
     /**
      * Now let's create the description

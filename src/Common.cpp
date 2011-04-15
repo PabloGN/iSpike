@@ -53,7 +53,10 @@ unsigned char* Common::normaliseImage(unsigned char* image, int size)
       break;
   }
   if(max == 0)
+  {
+    free(result);
 	  return image;
+  }
   for(int i = 0; i < size; i++)
     result[i] = image[i] * 255 / max;
   return result;
@@ -81,7 +84,8 @@ std::map<std::string, Property*> Common::getProperties(std::map<std::string,Prop
       resultProperties[iter->second->getName()] = new DoubleProperty(
           iter->second->getName(),
           parameterValue,
-          iter->second->getDescription()
+          iter->second->getDescription(),
+          iter->second->isReadOnly()
         );
     } else if(iter->second->getType() == Property::Integer)
     {
@@ -99,7 +103,8 @@ std::map<std::string, Property*> Common::getProperties(std::map<std::string,Prop
       resultProperties[iter->second->getName()] = new IntegerProperty(
           iter->second->getName(),
           parameterValue,
-          iter->second->getDescription()
+          iter->second->getDescription(),
+          iter->second->isReadOnly()
         );
     } else if(iter->second->getType() == Property::String)
     {
@@ -117,7 +122,8 @@ std::map<std::string, Property*> Common::getProperties(std::map<std::string,Prop
       resultProperties[iter->second->getName()] = new StringProperty(
           iter->second->getName(),
           parameterValue,
-          iter->second->getDescription()
+          iter->second->getDescription(),
+          iter->second->isReadOnly()
         );
     }
   }

@@ -70,7 +70,8 @@ public:
 		   "Port Name",
 		   "/icubSim/left_arm/state:o",
 		   "The Yarp Port name",
-		   yarpPortNames
+		   yarpPortNames,
+		   true
 	 );
     /**
      * Now let's create the description

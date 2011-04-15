@@ -34,6 +34,9 @@ private:
   bool stopRequested;
   bool sleeping;
 
+protected:
+  void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+
 public:
 
 	double getCurrentAngle()
@@ -47,30 +50,36 @@ public:
      * First define the properties of this channel
      */
     std::map<std::string,Property*> properties;
+    this->initialised = false;
     properties["Minimum Angle"] = new DoubleProperty(
           "Minimum Angle",
           -90,
-          "The minimum angle to read"
+          "The minimum angle to read",
+          true
         );
     properties["Maximum Angle"] = new DoubleProperty(
           "Maximum Angle",
           90,
-          "The maximum angle to read"
+          "The maximum angle to read",
+          true
         );
     properties["Rate Of Decay"] = new DoubleProperty(
           "Rate Of Decay",
           0.005,
-          "The rate of decay of the angle variables"
+          "The rate of decay of the angle variables",
+          true
         );
     properties["Neuron Width"] = new IntegerProperty(
           "Neuron Width",
           10,
-          "Width of the neuron network"
+          "Width of the neuron network",
+          true
         );
     properties["Neuron Height"] = new IntegerProperty(
           "Neuron Height",
           1,
-          "Height of the neuron network"
+          "Height of the neuron network",
+          true
         );
     /**
      * Now let's create the description

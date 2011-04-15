@@ -38,12 +38,12 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
       //Create the Reader
       FileAngleReader* reader = new FileAngleReader();
       std::map<std::string, Property*> inputProperties = reader->getReaderDescription().getReaderProperties();
-      Property* newFilename = new StringProperty("Filename", "anglesIn.txt", "whatever");
+      Property* newFilename = new StringProperty("Filename", "anglesIn.txt", "whatever", true);
       inputProperties.at("Filename") = newFilename;
       reader->initialise(inputProperties);
       JointInputChannel* inputChannel = new JointInputChannel();
       std::map<std::string, Property*> inputChannelProperties = inputChannel->getChannelDescription().getChannelProperties();
-      Property* newNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description");
+      Property* newNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description", true);
       inputChannelProperties.at("Neuron Width") = newNeuronCount;
       inputChannel->initialise(reader, inputChannelProperties);
       inputChannel->start();
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
       LOG(LOG_DEBUG) << "Filename: " << ((StringProperty*)(writer->getWriterDescription().getWriterProperties()["Filename"]))->getValue();
       JointOutputChannel* outputChannel = new JointOutputChannel();
       std::map<std::string, Property*> outputChannelProperties = outputChannel->getChannelDescription().getChannelProperties();
-      Property* outputNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description");
+      Property* outputNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description", true);
       outputChannelProperties.at("Neuron Width") = outputNeuronCount;
       outputChannel->initialise(writer, outputChannelProperties);
       LOG(LOG_DEBUG) << "I: " << i << "Neuron Height: " << ((IntegerProperty*)(outputChannel->getChannelDescription().getChannelProperties()["Neuron Height"]))->getValue();

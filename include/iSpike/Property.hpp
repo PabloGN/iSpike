@@ -27,6 +27,7 @@ class Property
     ValueType type;
     std::string name;
     std::string description;
+    bool readOnly;
 
   public:
 
@@ -43,6 +44,11 @@ class Property
     std::string getDescription()
     {
       return this->description;
+    }
+
+    bool isReadOnly()
+    {
+      return this->readOnly;
     }
 
     virtual ~Property()
@@ -72,12 +78,13 @@ class IntegerProperty : public Property
       this->value = value;
     }
 
-    IntegerProperty(std::string paramName, int paramValue, std::string paramDescription)
+    IntegerProperty(std::string paramName, int paramValue, std::string paramDescription, bool readOnly)
     {
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::Integer;
+      this->readOnly = readOnly;
     }
 
     IntegerProperty (const IntegerProperty& copy_from_me)
@@ -86,6 +93,7 @@ class IntegerProperty : public Property
       this->name = copy_from_me.name;
       this->type = copy_from_me.type;
       this->value = copy_from_me.value;
+      this->readOnly = readOnly;
     }
 };
 
@@ -109,12 +117,13 @@ class DoubleProperty : public Property
       this->value = value;
     }
 
-    DoubleProperty(std::string paramName, double paramValue, std::string paramDescription)
+    DoubleProperty(std::string paramName, double paramValue, std::string paramDescription, bool readOnly)
     {
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::Double;
+      this->readOnly = readOnly;
     }
 
     DoubleProperty (const DoubleProperty& copy_from_me)
@@ -123,6 +132,7 @@ class DoubleProperty : public Property
       this->name = copy_from_me.name;
       this->type = copy_from_me.type;
       this->value = copy_from_me.value;
+      this->readOnly = readOnly;
     }
 };
 
@@ -146,12 +156,13 @@ class StringProperty : public Property
       this->value = value;
     }
 
-    StringProperty(std::string paramName, std::string paramValue, std::string paramDescription)
+    StringProperty(std::string paramName, std::string paramValue, std::string paramDescription, bool readOnly)
     {
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::String;
+      this->readOnly = readOnly;
     }
 
     StringProperty (const StringProperty& copy_from_me)
@@ -160,6 +171,7 @@ class StringProperty : public Property
       this->name = copy_from_me.name;
       this->type = copy_from_me.type;
       this->value = copy_from_me.value;
+      this->readOnly = readOnly;
     }
 };
 
@@ -190,13 +202,14 @@ class ComboProperty : public Property
     }
 
     ComboProperty(std::string paramName, std::string paramValue, std::string paramDescription,
-    		std::vector<std::string> paramOptions)
+    		std::vector<std::string> paramOptions, bool readOnly)
     {
       this->name = paramName;
       this->value = paramValue;
       this->description = paramDescription;
       this->type = Property::Combo;
       this->options = paramOptions;
+      this->readOnly = readOnly;
     }
 
     ComboProperty (const ComboProperty& copy_from_me)
@@ -206,6 +219,7 @@ class ComboProperty : public Property
       this->type = copy_from_me.type;
       this->value = copy_from_me.value;
       this->options = copy_from_me.options;
+      this->readOnly = readOnly;
     }
 };
 

@@ -39,8 +39,10 @@ public:
    */
   ReaderFactory()
   {
+    LOG(LOG_DEBUG) << "Reader Before.";
     this->readerList.push_back(FileAngleReader().getReaderDescription());
     this->readerList.push_back(FileVisualReader().getReaderDescription());
+    LOG(LOG_DEBUG) << "Reader After ReaderList Length: " << this->readerList.size();
   }
 
   ReaderFactory(std::string ip, std::string port)
@@ -60,6 +62,7 @@ public:
    */
   std::vector<ReaderDescription> getReadersOfType(std::string readerType)
   {
+    LOG(LOG_DEBUG) << "getReadersOfType: " << this->readerList.size();
     std::vector<ReaderDescription> result;
     for(int i = 0; i < readerList.size(); i++)
     {

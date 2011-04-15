@@ -51,6 +51,9 @@ private:
   int yOffset;
   int opponentMap;
 
+protected:
+  void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+
 public:
 
   /**
@@ -62,60 +65,72 @@ public:
      * First define the properties of this channel
      */
     std::map<std::string,Property*> properties;
+    this->initialised = false;
     properties["Image Offset X"] = new IntegerProperty(
           "Image Offset X",
           0,
-          "Horizontal offset in the colour oponent image"
+          "Horizontal offset in the colour oponent image",
+          true
         );
     properties["Image Offset Y"] = new IntegerProperty(
           "Image Offset Y",
           0,
-          "Vertical offset in the colour oponent image"
+          "Vertical offset in the colour oponent image",
+          true
         );
     properties["Neuron Width"] = new IntegerProperty(
           "Neuron Width",
           320,
-          "Width of the neuron network"
+          "Width of the neuron network",
+          true
         );
     properties["Neuron Height"] = new IntegerProperty(
           "Neuron Height",
           240,
-          "Height of the neuron network"
+          "Height of the neuron network",
+          true
         );
     properties["Opponency Map"] = new IntegerProperty(
           "Opponency Map",
           0,
-          "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)"
+          "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)",
+          true
         );
     properties["Parameter A"] = new DoubleProperty(
           "Parameter A",
           0.1,
-          "Parameter A of the Izhikevich Neuron Model"
+          "Parameter A of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter B"] = new DoubleProperty(
           "Parameter B",
           0.2,
-          "Parameter B of the Izhikevich Neuron Model"
+          "Parameter B of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter C"] = new DoubleProperty(
           "Parameter C",
           -65,
-          "Parameter C of the Izhikevich Neuron Model"
+          "Parameter C of the Izhikevich Neuron Model",
+          true
         );
     properties["Parameter D"] = new DoubleProperty(
           "Parameter D",
           2,
-          "Parameter D of the Izhikevich Neuron Model"
+          "Parameter D of the Izhikevich Neuron Model",
+          true
         );
     properties["Current Factor"] = new DoubleProperty(
           "Current Factor",
           20,
-          "Incoming current is multiplied by this value"
+          "Incoming current is multiplied by this value",
+          true
         );
     properties["Constant Current"] = new DoubleProperty(
           "Constant Current",
           0,
-          "This value is added to the incoming current"
+          "This value is added to the incoming current",
+          true
         );
     /**
      * Now let's create the description

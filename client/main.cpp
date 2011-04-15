@@ -27,18 +27,21 @@
 
 int main(int argc, char* argv[])
 {
-    Log::ReportingLevel() = LOG_INFO;
+    Log::ReportingLevel() = LOG_DEBUG;
 
     std::cout << "Select the type of Channel you want to create" << std::endl;
     std::cout << "(1)Input Channel (2)Output Channel" << std::endl;
     int typeOfChannel;
+    LOG(LOG_DEBUG) << "here";
     std::cin >> typeOfChannel;
     std::cin.ignore();
     Channel* createdChannel;
     if(typeOfChannel == 1)
     {
+      LOG(LOG_DEBUG) << "and here";
       ReaderFactory readerFactory;
       InputChannelFactory channelFactory;
+      LOG(LOG_DEBUG) << "then here";
       //get all input channels and output them to the console
       std::vector<InputChannelDescription> inputChannelDescriptions = channelFactory.getAllChannels();
       std::cout << "Available Input Channels:" << std::endl;
@@ -88,8 +91,10 @@ int main(int argc, char* argv[])
       createdChannel = channel;
     } else if(typeOfChannel == 2)
     {
+      LOG(LOG_DEBUG) << "and here";
       OutputChannelFactory outputFactory;
       WriterFactory writerFactory;
+      LOG(LOG_DEBUG) << "then here";
       //get all output channels and output them to the console
       std::vector<OutputChannelDescription> outputChannelDescriptions = outputFactory.getAllChannels();
       std::cout << "Available Output Channels:" << std::endl;
