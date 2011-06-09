@@ -29,6 +29,7 @@ private:
   boost::mutex mutex;
   bool initialised;
   std::string portName;
+  int degreeOfFreedom;
   YarpConnection* yarpConnection;
   std::map<std::string, YarpPortDetails*>* portMap;
 
@@ -67,6 +68,12 @@ public:
 			yarpPortNames,
 			true
 		  );
+    properties["Degree Of Freedom"] = new IntegerProperty(
+          "Degree Of Freedom",
+          0,
+          "The degree of freedom we would like to control",
+          true
+      );
     /**
      * Now let's create the description
      */

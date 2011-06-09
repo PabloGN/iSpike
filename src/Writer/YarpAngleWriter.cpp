@@ -21,6 +21,7 @@ void YarpAngleWriter::initialise()
 void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
   this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
+  this->degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
   this->angleList = new std::queue<double>();
   this->initialised = false;
 }
@@ -42,7 +43,6 @@ void YarpAngleWriter::start()
 
 void YarpAngleWriter::workerFunction()
 {
-  int degreeOfFreedom = 0;
   int sleepAmount = 1;
   std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->find(this->getPortName());
   std::string ip;
@@ -70,7 +70,7 @@ void YarpAngleWriter::workerFunction()
       }
       this->yarpConnection->write_text("d\n");
       std::ostringstream commandStream;
-      commandStream << "set pos " << degreeOfFreedom << " " << angle << "\n";
+      commandStream << "set pos " << this->degreeOfFreedom << " " << angle << "\n";
       std::string command = commandStream.str();
       LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
       this->yarpConnection->write_text(command);
