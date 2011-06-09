@@ -45,19 +45,22 @@ public:
    */
   YarpVisualReader(std::string nameserverIP, std::string nameserverPort)
   {
+    this->initialised = false;
     /**
      * First define the properties of this reader
      */
 	 /**
 	 * Get the available yarp ports
 	 */
+    LOG(LOG_DEBUG) << "before yarp connection";
 	  this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
+	  LOG(LOG_DEBUG) << "getting port map";
 	  this->portMap = this->yarpConnection->getPortMap();
 
     /**
      * Iterate over them and add as options
      */
-
+	 LOG(LOG_DEBUG) << "iterating";
 	 std::map<std::string, YarpPortDetails*>::iterator iter;
 	 std::vector<std::string> yarpPortNames;
 	for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++)
@@ -82,6 +85,7 @@ public:
           "Visual Reader",
           properties
         );
+    LOG(LOG_DEBUG) << "exiting";
   }
 
   ~YarpVisualReader()

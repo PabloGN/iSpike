@@ -55,22 +55,28 @@ int YarpConnection::read_binary(unsigned char* buffer, int length){
 YarpConnection::YarpConnection(std::string ip, std::string port)
 {
     //boost::asio::io_service io_service;
+    LOG(LOG_DEBUG) << "creating a socket";
     this->connectionSocket = new tcp::socket(this->io_service);
+    LOG(LOG_DEBUG) << "connecting to port";
     int result = connect_to_port(ip, port);
+    LOG(LOG_DEBUG) << "connected";
     if (!result)
     {
       boost::system::error_code error = boost::asio::error::host_not_found;
       throw boost::system::system_error(error);
     }
+    LOG(LOG_DEBUG) << "writing commands";
     write_text("CONNECT foo\n");
     read_until("\n");
     write_text("d\n");
     write_text("list\n");
 
     boost::system::error_code read_error;
-
+    LOG(LOG_DEBUG) << "reading reply";
     std::string response_string = read_text();
+    LOG(LOG_DEBUG) << "disconnecting";
     disconnect();
+    LOG(LOG_DEBUG) << "disconnected";
     boost::cmatch matches;
     boost::regex new_line("\n");
     std::list<std::string> lines;
@@ -118,6 +124,7 @@ int YarpConnection::connect_to_port(std::string ip, std::string port)
 }
 
 void YarpConnection::disconnect(){
+  write_text("q\n");
   this->connectionSocket->close();
 }
 

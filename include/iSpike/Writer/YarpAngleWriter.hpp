@@ -78,6 +78,8 @@ public:
         );
   }
 
+  void initialise();
+
   void initialise(std::map<std::string,Property*> properties);
 
   /**

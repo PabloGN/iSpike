@@ -47,26 +47,30 @@ public:
    */
   YarpAngleReader(std::string nameserverIP, std::string nameserverPort)
   {
-    /**
-     * First define the properties of this reader
-     */
+    this->initialised = false;
+  /**
+   * First define the properties of this reader
+   */
 
 	/**
 	 * Get the available yarp ports
 	 */
+    LOG(LOG_DEBUG) << "before yarp connection";
     this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
+    LOG(LOG_DEBUG) << "before getting portmap";
     this->portMap = this->yarpConnection->getPortMap();
 
     /**
      * Iterate over them and add as options
      */
-
+    LOG(LOG_DEBUG) << "iterating";
     std::map<std::string, YarpPortDetails*>::iterator iter;
     std::vector<std::string> yarpPortNames;
     for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++)
     {
     	yarpPortNames.push_back(iter->first);
     }
+    LOG(LOG_DEBUG) << "filling in properties";
 
     std::map<std::string,Property*> properties;
     properties["Port Name"] = new ComboProperty(
@@ -85,10 +89,12 @@ public:
           "Angle Reader",
           properties
         );
+    LOG(LOG_DEBUG) << "exiting";
   }
 
   ~YarpAngleReader()
   {
+    LOG(LOG_DEBUG) << "destroying angle reader";
     if(this->initialised)
     {
       this->threadPointer->interrupt();
@@ -96,12 +102,15 @@ public:
       delete this->threadPointer.get();
       delete this->buffer;
     }
+    LOG(LOG_DEBUG) << "destruction complete";
   }
 
   /**
    * Retrieves the vector of joint angles
    */
   std::vector<double> getData();
+
+  void initialise();
 
   void initialise(std::map<std::string,Property*> properties);
 

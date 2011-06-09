@@ -27,7 +27,7 @@
 
 int main(int argc, char* argv[])
 {
-    Log::ReportingLevel() = LOG_INFO;
+    Log::ReportingLevel() = LOG_DEBUG;
 
     std::cout << "Select the type of Channel you want to create" << std::endl;
     std::cout << "(1)Input Channel (2)Output Channel" << std::endl;
@@ -39,7 +39,6 @@ int main(int argc, char* argv[])
     if(typeOfChannel == 1)
     {
       LOG(LOG_DEBUG) << "and here";
-      ReaderFactory readerFactory;
       InputChannelFactory channelFactory;
       LOG(LOG_DEBUG) << "then here";
       //get all input channels and output them to the console
@@ -58,6 +57,24 @@ int main(int argc, char* argv[])
         std::cin >> selectedChannel;
       }
       std::cin.ignore();
+
+      std::cout << "Would you like to connect to a Yarp server? (y/n)" << std::endl;
+      std::string useYarp;
+      std::cin >> useYarp;
+      ReaderFactory readerFactory;
+      if (useYarp.compare("y") == 0)
+      {
+        std::string ip;
+        std::string port;
+        std::cout << "IP Address:" << std::endl;
+        std::cin >> ip;
+        std::cout << "Port:" << std::endl;
+        std::cin >> port;
+        readerFactory = ReaderFactory(ip, port);
+      } else {
+        readerFactory =  ReaderFactory();
+      }
+      LOG(LOG_DEBUG) << "readerFactory created";
 
       //get the properties for that channel and let the user provide values
       std::map<std::string,Property*> channelProperties = inputChannelDescriptions[selectedChannel].getChannelProperties();
@@ -84,10 +101,13 @@ int main(int argc, char* argv[])
       //get the properties for that reader and let the user provide values
       std::map<std::string,Property*> readerProperties = readerDescriptions[selectedReader].getReaderProperties();
       std::map<std::string, Property*> constructedReaderProperties = Common::getProperties(readerProperties);
-
+      LOG(LOG_DEBUG) << "Creating the reader";
       Reader* reader = readerFactory.create(readerDescriptions[selectedReader].getReaderName(), constructedReaderProperties);
+      LOG(LOG_DEBUG) << "Creating the channel";
       InputChannel* channel = channelFactory.create(inputChannelDescriptions[selectedChannel].getChannelName(), reader, constructedChannelProperties);
+      LOG(LOG_DEBUG) << "Starting the channel";
       channel->start();
+      LOG(LOG_DEBUG) << "Started";
       createdChannel = channel;
     } else if(typeOfChannel == 2)
     {

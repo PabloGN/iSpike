@@ -167,7 +167,6 @@ public:
 
   ~JointInputChannel()
   {
-    std::cout << "destructor";
     LOG(LOG_DEBUG) << "Entering JointInputChannel destructor";
     if(this->initialised)
     {

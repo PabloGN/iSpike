@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
   std::vector< std::vector<double> > data;
   std::ofstream angleStream;
   angleStream.open("angles.txt", std::fstream::out | std::fstream::app);
-  for (int i = 1; i < 1000; i++)
+  for (int i = 1; i < 10; i++)
   {
     double currentAngle = (rand() % 180) - 90;
     LOG(LOG_NOTICE) << "Angle: " << currentAngle;
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
     inputAngleStream.open("anglesIn.txt", std::fstream::out);
     inputAngleStream << currentAngle;
     inputAngleStream.close();
-    for (int neuronCount = 1; neuronCount < 100; neuronCount++)
+    for (int neuronCount = 1; neuronCount < 10; neuronCount++)
     {
       try
       {
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
       LOG(LOG_DEBUG) << "I: " << i << "Neuron Height: " << ((IntegerProperty*)(outputChannel->getChannelDescription().getChannelProperties()["Neuron Height"]))->getValue();
       outputChannel->start();
 
-      for (delay = 0; delay < 1000; delay++)
+      for (delay = 0; delay < 100; delay++)
       {
         std::vector<std::vector<int> > firings = inputChannel->getFiring();
         if (!firings.empty())

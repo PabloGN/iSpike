@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <iSpike/Log/Log.hpp>
 
 /**
  * Describes a general Channel, Reader or Writer Property
@@ -153,6 +154,7 @@ class StringProperty : public Property
 
     void setValue(std::string value)
     {
+      LOG(LOG_DEBUG) << "Setting value to " << value;
       this->value = value;
     }
 
@@ -191,9 +193,21 @@ class ComboProperty : public Property
       return this->value;
     }
 
+    /**
+     * Fills in the value from the options
+     */
     void setValue(int value)
     {
+      LOG(LOG_DEBUG) << "Setting value to " << this->options.at(value);
       this->value = this->options.at(value);
+    }
+
+    /**
+     * Fills in the value directly
+     */
+    void setValue(std::string value)
+    {
+      this->value = value;
     }
 
     std::vector<std::string> getOptions()

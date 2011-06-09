@@ -10,6 +10,10 @@
 
 #include <string>
 
+/**
+ * This class represents a bitmap representation of an image or just
+ * any sequence of bytes, has a height, width and depth
+ */
 class Bitmap
 {
   private:

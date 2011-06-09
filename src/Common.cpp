@@ -62,6 +62,9 @@ unsigned char* Common::normaliseImage(unsigned char* image, int size)
   return result;
 }
 
+/**
+ * Goes through the default properties, shows the details to the user, queries a value for each property and writes it to the property
+ */
 std::map<std::string, Property*> Common::getProperties(std::map<std::string,Property*> defaultProperties)
 {
   std::map<std::string, Property*> resultProperties;

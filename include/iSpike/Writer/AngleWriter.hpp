@@ -10,6 +10,9 @@
 
 #include <iSpike/Writer/Writer.hpp>
 
+/**
+ * Angle Writer, receives an angle as input and writes it to the designated output
+ */
 class AngleWriter : public Writer {
 
 public:

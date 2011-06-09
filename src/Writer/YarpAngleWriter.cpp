@@ -13,6 +13,11 @@
 #include <iSpike/Log/Log.hpp>
 #include <iSpike/ISpikeException.hpp>
 
+void YarpAngleWriter::initialise()
+{
+  YarpAngleWriter::initialise(this->getWriterDescription().getWriterProperties());
+}
+
 void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 {
   this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());

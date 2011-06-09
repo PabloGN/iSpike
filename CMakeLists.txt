@@ -36,7 +36,6 @@ SET (project_build_static 1)
 #
 # Project Search Paths
 #
-
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}")
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}/tools")
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}/thirdparty")
@@ -57,7 +56,6 @@ FIND_PACKAGE (Boost 1.42 COMPONENTS "system" "regex" "thread" "unit_test_framewo
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 SET(Boost_USE_MULTITHREADED ON)
-
 
 #
 # Configure Files

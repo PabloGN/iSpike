@@ -25,9 +25,21 @@ std::vector<double> YarpAngleReader::getData()
   return *(this->buffer);
 }
 
+/**
+ * Initialises the Reader with the default properties
+ */
+void YarpAngleReader::initialise()
+{
+  YarpAngleReader::initialise(this->getReaderDescription().getReaderProperties());
+}
+
+/**
+ * Creates a new empty buffer and initialises the port name
+ */
 void YarpAngleReader::initialise(std::map<std::string,Property*> properties)
 {
   this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
+  LOG(LOG_DEBUG) << "POOOOOOOOOOOOOORT " << this->getPortName();
   this->buffer = new std::vector<double>();
   this->initialised = false;
 }

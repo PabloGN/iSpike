@@ -47,12 +47,12 @@ public:
 
   ReaderFactory(std::string ip, std::string port)
   {
-	this->readerList.push_back(FileAngleReader().getReaderDescription());
-	this->readerList.push_back(FileVisualReader().getReaderDescription());
-	this->readerList.push_back(YarpAngleReader(ip, port).getReaderDescription());
-	this->readerList.push_back(YarpVisualReader(ip, port).getReaderDescription());
-	this->ip = ip;
-	this->port = port;
+    this->readerList.push_back(FileAngleReader().getReaderDescription());
+    this->readerList.push_back(FileVisualReader().getReaderDescription());
+    this->readerList.push_back(YarpAngleReader(ip, port).getReaderDescription());
+    this->readerList.push_back(YarpVisualReader(ip, port).getReaderDescription());
+    this->ip = ip;
+    this->port = port;
   }
 
   /**
