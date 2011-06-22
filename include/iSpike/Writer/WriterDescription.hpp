@@ -123,7 +123,7 @@ public:
    */
   std::map<std::string,Property*> getWriterProperties() const
   {
-    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+   /* std::map<std::string,Property*> result = std::map<std::string,Property*>();
     for(std::map<std::string,Property*>::const_iterator iter = this->writerProperties.begin(); iter != this->writerProperties.end(); ++iter)
     {
       Property* newProperty;
@@ -144,7 +144,8 @@ public:
       }
       result[iter->first] = newProperty;
       }
-      return result;
+      return result;*/
+    return this->writerProperties;
   }
 
 };

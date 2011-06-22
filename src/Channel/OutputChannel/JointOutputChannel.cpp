@@ -16,7 +16,10 @@
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
   boost::mutex::scoped_lock lock(this->mutex);
-  this->buffer->push(*buffer);
+  //this->buffer->push(*buffer);
+  delete this->buffer;
+  this->buffer = new std::vector<int>(*buffer);
+  //std::cout << "Spike Buffer: " << this->buffer->size() << std::endl;
 }
 
 void JointOutputChannel::start()
@@ -24,7 +27,8 @@ void JointOutputChannel::start()
   LOG(LOG_DEBUG) << "Starting JointOutputChannel";
   if(!initialised)
   {
-    this->buffer = new std::queue< std::vector<int> >();
+    //this->buffer = new std::queue< std::vector<int> >();
+    this->buffer = NULL;
     this->writer->start();
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
     initialised = true;
@@ -107,17 +111,20 @@ void JointOutputChannel::workerFunction()
     bool enoughFrames = false;
     {
       boost::mutex::scoped_lock lock(this->mutex);
-      enoughFrames = !(this->buffer->empty());
+      //enoughFrames = !(this->buffer->empty());
+      enoughFrames = !(this->buffer == NULL);
     }
     /**
      * Spikes received
      */
     if(enoughFrames)
     {
-      std::vector<int> currentFrame = this->buffer->front();
+      //std::vector<int> currentFrame = this->buffer->front();
+      std::vector<int> currentFrame = *(this->buffer);
       {
         boost::mutex::scoped_lock lock(this->mutex);
-        this->buffer->pop();
+        //this->buffer->pop();
+        this->buffer = NULL;
       }
       for(unsigned int neuronID = 0; neuronID < currentFrame.size(); neuronID++)
       {

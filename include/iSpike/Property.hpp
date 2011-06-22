@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <iSpike/Log/Log.hpp>
+#include <boost/lexical_cast.hpp>
 
 /**
  * Describes a general Channel, Reader or Writer Property
@@ -31,6 +32,11 @@ class Property
     bool readOnly;
 
   public:
+
+    virtual std::string toString()
+    {
+
+    }
 
     ValueType getType()
     {
@@ -68,6 +74,11 @@ class IntegerProperty : public Property
     int value;
 
   public:
+
+    std::string toString()
+    {
+      return boost::lexical_cast<std::string>(this->value);
+    }
 
     int getValue()
     {
@@ -108,6 +119,11 @@ class DoubleProperty : public Property
 
   public:
 
+    std::string toString()
+    {
+      return boost::lexical_cast<std::string>(this->value);
+    }
+
     double getValue()
     {
       return this->value;
@@ -146,6 +162,11 @@ class StringProperty : public Property
     std::string value;
 
   public:
+
+    std::string toString()
+    {
+      return this->value;
+    }
 
     std::string getValue()
     {
@@ -187,6 +208,11 @@ class ComboProperty : public Property
     std::vector<std::string> options;
 
   public:
+
+    std::string toString()
+    {
+      return this->value;
+    }
 
     std::string getValue()
     {

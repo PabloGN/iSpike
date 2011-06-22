@@ -26,6 +26,8 @@ private:
   tcp::socket* connectionSocket;
   boost::asio::io_service io_service;
 
+  unsigned char read_char();
+
   /**
    * Read text from a previously connected socket
    * @return The text that has been read
@@ -123,6 +125,8 @@ public:
    * @return The retrieved Bitmap
    */
   Bitmap* read_image();
+
+  std::string getSocketString();
 
 };
 

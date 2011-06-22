@@ -121,7 +121,7 @@ public:
    */
   std::map<std::string,Property*> getChannelProperties() const
   {
-    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+    /*std::map<std::string,Property*> result = std::map<std::string,Property*>();
     for(std::map<std::string,Property*>::const_iterator iter = this->channelProperties.begin(); iter != this->channelProperties.end(); ++iter)
     {
       Property* newProperty;
@@ -142,7 +142,8 @@ public:
       }
       result[iter->first] = newProperty;
       }
-      return result;
+      return result;*/
+    return this->channelProperties;
   }
 
 };

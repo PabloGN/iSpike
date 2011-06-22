@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <iterator>
 #include <string>
 #include <map>
@@ -33,9 +34,55 @@ int YarpConnection::write_binary(unsigned char* buffer, int length)
   return(true);
 }
 
+unsigned char YarpConnection::read_char()
+{
+  std::vector<unsigned char> buf(1);
+  try
+  {
+    size_t len = read(*this->connectionSocket, boost::asio::buffer(buf));
+    assert(len == 1);
+    //std::cout << buf[0];
+    return buf[0];
+    // process the 4 bytes in buf
+  }
+  catch (...)
+  {
+    throw new ISpikeException("Error in read_char!" );
+  }
+}
+
+std::string YarpConnection::getSocketString()
+{
+  unsigned int timeoutCtr = 0;
+  unsigned int timeout = 10000;
+  while(read_char() != 'o' && timeoutCtr < timeout)
+  {
+    timeoutCtr++;
+  }
+  if(timeoutCtr >= timeout)
+  {
+    throw ISpikeException("Timeout exceeded in getSocketString");
+  }
+  timeoutCtr = 0;
+  std::ostringstream strStream (std::ostringstream::out);
+  unsigned char newChar = this->read_char();
+  while(newChar != 'd' && timeoutCtr != timeout)
+  {
+    strStream << newChar;
+    newChar = this->read_char();
+    ++timeoutCtr;
+  }
+  if(timeoutCtr >= timeout)
+  {
+    throw ISpikeException("Timeout exceeded in getSocketString");
+  }
+  return strStream.str();
+}
+
 std::string YarpConnection::read_until(std::string until)
 {
   boost::asio::streambuf response;
+
   boost::asio::read_until(*this->connectionSocket, response, until);
   std::istream response_stream(&response);
   std::string response_string((std::istreambuf_iterator<char>(response_stream)),

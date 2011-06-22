@@ -20,7 +20,8 @@
 
 class JointOutputChannel : public OutputChannel {
 private:
-  std::queue< std::vector<int> >* buffer;
+  //std::queue< std::vector<int> >* buffer;
+  std::vector<int>* buffer;
   AngleWriter* writer;
   void workerFunction();
   boost::shared_ptr<boost::thread> threadPointer;

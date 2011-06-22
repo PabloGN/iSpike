@@ -63,18 +63,35 @@ void YarpAngleReader::workerFunction()
   this->yarpConnection->prepare_to_read_text();
   while(true)
   {
-    std::string contentLine = this->yarpConnection->read_until("\n");
-    if(contentLine.length() > 0 && contentLine.substr(0,2) != "do")
+    //std::string contentLine = this->yarpConnection->read_until("\n");
+    std::string contentLine;
+    try{
+    contentLine = this->yarpConnection->getSocketString();
+    } catch(ISpikeException& error)
+    {
+      std::cout << "Error: " << error.Msg() << std::endl;
+    }
+    //std::cout << "Contentline: '" << contentLine << "'" << std::endl;
+    if(contentLine.length() > 0)
     {
       std::vector<double> *angles = new std::vector<double>();
-      boost::regex split_string(" ");
+      boost::regex splitString("\\s+");
       std::list<std::string> lines;
-      boost::regex_split(std::back_inserter(lines), contentLine, split_string);
-      while(lines.size() > 1)
+      boost::regex_split(std::back_inserter(lines), contentLine, splitString);
+      lines.pop_front();
+      lines.pop_front();
+      while(lines.size() > 0)
       {
         std::string current_string = *(lines.begin());
         lines.pop_front();
-        double angle = boost::lexical_cast<double>(current_string);
+        double angle = 0;
+        try{
+          angle = boost::lexical_cast<double>(current_string);
+        } catch (std::exception& e) {
+            std::cout << "Error occured in YarpAngleReader: '" << current_string << "'" << std::endl;
+            std::cout << "Cannot convert this to double: " << current_string;
+            throw new ISpikeException("Error at YarpAngleReader lexical_cast");
+        }
         angles->push_back(angle);
       }
       boost::mutex::scoped_lock lock(this->mutex);

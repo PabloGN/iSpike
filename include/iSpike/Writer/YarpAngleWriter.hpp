@@ -32,6 +32,7 @@ private:
   int degreeOfFreedom;
   YarpConnection* yarpConnection;
   std::map<std::string, YarpPortDetails*>* portMap;
+  double previousAngle;
 
 public:
 

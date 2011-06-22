@@ -29,6 +29,17 @@ void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
 void YarpAngleWriter::addAngle(double angle)
 {
   boost::mutex::scoped_lock lock(this->mutex);
+  if(abs(angle - this->previousAngle) < 0.5)
+    return;
+  if(this->angleList->size() > 0)
+  {
+    double lastAngle = this->angleList->back();
+    if(abs(angle - lastAngle) < 0.5)
+    {
+      return;
+    }
+  }
+  this->previousAngle = angle;
   this->angleList->push(angle);
 }
 
