@@ -26,15 +26,14 @@
 class DOGVisualFilter : public VisualFilter {
 private:
 
-  Bitmap* rPlusGMinus;
-  Bitmap* gPlusRMinus;
-  Bitmap* bPlusYMinus;
+  Bitmap* buffer;
   VisualDataReducer* reducer;
   int queryInterval;
   boost::shared_ptr<boost::thread> threadPointer;
   boost::mutex mutex;
   double plusSigma;
   double minusSigma;
+  int opponencyMap;
 
   /**
    * Main thread execution loop
@@ -73,33 +72,21 @@ private:
 
 public:
 
-  DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma);
+  DOGVisualFilter(
+		  VisualDataReducer* reducer,
+		  int queryInterval,
+		  double plusSigma,
+		  double minusSigma,
+		  int opponencyMap
+	  );
 
   /**
-   * Returns Red Plus Green Minus Map
+   * Returns the opponency map
    */
-  Bitmap getRPlusGMinus()
+  Bitmap getOpponencyMap()
   {
     boost::mutex::scoped_lock lock(this->mutex);
-    return *(this->rPlusGMinus);
-  }
-
-  /**
-   * Returns Green Plus Red Minus Map
-   */
-  Bitmap getGPlusRMinus()
-  {
-    boost::mutex::scoped_lock lock(this->mutex);
-    return *(this->gPlusRMinus);
-  }
-
-  /**
-   * Returns Blue plus Yellow Minus Map
-   */
-  Bitmap getBPlusYMinus()
-  {
-    boost::mutex::scoped_lock lock(this->mutex);
-    return *(this->bPlusYMinus);
+    return *(this->buffer);
   }
 
 };

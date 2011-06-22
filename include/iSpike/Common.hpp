@@ -26,6 +26,10 @@ public:
    */
   static std::map<std::string, Property*> getProperties(std::map<std::string,Property*> defaultProperties);
 
+  static const int redVsGreen = 0;
+  static const int greenVsRed = 1;
+  static const int blueVsYellow = 2;
+
 };
 
 #endif /* COMMON_HPP_ */

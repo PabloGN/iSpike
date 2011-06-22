@@ -33,15 +33,7 @@ void VisualInputChannel::workerFunction()
   while(!stopRequested)
   {
     ///Retrieve the colour oponent image
-    Bitmap* opponentMap;
-    if(this->opponentMap == 0)
-      opponentMap = &(Bitmap(this->filter->getRPlusGMinus()));
-    else if (this->opponentMap == 1)
-      opponentMap = &(Bitmap(this->filter->getGPlusRMinus()));
-    else if(this->opponentMap == 2)
-      opponentMap = &(Bitmap(this->filter->getBPlusYMinus()));
-    else if(this->opponentMap == 3)
-      opponentMap = &(Bitmap(this->movementFilter->getMovementMap()));
+    Bitmap* opponentMap = new Bitmap(this->filter->getOpponencyMap());
     ///If got it
     if(opponentMap->getWidth() > 0)
     {
@@ -80,7 +72,7 @@ void VisualInputChannel::start()
     this->buffer = new std::vector< std::vector<int> >();
     this->reader->start();
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10);
-    this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2);
+    this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2, this->opponentMap);
     this->movementFilter = new MovementFilter(this->filter, 1);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));

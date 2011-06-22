@@ -42,13 +42,13 @@ void MovementFilter::workerFunction()
 {
   while(true)
   {
-    Bitmap* currentImage = &(this->foveator->getRPlusGMinus());
-    Bitmap* movementMap = produceMap(this->previousImage, currentImage);
-    {
-      boost::mutex::scoped_lock lock(this->mutex);
-      delete this->previousImage;
-      this->previousImage = currentImage;
-      this->movementMap = movementMap;
-    }
+//    Bitmap* currentImage = &(this->foveator->getOpponencyMap);
+//    Bitmap* movementMap = produceMap(this->previousImage, currentImage);
+//    {
+//      boost::mutex::scoped_lock lock(this->mutex);
+//      delete this->previousImage;
+//      this->previousImage = currentImage;
+//      this->movementMap = movementMap;
+//    }
   }
 }

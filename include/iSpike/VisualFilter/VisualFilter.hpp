@@ -24,9 +24,7 @@ private:
 
 public:
 
-  virtual Bitmap getRPlusGMinus() = 0;
-  virtual Bitmap getGPlusRMinus() = 0;
-  virtual Bitmap getBPlusYMinus() = 0;
+  virtual Bitmap getOpponencyMap() = 0;
 
 };
 

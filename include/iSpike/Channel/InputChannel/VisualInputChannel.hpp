@@ -161,6 +161,8 @@ public:
       this->threadPointer->join();
       delete this->buffer;
       this->threadPointer.reset();
+      delete this->filter;
+      delete this->dataReducer;
     }
     LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
   }
