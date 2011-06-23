@@ -42,6 +42,7 @@ public:
     LOG(LOG_DEBUG) << "Reader Before.";
     this->readerList.push_back(FileAngleReader().getReaderDescription());
     this->readerList.push_back(FileVisualReader().getReaderDescription());
+    LOG(LOG_DEBUG) << "FileVisualReaderProperties: " << this->readerList.back().getReaderProperties().begin()->second->getName();
     LOG(LOG_DEBUG) << "Reader After ReaderList Length: " << this->readerList.size();
   }
 
@@ -66,6 +67,7 @@ public:
     std::vector<ReaderDescription> result;
     for(int i = 0; i < readerList.size(); i++)
     {
+      LOG(LOG_DEBUG) << readerList[i].getReaderProperties().begin()->second->getName();
       if(readerList[i].getReaderType() == readerType)
         result.push_back(readerList[i]);
     }
