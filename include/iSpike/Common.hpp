@@ -16,7 +16,7 @@ class Common {
 
 public:
 
-  static void savePPMImage(char* filename, Bitmap* image);
+  static void savePPMImage(const char* filename, Bitmap* image);
   static Bitmap* produceGrayscale(unsigned char* image, int width, int height);
   static unsigned char* normaliseImage(unsigned char* image, int size);
   static void writePatternToFile(const char* fileName, std::vector<int> pattern, int numOfNeurons);

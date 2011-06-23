@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <iSpike/ISpikeException.hpp>
 
-void Common::savePPMImage(char* filename, Bitmap* image)
+void Common::savePPMImage(const char* filename, Bitmap* image)
 {
   std::ofstream file_handle(filename, std::ios::binary);
   if (file_handle)

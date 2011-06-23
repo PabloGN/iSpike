@@ -37,6 +37,7 @@ void VisualInputChannel::workerFunction()
     ///If got it
     if(opponentMap->getWidth() > 0)
     {
+      LOG(LOG_DEBUG) << "Got an opponentmap, width: " << opponentMap->getWidth();
       ///Lock so that we can update the buffer
       boost::mutex::scoped_lock lock(this->mutex);
       //std::vector<double>* voltages = new std::vector<double>(rPlusGMinus.getWidth() * rPlusGMinus.getHeight());
@@ -47,6 +48,7 @@ void VisualInputChannel::workerFunction()
         {
           //double voltage = (unsigned int)rPlusGMinus.getContents()[i];
           ///retrieve the pixel intensity at the coordinates
+          //LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
           double current = (unsigned int)opponentMap->getPixel(this->xOffset + i,this->yOffset + j);
           ///move it to the current map
           currents->at(j*(this->width) + i) = current;
@@ -71,12 +73,13 @@ void VisualInputChannel::start()
   {
     this->buffer = new std::vector< std::vector<int> >();
     this->reader->start();
-    this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10);
+    this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10, this->getWidth(), this->getHeight());
     this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2, this->opponentMap);
     this->movementFilter = new MovementFilter(this->filter, 1);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
     initialised = true;
+    LOG(LOG_DEBUG) << "X OFFSET: " << this->xOffset << " Y OFFSET: " << this->yOffset;
   }
 }
 

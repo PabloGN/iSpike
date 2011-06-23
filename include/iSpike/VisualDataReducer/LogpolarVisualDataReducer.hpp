@@ -32,6 +32,8 @@ private:
   Bitmap* reducedImage;
   VisualReader* reader;
   int queryInterval;
+  int polarWidth;
+  int polarHeight;
 
   /**
    * The main thread execution loop
@@ -75,7 +77,7 @@ public:
    * @param reader The associated Reader
    * @param queryInterval How often the Reader is queried
    */
-  LogPolarVisualDataReducer(VisualReader* reader, int queryInterval);
+  LogPolarVisualDataReducer(VisualReader* reader, int queryInterval, int polarWidth, int polarHeight);
   Bitmap getReducedImage()
   {
     boost::mutex::scoped_lock lock(this->mutex);

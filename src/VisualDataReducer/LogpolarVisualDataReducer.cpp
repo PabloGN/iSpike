@@ -9,36 +9,44 @@
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/Common.hpp>
 #include <iostream>
+#include <sstream>
 #include <boost/math/constants/constants.hpp>
 
-LogPolarVisualDataReducer::LogPolarVisualDataReducer(VisualReader* reader, int queryInterval)
+LogPolarVisualDataReducer::LogPolarVisualDataReducer(VisualReader* reader, int queryInterval, int polarWidth, int polarHeight)
 {
   this->reader = reader;
   this->queryInterval = queryInterval;
+  this->polarWidth = polarWidth;
+  this->polarHeight = polarHeight;
   this->reducedImage = new Bitmap(0, 0, 0, NULL);
   this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&LogPolarVisualDataReducer::workerFunction, this)));
 }
 
 void LogPolarVisualDataReducer::workerFunction()
 {
-  int polarWidth = 320;
-  int polarHeight = 240;
   while(true)
   {
     Bitmap rawImage = this->reader->getData();
+    int polarWidth = rawImage.getWidth();
+    int polarHeight = rawImage.getHeight();
     if (rawImage.getWidth() != 0)
     {
-      CoordMapType* polarToCartesianMap = initialisePolarToCartesianMap(&rawImage, polarWidth, polarHeight, 60);
-      CoordMapType* cartesianToPolarMap = initialiseCartesianToPolarMap(&rawImage, polarWidth, polarHeight, 60);
-      Bitmap* logPolarImage = logPolar(&rawImage, polarWidth, polarHeight, polarToCartesianMap);
-      Common::savePPMImage("logPolar.ppm", logPolarImage);
-      Bitmap* cartesianImage = logPolarToCartesian(logPolarImage, logPolarImage->getWidth(), logPolarImage->getHeight(), cartesianToPolarMap);
+      CoordMapType* polarToCartesianMap = initialisePolarToCartesianMap(&rawImage, this->polarWidth, this->polarHeight, 60);
+      CoordMapType* cartesianToPolarMap = initialiseCartesianToPolarMap(&rawImage, this->polarWidth, this->polarHeight, 60);
+      Bitmap* logPolarImage = logPolar(&rawImage, this->polarWidth, this->polarHeight, polarToCartesianMap);
+      std::stringstream sstr;
+      sstr << "logPolar" << rand() % 100 + 1 << ".ppm";
+      Common::savePPMImage(sstr.str().c_str(), logPolarImage);
+      LOG(LOG_DEBUG) << "About to generate cartesian";
+      //Bitmap* cartesianImage = logPolarToCartesian(logPolarImage, logPolarImage->getWidth(), logPolarImage->getHeight(), cartesianToPolarMap);
+      LOG(LOG_DEBUG) << "Generated cartesian";
       if(logPolarImage != NULL)
       {
         boost::mutex::scoped_lock lock(this->mutex);
         delete this->reducedImage;
         this->reducedImage = logPolarImage;
       }
+      LOG(LOG_DEBUG) << "Reduced image stored";
       /*Bitmap* reducedImage = logPolarToCartesian(logPolarImage, &rawImage, rawImage.getWidth(), rawImage.getHeight(), 60, cartesianToPolarMap);
       Common::savePPMImage("reducedImage.ppm", reducedImage);
       if(reducedImage != NULL)
@@ -50,6 +58,7 @@ void LogPolarVisualDataReducer::workerFunction()
       delete logPolarImage;*/
       delete polarToCartesianMap;
       delete cartesianToPolarMap;
+      LOG(LOG_DEBUG) << "maps deleted";
     }
    // boost::this_thread::sleep(boost::posix_time::milliseconds(this->queryInterval));
   }
