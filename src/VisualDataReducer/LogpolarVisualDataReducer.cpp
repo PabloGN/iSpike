@@ -19,16 +19,18 @@ LogPolarVisualDataReducer::LogPolarVisualDataReducer(VisualReader* reader, int q
   this->polarWidth = polarWidth;
   this->polarHeight = polarHeight;
   this->reducedImage = new Bitmap(0, 0, 0, NULL);
+  this->stopRequested = false;
   this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&LogPolarVisualDataReducer::workerFunction, this)));
 }
 
 void LogPolarVisualDataReducer::workerFunction()
 {
-  while(true)
+  while(!stopRequested)
   {
     Bitmap rawImage = this->reader->getData();
     int polarWidth = rawImage.getWidth();
     int polarHeight = rawImage.getHeight();
+    bool generateImages = true;
     if (rawImage.getWidth() != 0)
     {
       CoordMapType* polarToCartesianMap = initialisePolarToCartesianMap(&rawImage, this->polarWidth, this->polarHeight, 60);
@@ -36,7 +38,8 @@ void LogPolarVisualDataReducer::workerFunction()
       Bitmap* logPolarImage = logPolar(&rawImage, this->polarWidth, this->polarHeight, polarToCartesianMap);
       std::stringstream sstr;
       sstr << "logPolar" << rand() % 100 + 1 << ".ppm";
-      Common::savePPMImage(sstr.str().c_str(), logPolarImage);
+      if(generateImages)
+        Common::savePPMImage(sstr.str().c_str(), logPolarImage);
       LOG(LOG_DEBUG) << "About to generate cartesian";
       //Bitmap* cartesianImage = logPolarToCartesian(logPolarImage, logPolarImage->getWidth(), logPolarImage->getHeight(), cartesianToPolarMap);
       LOG(LOG_DEBUG) << "Generated cartesian";
