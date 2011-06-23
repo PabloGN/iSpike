@@ -37,7 +37,7 @@ class Log
 
      }
      virtual ~Log();
-     std::ostringstream& Get(TLogLevel level = LOG_INFO);
+     std::ostringstream& Get(TLogLevel level = LOG_DEBUG);
   public:
      static TLogLevel& ReportingLevel();
      static int currentId;

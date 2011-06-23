@@ -165,6 +165,7 @@ public:
             this->wait_condition.notify_all();
           }
           this->threadPointer->join();
+          this->threadPointer.reset();
           this->stopRequested = false;
           this->updateProperties(properties, false);
           this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));

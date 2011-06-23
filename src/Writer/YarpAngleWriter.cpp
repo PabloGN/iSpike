@@ -24,6 +24,7 @@ void YarpAngleWriter::initialise(std::map<std::string,Property*> properties)
   this->degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
   this->angleList = new std::queue<double>();
   this->initialised = false;
+  this->previousAngle = 0;
 }
 
 void YarpAngleWriter::addAngle(double angle)

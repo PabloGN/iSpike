@@ -15,11 +15,9 @@
 
 void JointOutputChannel::setFiring(std::vector<int>* buffer)
 {
-  boost::mutex::scoped_lock lock(this->mutex);
-  //this->buffer->push(*buffer);
-  delete this->buffer;
-  this->buffer = new std::vector<int>(*buffer);
-  //std::cout << "Spike Buffer: " << this->buffer->size() << std::endl;
+  //boost::mutex::scoped_lock lock(this->mutex);
+  //delete this->buffer;
+  //this->buffer = new std::vector<int>(*buffer);
 }
 
 void JointOutputChannel::start()
@@ -28,7 +26,7 @@ void JointOutputChannel::start()
   if(!initialised)
   {
     //this->buffer = new std::queue< std::vector<int> >();
-    this->buffer = NULL;
+    this->buffer = new std::vector<int>();
     this->writer->start();
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
     initialised = true;
@@ -112,7 +110,7 @@ void JointOutputChannel::workerFunction()
     {
       boost::mutex::scoped_lock lock(this->mutex);
       //enoughFrames = !(this->buffer->empty());
-      enoughFrames = !(this->buffer == NULL);
+      enoughFrames = !(this->buffer->empty());
     }
     /**
      * Spikes received
@@ -124,7 +122,7 @@ void JointOutputChannel::workerFunction()
       {
         boost::mutex::scoped_lock lock(this->mutex);
         //this->buffer->pop();
-        this->buffer = NULL;
+        this->buffer->clear();
       }
       for(unsigned int neuronID = 0; neuronID < currentFrame.size(); neuronID++)
       {
@@ -147,17 +145,10 @@ void JointOutputChannel::workerFunction()
         this->writer->addAngle(angle);
       }
     }
-
     /**
      * Decay the variables according to the following function:
      * N(t+1) = N(t)*e^(-rateOfDecay*t)
      */
-    std::ofstream fileStream;
-
-    //fileStream.open("variables.txt", std::fstream::out | std::fstream::app);
-    //std::ostringstream variableText;
-    //variableText << "Variables" << std::endl;
-    //variableText << "[";
     for(unsigned int i = 0; i < variables.size(); i++)
     {
       variables[i] = variables[i] * exp(-(this->rateOfDecay) * times[i]);
@@ -166,10 +157,6 @@ void JointOutputChannel::workerFunction()
       if(times[i] < 100000)
         times[i]++;
     }
-    //fileStream << std::endl;
-    //fileStream.close();
-    //variableText << "]";
-    //LOG(LOG_DEBUG) << variableText.str();
     if(!stopRequested)
     {
       LOG(LOG_DEBUG) << "JointOutputChannel: Falling asleep";
