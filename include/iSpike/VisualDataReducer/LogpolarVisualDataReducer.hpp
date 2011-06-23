@@ -34,6 +34,7 @@ private:
   int queryInterval;
   int polarWidth;
   int polarHeight;
+  bool stopRequested;
 
   /**
    * The main thread execution loop
@@ -82,6 +83,19 @@ public:
   {
     boost::mutex::scoped_lock lock(this->mutex);
     return *(this->reducedImage);
+  }
+
+  ~LogPolarVisualDataReducer()
+  {
+    std::cout << "destructor";
+    LOG(LOG_DEBUG) << "Entering visualreducer destructor";
+    LOG(LOG_DEBUG) << "Setting stop requested to true";
+    this->stopRequested = true;
+    LOG(LOG_DEBUG) << "Waking up the thread";
+    LOG(LOG_DEBUG) << "Waiting";
+    this->threadPointer->join();
+    this->threadPointer.reset();
+    LOG(LOG_DEBUG) << "Exiting visualreducer destructor";
   }
 
 };
