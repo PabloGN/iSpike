@@ -48,7 +48,7 @@ void VisualInputChannel::workerFunction()
         {
           //double voltage = (unsigned int)rPlusGMinus.getContents()[i];
           ///retrieve the pixel intensity at the coordinates
-          //LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
+          LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
           double current = (unsigned int)opponentMap->getPixel(this->xOffset + i,this->yOffset + j);
           ///move it to the current map
           currents->at(j*(this->width) + i) = current;
