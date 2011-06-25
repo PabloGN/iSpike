@@ -42,7 +42,7 @@ void DOGVisualFilter::workerFunction()
 {
   while(!stopRequested)
   {
-    bool generateImages = true;
+    bool generateImages = false;
     Bitmap reducedImage = this->reducer->getReducedImage();
     //Common::savePPMImage("logPolar.ppm", &reducedImage);
     if(reducedImage.getWidth() > 0)
@@ -171,7 +171,8 @@ void DOGVisualFilter::workerFunction()
       free(gPlusRMinus);
       free(bPlusYMinus);*/
     }
-    //boost::this_thread::sleep(boost::posix_time::milliseconds(this->queryInterval));
+    if(!stopRequested)
+      boost::this_thread::sleep(boost::posix_time::milliseconds(this->queryInterval));
   }
 }
 
@@ -231,6 +232,7 @@ unsigned char* DOGVisualFilter::gaussianBlur(unsigned char* image, double sigma,
       *targetPtr += (int)floor( colour_value + 0.5 );
     }
   free(tempBuffer);
+  free(kernel);
   return resultBuffer;
 }
 

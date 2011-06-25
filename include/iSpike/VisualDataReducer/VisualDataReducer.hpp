@@ -30,6 +30,10 @@ private:
 public:
 
   virtual Bitmap getReducedImage() = 0;
+  virtual ~VisualDataReducer()
+  {
+
+  }
 
 };
 

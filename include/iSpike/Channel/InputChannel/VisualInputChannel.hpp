@@ -147,7 +147,6 @@ public:
 
   ~VisualInputChannel()
   {
-    std::cout << "destructor";
     LOG(LOG_DEBUG) << "Entering VisualInputChannel destructor";
     if(this->initialised)
     {
@@ -159,9 +158,12 @@ public:
       }
       LOG(LOG_DEBUG) << "Waiting";
       this->threadPointer->join();
-      delete this->buffer;
       this->threadPointer.reset();
+      LOG(LOG_DEBUG) << "VisualInputChannel: Deleting buffer";
+      delete this->buffer;
+      LOG(LOG_DEBUG) << "VisualInputChannel: Deleting filter";
       delete this->filter;
+      LOG(LOG_DEBUG) << "VisualInputChannel: Deleting reducer";
       delete this->dataReducer;
     }
     LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";

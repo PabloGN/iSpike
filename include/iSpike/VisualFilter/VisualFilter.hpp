@@ -25,6 +25,10 @@ private:
 public:
 
   virtual Bitmap getOpponencyMap() = 0;
+  virtual ~VisualFilter()
+  {
+
+  }
 
 };
 

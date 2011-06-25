@@ -4,7 +4,7 @@ IF(WIN32)
 ELSE()
     SET (output_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME})
 ENDIF()
-SET (output_BIN manual-output-test)
+SET (output_BIN client)
 
 IF (NOT CMAKE_CROSSCOMPILING)
     LINK_DIRECTORIES(${MAINFOLDER}/lib/${ConfigurationName})

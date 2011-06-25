@@ -83,13 +83,13 @@ public:
 
   ~DOGVisualFilter()
   {
-    std::cout << "destructor";
     LOG(LOG_DEBUG) << "Entering dogfilter destructor";
     LOG(LOG_DEBUG) << "Setting stop requested to true";
     this->stopRequested = true;
     LOG(LOG_DEBUG) << "Waiting";
     this->threadPointer->join();
     this->threadPointer.reset();
+    delete this->buffer;
     LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
   }
 

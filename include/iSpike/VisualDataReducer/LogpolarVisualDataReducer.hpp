@@ -87,7 +87,6 @@ public:
 
   ~LogPolarVisualDataReducer()
   {
-    std::cout << "destructor";
     LOG(LOG_DEBUG) << "Entering visualreducer destructor";
     LOG(LOG_DEBUG) << "Setting stop requested to true";
     this->stopRequested = true;
@@ -96,6 +95,7 @@ public:
     this->threadPointer->join();
     this->threadPointer.reset();
     LOG(LOG_DEBUG) << "Exiting visualreducer destructor";
+    delete this->reducedImage;
   }
 
 };

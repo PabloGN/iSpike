@@ -30,7 +30,7 @@ void LogPolarVisualDataReducer::workerFunction()
     Bitmap rawImage = this->reader->getData();
     int polarWidth = rawImage.getWidth();
     int polarHeight = rawImage.getHeight();
-    bool generateImages = true;
+    bool generateImages = false;
     if (rawImage.getWidth() != 0)
     {
       CoordMapType* polarToCartesianMap = initialisePolarToCartesianMap(&rawImage, this->polarWidth, this->polarHeight, 60);
@@ -63,7 +63,8 @@ void LogPolarVisualDataReducer::workerFunction()
       delete cartesianToPolarMap;
       LOG(LOG_DEBUG) << "maps deleted";
     }
-   // boost::this_thread::sleep(boost::posix_time::milliseconds(this->queryInterval));
+    if(!stopRequested)
+      boost::this_thread::sleep(boost::posix_time::milliseconds(this->queryInterval));
   }
 }
 
