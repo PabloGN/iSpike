@@ -17,6 +17,8 @@
 #include <vector>
 #include <map>
 #include <iSpike/YarpPortDetails.hpp>
+#include "iSpike/iSpikeThread.hpp"
+using namespace ispike;
 
 /**
  * @class YarpVisualReader
@@ -28,126 +30,33 @@
  * @author Edgars Lazdins
  *
  */
-class YarpAngleReader : public AngleReader {
+class YarpAngleReader : public AngleReader, public iSpikeThread {
 
-private:
-  std::vector<double>* buffer;
-  boost::shared_ptr<boost::thread> threadPointer;
-  void workerFunction();
-  boost::mutex mutex;
-  bool initialised;
-  std::string portName;
-  YarpConnection* yarpConnection;
-  std::map<std::string, YarpPortDetails*>* portMap;
+	private:
+		std::vector<double> buffer;
+		boost::shared_ptr<boost::thread> threadPointer;
+		void workerFunction();
+		boost::mutex mutex;
+		bool initialised;
+		std::string portName;
+		YarpConnection* yarpConnection;
+		std::map<std::string, YarpPortDetails*>* portMap;
 
-public:
+	public:
 
-  /*
-   * The default constructor, only initialises the default parameters and the description
-   */
-  YarpAngleReader(std::string nameserverIP, std::string nameserverPort)
-  {
-    this->initialised = false;
-  /**
-   * First define the properties of this reader
-   */
+		YarpAngleReader(std::string nameserverIP, std::string nameserverPort);
+		virtual ~YarpAngleReader();
 
-	/**
-	 * Get the available yarp ports
-	 */
-    LOG(LOG_DEBUG) << "before yarp connection";
-    this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-    LOG(LOG_DEBUG) << "before getting portmap";
-    this->portMap = this->yarpConnection->getPortMap();
-
-    /**
-     * Iterate over them and add as options
-     */
-    LOG(LOG_DEBUG) << "iterating";
-    std::map<std::string, YarpPortDetails*>::iterator iter;
-    std::vector<std::string> yarpPortNames;
-    for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++)
-    {
-    	yarpPortNames.push_back(iter->first);
-    }
-    LOG(LOG_DEBUG) << "filling in properties";
-
-    std::map<std::string,Property*> properties;
-    properties["Port Name"] = new ComboProperty(
-          "Port Name",
-          "/icubSim/left_arm/state:o",
-          "The Yarp Port name",
-          yarpPortNames,
-          true
-        );
-    /**
-     * Now let's create the description
-     */
-    this->readerDescription = new ReaderDescription(
-          "Yarp Angle Reader",
-          "This is a Yarp angle reader",
-          "Angle Reader",
-          properties
-        );
-    LOG(LOG_DEBUG) << "exiting";
-  }
-
-  ~YarpAngleReader()
-  {
-    LOG(LOG_DEBUG) << "destroying angle reader";
-    if(this->initialised)
-    {
-      this->threadPointer->interrupt();
-      this->threadPointer->join();
-      delete this->threadPointer.get();
-      delete this->buffer;
-    }
-    LOG(LOG_DEBUG) << "destruction complete";
-  }
-
-  /**
-   * Retrieves the vector of joint angles
-   */
-  std::vector<double> getData();
-
-  void initialise();
-
-  void initialise(std::map<std::string,Property*> properties);
-
-  /**
-   * Initialises the reader and starts the main thread
-   */
-  void start();
-
-  std::string getPortName()
-  {
-    return this->portName;
-  }
-
-  void setPortName(std::string portName)
-  {
-    this->portName = portName;
-  }
-
-  bool getInitialised() const
-  {
-      return initialised;
-  }
-
-  void setInitialised(bool initialised)
-  {
-      this->initialised = initialised;
-  }
-
-  boost::shared_ptr<boost::thread> getThreadPointer() const
-  {
-      return threadPointer;
-  }
-
-  void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
-  {
-      this->threadPointer = threadPointer;
-  }
+		std::vector<double> getData();
+		void initialise();
+		void initialise(std::map<std::string,Property*> properties);
+		std::string getPortName(){ return this->portName; }
+		void setPortName(std::string portName){ this->portName = portName;}
+		bool getInitialised() const	{ return initialised; }
+		void setInitialised(bool initialised){ this->initialised = initialised;	}
+		boost::shared_ptr<boost::thread> getThreadPointer() const {	return threadPointer; }
+		void start();
+		void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer){ this->threadPointer = threadPointer;	}
 
 };
 

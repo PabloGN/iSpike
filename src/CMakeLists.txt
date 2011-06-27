@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 FILE (GLOB_RECURSE project_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 IF(WIN32)
     SET (project_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} "ws2_32")

@@ -3,6 +3,8 @@
 
 #include <iSpike/Reader/Reader.hpp>
 #include <vector>
+#include <string>
+using namespace std;
 
 /**
  * @class AngleReader
@@ -15,21 +17,22 @@
  */
 class AngleReader : public Reader {
 
-public:
+	public:
+		virtual ~AngleReader(){}
 
-  /**
-   * Retrieves the angles
-   */
-  virtual std::vector<double> getData() = 0;
+		/**
+		* Retrieves the angles
+		*/
+		virtual std::vector<double> getData() = 0;
 
-  /**
-   * Initialises the reader and starts the main thread
-   */
-  virtual void start() = 0;
+		/**
+		* Initialises the reader and starts the main thread
+		*/
+		virtual void start() = 0;
 
-  virtual bool getInitialised() const = 0;
+		virtual bool getInitialised() const = 0;
 
-  virtual void setInitialised(bool initialised) = 0;
+		virtual void setInitialised(bool initialised) = 0;
 
 };
 
