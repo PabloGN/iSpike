@@ -15,9 +15,9 @@ IF (NOT DEFINED project_build_shared)
    ENDIF (CMAKE_CROSSCOMPILING)
 ENDIF (NOT DEFINED project_build_shared)
 
-IF (NOT DEFINED project_build_static)
-   SET(project_build_static 1)
-ENDIF (NOT DEFINED project_build_static)
+#IF (NOT DEFINED project_build_static)
+#   SET(project_build_static 1)
+#ENDIF (NOT DEFINED project_build_static)
 
 IF (project_build_static)
 	ADD_LIBRARY(staticlib STATIC ${project_SRCS})

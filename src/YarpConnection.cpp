@@ -16,10 +16,62 @@
 
 using boost::asio::ip::tcp;
 
+/** Constructor */
+YarpConnection::YarpConnection(std::string ip, std::string port){
+	//boost::asio::io_service io_service;
+	LOG(LOG_DEBUG) << "creating a socket";
+	this->connectionSocket = new tcp::socket(this->io_service);
+	LOG(LOG_DEBUG) << "connecting to port";
+	int result = connect_to_port(ip, port);
+	LOG(LOG_DEBUG) << "connected";
+	if (!result) {
+		boost::system::error_code error = boost::asio::error::host_not_found;
+		throw boost::system::system_error(error);
+	}
+
+	LOG(LOG_DEBUG) << "writing commands";
+	write_text("CONNECT foo\n");
+	read_until("\n");
+	write_text("d\n");
+	write_text("list\n");
+
+	boost::system::error_code read_error;
+	LOG(LOG_DEBUG) << "reading reply";
+	std::string response_string = read_text();
+	LOG(LOG_DEBUG) << "disconnecting";
+	disconnect();
+	LOG(LOG_DEBUG) << "disconnected";
+	boost::cmatch matches;
+	boost::regex new_line("\n");
+	std::list<std::string> lines;
+	boost::regex_split(std::back_inserter(lines), response_string, new_line);
+	boost::regex expression("registration name (.+?) ip (.+?) port (.+?) type (.+?)");
+	this->portMap = new std::map<std::string, YarpPortDetails*>();
+	while(lines.size())  {
+		std::string current_string = *(lines.begin());
+		lines.pop_front();
+
+		if (boost::regex_match(current_string.c_str(), matches, expression)) {
+			std::string portName(matches[1].first, matches[1].second);
+			std::string ip(matches[2].first, matches[2].second);
+			std::string port(matches[3].first, matches[3].second);
+			std::string type(matches[4].first, matches[4].second);
+			YarpPortDetails *details = new YarpPortDetails(ip,port,type);
+			this->portMap->insert(std::pair<std::string, YarpPortDetails*>(portName, details));
+		}
+	}
+	std::map<std::string, YarpPortDetails*>::iterator it;
+	LOG(LOG_DEBUG) << "YarpConnection: Received the following Yarp portmap:";
+	for ( it=this->portMap->begin() ; it != this->portMap->end(); ++it )   {
+		LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort();
+	}
+}
+
+
 int YarpConnection::write_text(std::string message){
 	boost::system::error_code connection_error;
 	boost::asio::write( *this->connectionSocket, boost::asio::buffer(message),
-					   boost::asio::transfer_all(), connection_error);
+						boost::asio::transfer_all(), connection_error);
 	if (connection_error) throw boost::system::system_error(connection_error);
 	return(true);
 }
@@ -28,7 +80,7 @@ int YarpConnection::write_text(std::string message){
 int YarpConnection::write_binary(unsigned char* buffer, int length){
 	boost::system::error_code connection_error;
 	boost::asio::write( *this->connectionSocket, boost::asio::buffer(buffer, length),
-					   boost::asio::transfer_all(), connection_error);
+						boost::asio::transfer_all(), connection_error);
 	if (connection_error) throw boost::system::system_error(connection_error);
 	return(true);
 }
@@ -76,7 +128,7 @@ std::string YarpConnection::getSocketString()
 
 std::string YarpConnection::read_until(std::string until){
 	boost::asio::streambuf response;
-		boost::asio::read_until(*this->connectionSocket, response, until);
+	boost::asio::read_until(*this->connectionSocket, response, until);
 	std::istream response_stream(&response);
 	std::string response_string((std::istreambuf_iterator<char>(response_stream)), std::istreambuf_iterator<char>());
 	return(response_string);
@@ -92,55 +144,6 @@ int YarpConnection::read_binary(unsigned char* buffer, int length){
 	return boost::asio::read(*this->connectionSocket, boost::asio::buffer(buffer, length));
 }
 
-YarpConnection::YarpConnection(std::string ip, std::string port){
-    //boost::asio::io_service io_service;
-    LOG(LOG_DEBUG) << "creating a socket";
-    this->connectionSocket = new tcp::socket(this->io_service);
-    LOG(LOG_DEBUG) << "connecting to port";
-    int result = connect_to_port(ip, port);
-    LOG(LOG_DEBUG) << "connected";
-	if (!result) {
-		boost::system::error_code error = boost::asio::error::host_not_found;
-		throw boost::system::system_error(error);
-    }
-    LOG(LOG_DEBUG) << "writing commands";
-    write_text("CONNECT foo\n");
-    read_until("\n");
-    write_text("d\n");
-    write_text("list\n");
-
-    boost::system::error_code read_error;
-    LOG(LOG_DEBUG) << "reading reply";
-    std::string response_string = read_text();
-    LOG(LOG_DEBUG) << "disconnecting";
-    disconnect();
-    LOG(LOG_DEBUG) << "disconnected";
-    boost::cmatch matches;
-    boost::regex new_line("\n");
-    std::list<std::string> lines;
-    boost::regex_split(std::back_inserter(lines), response_string, new_line);
-    boost::regex expression("registration name (.+?) ip (.+?) port (.+?) type (.+?)");
-    this->portMap = new std::map<std::string, YarpPortDetails*>();
-	while(lines.size())  {
-		std::string current_string = *(lines.begin());
-		lines.pop_front();
-
-		if (boost::regex_match(current_string.c_str(), matches, expression)) {
-			std::string portName(matches[1].first, matches[1].second);
-			std::string ip(matches[2].first, matches[2].second);
-			std::string port(matches[3].first, matches[3].second);
-			std::string type(matches[4].first, matches[4].second);
-			YarpPortDetails *details = new YarpPortDetails(ip,port,type);
-			this->portMap->insert(std::pair<std::string, YarpPortDetails*>(portName, details));
-		}
-    }
-    std::map<std::string, YarpPortDetails*>::iterator it;
-    LOG(LOG_DEBUG) << "YarpConnection: Received the following Yarp portmap:";
-	for ( it=this->portMap->begin() ; it != this->portMap->end(); ++it )   {
-        LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort();
-    }
-}
-
 
 int YarpConnection::connect_to_port(std::string ip, std::string port){
 	boost::asio::io_service io_service;
@@ -152,6 +155,7 @@ int YarpConnection::connect_to_port(std::string ip, std::string port){
 	this->connectionSocket->connect(endpoint, error);
 
 	if (error || !this->connectionSocket->is_open()){
+		LOG(LOG_DEBUG) << "Exception thrown connecting to port: "<<error.message();
 		throw ISpikeException(error.message());
 	}
 	return true;

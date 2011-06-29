@@ -63,8 +63,8 @@ INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
 # search names with "lib". This is the workaround.
 #SET(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "")
 #SET(BOOST_ALL_NO_LIB,1)
-#SET(BOOST_ROOT "C:/Users/daogamez/Home/Programs/spikestream/trunk/extlib/boost")
-SET(BOOST_ROOT "D:/Home/Programs/spikestream/trunk/extlib/boost")
+SET(BOOST_ROOT "C:/Users/daogamez/Home/Programs/spikestream/trunk/extlib/boost")
+#SET(BOOST_ROOT "D:/Home/Programs/spikestream/trunk/extlib/boost")
 SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0" "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0" "1.47" "1.47.0" "1.48" "1.48.0" "1.49" "1.49.0" "1.50" "1.50.0")
 #SET(Boost_USE_STATIC_LIBS ON)
 FIND_PACKAGE (Boost 1.42 COMPONENTS "system" "regex" "thread" "unit_test_framework" REQUIRED)
@@ -87,10 +87,10 @@ FILE (GLOB_RECURSE CONFIGINPUTS1 include/*.in.h.cmake)
 FILE (GLOB_RECURSE CONFIGINPUTS2 include/*.h.in.cmake)
 FILE (GLOB_RECURSE CONFIGINPUTS3 src/*.in.h.cmake)
 FILE (GLOB_RECURSE CONFIGINPUTS4 src/*.h.in.cmake)
-FILE (GLOB_RECURSE CONFIGINPUTS5 test/*.in.h.cmake)
-FILE (GLOB_RECURSE CONFIGINPUTS6 test/*.h.in.cmake)
-FILE (GLOB_RECURSE CONFIGINPUTS7 client/*.in.h.cmake)
-FILE (GLOB_RECURSE CONFIGINPUTS8 client/*.h.in.cmake)
+#FILE (GLOB_RECURSE CONFIGINPUTS5 test/*.in.h.cmake)
+#FILE (GLOB_RECURSE CONFIGINPUTS6 test/*.h.in.cmake)
+#FILE (GLOB_RECURSE CONFIGINPUTS7 client/*.in.h.cmake)
+#FILE (GLOB_RECURSE CONFIGINPUTS8 client/*.h.in.cmake)
 #FILE (GLOB_RECURSE CONFIGINPUTS9 command_writer/*.in.h.cmake)
 #FILE (GLOB_RECURSE CONFIGINPUTS10 command_writer/*.h.in.cmake)
 #FILE (GLOB_RECURSE CONFIGINPUTS11 manual_output_test/*.in.h.cmake)
@@ -117,8 +117,8 @@ ENDFOREACH (CONFIGINPUT ${CONFIGINPUTS})
 # Add Build Targets
 #
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(test)
-ADD_SUBDIRECTORY(client)
+#ADD_SUBDIRECTORY(test)
+#ADD_SUBDIRECTORY(client)
 #ADD_SUBDIRECTORY(command_writer)
 #ADD_SUBDIRECTORY(manual_output_test)
 
@@ -132,4 +132,4 @@ ENDIF (EXISTS "${MAINFOLDER}/include/${PROJECT_NAME}" AND IS_DIRECTORY "${MAINFO
 #
 # Add Documentation Targets
 #
-INCLUDE (DocumentationTargets)
+#INCLUDE (DocumentationTargets)

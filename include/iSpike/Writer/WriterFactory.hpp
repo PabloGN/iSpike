@@ -23,72 +23,18 @@
  * The Writer Factory can list all Writers available in the system and can produce a particular type of a Writer
  */
 class WriterFactory {
+	private:
+		/// A list of available writers
+		std::vector<WriterDescription> writerList;
+		std::string ip;
+		std::string port;
 
-private:
-  /// A list of available writers
-  std::vector<WriterDescription> writerList;
-  std::string ip;
-  std::string port;
+	public:
+		WriterFactory();
+		WriterFactory(std::string ip, std::string port);
+		std::vector<WriterDescription> getWritersOfType(std::string writerType);
+		Writer* create(std::string writerName, std::map<std::string,Property*> writerProperties );
 
-public:
-
-  /**
-   * Default constructor
-   * Initialises the list of writers, if you've made a new writer, add it here!
-   */
-  WriterFactory()
-  {
-    writerList.push_back(FileAngleWriter().getWriterDescription());
-  }
-
-  WriterFactory(std::string ip, std::string port)
-  {
-	writerList.push_back(FileAngleWriter().getWriterDescription());
-	writerList.push_back(YarpAngleWriter(ip, port).getWriterDescription());
-	this->ip = ip;
-	this->port = port;
-  }
-
-  /**
-   * Returns all writers of a particular type
-   * @param writerType The type of Writer we are interested in
-   * @return All writers of the given type
-   */
-  std::vector<WriterDescription> getWritersOfType(std::string writerType)
-  {
-    std::vector<WriterDescription> result;
-    for(int i = 0; i < writerList.size(); i++)
-    {
-      if(writerList[i].getWriterType() == writerType)
-        result.push_back(writerList[i]);
-    }
-    return result;
-  }
-
-  /**
-   * Creates a particular writer
-   * @param writerName Type of a Writer we want to create
-   * @param writerProperties A map of properties for the new Writer
-   * @return An initialised Writer of a given type
-   */
-  Writer* create(
-			  std::string writerName,
-			  std::map<std::string,Property*> writerProperties
-		  )
-  {
-    Writer* result;
-    if(writerName == "File Angle Writer")
-    {
-      result = new FileAngleWriter();
-    } else if(writerName == "Yarp Angle Writer")
-    {
-      result = new YarpAngleWriter(this->ip, this->port);
-    } else {
-      throw std::logic_error("Invalid writer type");
-    }
-    result->initialise(writerProperties);
-    return result;
-  }
 };
 
 
