@@ -17,7 +17,7 @@
  * The default constructor, only initialises the default parameters and the description
  */
 YarpAngleWriter::YarpAngleWriter(std::string nameserverIP, std::string nameserverPort){
-	throw ISpikeException("TEST YARP ANGLE WRITER EXCEPTION");
+	//throw ISpikeException("TEST YARP ANGLE WRITER EXCEPTION");
 	// First define the properties of this writer
 	// Get the available yarp ports
 	this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);

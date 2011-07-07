@@ -23,7 +23,7 @@
  * The default constructor, only initialises the default parameters and the description
  */
 YarpAngleReader::YarpAngleReader(std::string nameserverIP, std::string nameserverPort){
-		throw ISpikeException("TEST YARP ANGLE READER EXCEPTION");
+	//	throw ISpikeException("TEST YARP ANGLE READER EXCEPTION");
 
 	this->initialised = false;
 	// First define the properties of this reader
