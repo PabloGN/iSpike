@@ -48,7 +48,7 @@ void VisualInputChannel::workerFunction()
         {
           //double voltage = (unsigned int)rPlusGMinus.getContents()[i];
           ///retrieve the pixel intensity at the coordinates
-          LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
+		  //LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
           double current = (unsigned int)opponentMap->getPixel(this->xOffset + i,this->yOffset + j);
           ///move it to the current map
           currents->at(j*(this->width) + i) = current;
@@ -74,7 +74,7 @@ void VisualInputChannel::start()
     this->buffer = new std::vector< std::vector<int> >();
     this->reader->start();
     this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10, this->getWidth(), this->getHeight());
-    this->filter = new DOGVisualFilter(this->dataReducer, 10, 3, 2, this->opponentMap);
+	this->filter = new DOGVisualFilter(this->dataReducer, 10, plusSigma, minusSigma, ratio1, ratio2, this->opponentMap);
     this->movementFilter = new MovementFilter(this->filter, 1);
     this->neuronSim = new IzhikevichNeuronSim(this->width * this->height, this->parameterA, this->parameterB, this->parameterC, this->parameterD, this->currentFactor, this->constantCurrent);
     this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&VisualInputChannel::workerFunction, this))));
@@ -129,6 +129,15 @@ void VisualInputChannel::updateProperties(std::map<std::string,Property*> proper
           this->currentFactor = value;
         else if (paramName == "Constant Current")
           this->constantCurrent = value;
+		else if (paramName == "Plus Sigma")
+			this->plusSigma = value;
+		else if (paramName == "Minus Sigma")
+			this->minusSigma = value;
+		else if (paramName == "Ratio 1")
+			this->ratio1 = value;
+		else if (paramName == "Ratio 2")
+			this->ratio2 = value;
+
         break;
       }
       case Property::Combo:

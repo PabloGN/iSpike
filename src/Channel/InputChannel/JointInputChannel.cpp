@@ -24,7 +24,7 @@
 /**
 * Default constructor, initialises the default channel properties
 */
-JointInputChannel::JointInputChannel(){
+JointInputChannel::JointInputChannel() : iSpikeThread() {
 	// First define the properties of this channel
 	std::map<std::string,Property*> properties;
 	this->initialised = false;
@@ -43,14 +43,15 @@ JointInputChannel::JointInputChannel(){
 
 	// Now let's create the description
 	this->channelDescription = new InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader", properties);
+
+	//Initialize variables
+	reader = NULL;
 }
 
 
 /*! Destructor */
 JointInputChannel::~JointInputChannel(){
 	LOG(LOG_DEBUG) << "Entering JointInputChannel destructor";
-	//Delete reader - this should stop the associated thread if necessary
-	delete reader;
 
 	if(isRunning())	{
 		//Stop thread in this class
@@ -58,6 +59,10 @@ JointInputChannel::~JointInputChannel(){
 		requestStop();
 		this->threadPointer->join();
 	}
+
+	//Delete reader - this should stop the associated thread if necessary
+	if(reader != NULL)
+		delete reader;
 }
 
 

@@ -30,7 +30,7 @@ void LogPolarVisualDataReducer::workerFunction()
     Bitmap rawImage = this->reader->getData();
     int polarWidth = rawImage.getWidth();
     int polarHeight = rawImage.getHeight();
-    bool generateImages = false;
+	bool generateImages = true;
     if (rawImage.getWidth() != 0)
     {
       CoordMapType* polarToCartesianMap = initialisePolarToCartesianMap(&rawImage, this->polarWidth, this->polarHeight, 60);

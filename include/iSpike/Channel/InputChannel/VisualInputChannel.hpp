@@ -49,6 +49,10 @@ private:
   double parameterD;
   double currentFactor;
   double constantCurrent;
+  double plusSigma;
+  double minusSigma;
+  double ratio1;
+  double ratio2;
   int xOffset;
   int yOffset;
   int opponentMap;
@@ -92,6 +96,36 @@ public:
           "Height of the neuron network",
           true
         );
+	plusSigma = 3;
+	properties["Plus Sigma"] = new DoubleProperty(
+				"Plus Sigma",
+				plusSigma,
+				"Positive Gaussian Sigma",
+				true
+				);
+	minusSigma = 2;
+	properties["Minus Sigma"] = new DoubleProperty(
+				"Minus Sigma",
+				minusSigma,
+				"Negative Gaussian Sigma",
+				true
+				);
+
+	ratio1 = 1.0;
+	properties["Ratio 1"] = new DoubleProperty(
+				"Ratio 1",
+				ratio1,
+				"Multiplication ratio for positive image during subtraction",
+				true
+				);
+	ratio2 = 1.0;
+	properties["Ratio 2"] = new DoubleProperty(
+				"Ratio 2",
+				ratio2,
+				"Multiplication ratio for negative image during subtraction",
+				true
+				);
+
     properties["Opponency Map"] = new IntegerProperty(
           "Opponency Map",
           0,

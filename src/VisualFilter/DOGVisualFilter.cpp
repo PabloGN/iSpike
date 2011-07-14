@@ -17,13 +17,15 @@
  * @param plusSigma The intensity of the Positive blur
  * @param minusSigma The intensity of the Negative blur
  */
-DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma, int opponencyMap)
+DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma, double ratio1, double ratio2, int opponencyMap)
 {
   this->reducer = reducer;
   this->queryInterval = queryInterval;
   this->buffer = new Bitmap(0, 0, 0, NULL);
   this->plusSigma = plusSigma;
   this->minusSigma = minusSigma;
+	this->ratio1 = ratio1;
+	this->ratio2 = ratio2;
   this->opponencyMap = opponencyMap;
   this->stopRequested = false;
   this->threadPointer = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DOGVisualFilter::workerFunction, this)));
@@ -42,7 +44,7 @@ void DOGVisualFilter::workerFunction()
 {
   while(!stopRequested)
   {
-    bool generateImages = false;
+	bool generateImages = true;
     Bitmap reducedImage = this->reducer->getReducedImage();
     //Common::savePPMImage("logPolar.ppm", &reducedImage);
     if(reducedImage.getWidth() > 0)
@@ -76,7 +78,7 @@ void DOGVisualFilter::workerFunction()
           Common::savePPMImage("greenMinusGaussian.ppm", Common::produceGrayscale(greenMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
         Bitmap rPlusGMinus(
           reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          subtractImages(redPlusGaussian.getContents(), greenMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+		  subtractImages(redPlusGaussian.getContents(), greenMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
         );
         if(generateImages)
           Common::savePPMImage("rPlusGMinus.ppm", Common::produceGrayscale(rPlusGMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
@@ -106,7 +108,7 @@ void DOGVisualFilter::workerFunction()
           Common::savePPMImage("greenPlusGaussian.ppm", Common::produceGrayscale(greenPlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
         Bitmap gPlusRMinus(
           reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          subtractImages(greenPlusGaussian.getContents(), redMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+		  subtractImages(greenPlusGaussian.getContents(), redMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
         );
         if(generateImages)
           Common::savePPMImage("gPlusRMinus.ppm", Common::produceGrayscale(gPlusRMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
@@ -136,7 +138,7 @@ void DOGVisualFilter::workerFunction()
           Common::savePPMImage("yellowMinusGaussian.ppm", Common::produceGrayscale(yellowMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
         Bitmap bPlusYMinus(
           reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          subtractImages(bluePlusGaussian.getContents(), yellowMinusGaussian.getContents(), 1, 1, reducedImage.getWidth(), reducedImage.getHeight())
+		  subtractImages(bluePlusGaussian.getContents(), yellowMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
         );
         if(generateImages)
           Common::savePPMImage("bPlusYMinus.ppm", Common::produceGrayscale(bPlusYMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));

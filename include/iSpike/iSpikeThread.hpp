@@ -9,6 +9,14 @@ namespace ispike {
 	class iSpikeThread {
 
 		public:
+			/** Constructor */
+			iSpikeThread(){
+				errorFlag = false;
+				running = false;
+				stopRequested = false;
+				errorMessage = "";
+			}
+
 			/*! Clears the error in the thread */
 			virtual void clearError(){ errorFlag = false; errorMessage = ""; }
 

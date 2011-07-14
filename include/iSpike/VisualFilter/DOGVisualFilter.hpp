@@ -33,6 +33,8 @@ private:
   boost::mutex mutex;
   double plusSigma;
   double minusSigma;
+  double ratio1;
+  double ratio2;
   int opponencyMap;
   bool stopRequested;
 
@@ -78,6 +80,8 @@ public:
 		  int queryInterval,
 		  double plusSigma,
 		  double minusSigma,
+			double ratio1,
+	  double ratio2,
 		  int opponencyMap
 	  );
 
