@@ -171,12 +171,12 @@ public:
     /**
      * Now let's create the description
      */
-    this->channelDescription = new InputChannelDescription(
+    this->channelDescription.reset(new InputChannelDescription(
           "Visual Input Channel",
           "This is a visual input channel",
           "Visual Reader",
           properties
-        );
+        ));
   }
 
   ~VisualInputChannel()

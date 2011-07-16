@@ -1,5 +1,7 @@
 #ifndef INPUTCHANNEL_H_
 #define INPUTCHANNEL_H_
+
+#include <boost/scoped_ptr.hpp>
 #include <string>
 #include <vector>
 #include <iSpike/Channel/Channel.hpp>
@@ -19,7 +21,7 @@
  */
 class InputChannel : public Channel {
 protected:
-  InputChannelDescription* channelDescription;
+  boost::scoped_ptr<InputChannelDescription> channelDescription;
   boost::condition_variable wait_condition;
   boost::mutex mutex, wait_mutex;
   virtual void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) = 0;
@@ -28,7 +30,7 @@ public:
 
   virtual ~InputChannel()
   {
-    delete this->channelDescription;
+	  ;
   }
 
   /**

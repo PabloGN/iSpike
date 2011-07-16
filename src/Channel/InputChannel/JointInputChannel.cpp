@@ -28,6 +28,7 @@ JointInputChannel::JointInputChannel() : iSpikeThread() {
 	// First define the properties of this channel
 	std::map<std::string,Property*> properties;
 	this->initialised = false;
+
 	properties["Degree Of Freedom"] = new IntegerProperty("Degree Of Freedom",	0, "The degree of freedom to read from this joint", true);
 	properties["Standard Deviation"] = new DoubleProperty("Standard Deviation",	0.5, "The standard deviation as a percentage of neurons covered", true);
 	properties["Minimum Angle"] = new DoubleProperty("Minimum Angle", -90, "The minimum angle to read", true);
@@ -42,7 +43,8 @@ JointInputChannel::JointInputChannel() : iSpikeThread() {
 	properties["Constant Current"] = new DoubleProperty("Constant Current", 0, "This value is added to the incoming current", true);
 
 	// Now let's create the description
-	this->channelDescription = new InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader", properties);
+	this->channelDescription.reset(new InputChannelDescription("Joint Input Channel",
+				"This is a joint input channel", "Angle Reader", properties));
 
 	//Initialize variables
 	reader = NULL;
