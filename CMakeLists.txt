@@ -25,12 +25,6 @@ SET (CMAKE_VERBOSE_MAKEFILE 1) # Use 1 for debugging, 0 for release
 SET (MAINFOLDER "${PROJECT_SOURCE_DIR}")
 
 #
-# Library build options
-#
-SET (project_build_shared 1)
-SET (project_build_static 1)
-
-#
 # Project Search Paths
 #
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}")
