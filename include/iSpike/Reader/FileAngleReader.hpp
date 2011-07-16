@@ -40,7 +40,7 @@ public:
     /**
      * First define the properties of this reader
      */
-    std::map<std::string,Property*> properties;
+	property_map properties;
     properties["Filename"] = new StringProperty(
           "Filename",
           "anglesIn.txt",
@@ -79,7 +79,7 @@ public:
   /**
    * Initialises the properties of the reader
    */
-  void initialise(std::map<std::string,Property*> properties);
+  void initialise(property_map properties);
 
   /**
    * Starts the reader

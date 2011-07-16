@@ -8,6 +8,7 @@
 #ifndef PROPERTY_HPP_
 #define PROPERTY_HPP_
 
+#include <map>
 #include <string>
 #include <vector>
 #include <iSpike/Log/Log.hpp>
@@ -239,6 +240,10 @@ class ComboProperty : public Property
 			this->readOnly = readOnly;
 		}
 };
+
+
+
+typedef std::map< std::string, Property*> property_map;
 
 
 #endif /* PROPERTY_HPP_ */

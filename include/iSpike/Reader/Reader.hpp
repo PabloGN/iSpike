@@ -37,7 +37,7 @@ public:
     initialise(readerDescription->getReaderProperties());
   }
 
-  virtual void initialise(std::map<std::string,Property*> properties) = 0;
+  virtual void initialise(property_map properties) = 0;
 
   virtual ~Reader()
   {

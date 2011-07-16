@@ -38,6 +38,6 @@ void ConsoleAngleReader::start()
   }
 }
 
-void ConsoleAngleReader::initialise(std::map<std::string,Property*> properties)
+void ConsoleAngleReader::initialise(property_map properties)
 {
 }

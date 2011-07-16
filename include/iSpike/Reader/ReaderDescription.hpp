@@ -10,6 +10,7 @@
 
 #include <string>
 #include <map>
+#include <boost/shared_ptr.hpp>
 #include <iSpike/Property.hpp>
 #include <iSpike/Log/Log.hpp>
 
@@ -22,172 +23,102 @@
  * @author Edgars Lazdins
  *
  */
-class ReaderDescription {
+class ReaderDescription
+{
+	public:
 
-private:
-  ///Name of the Reader
-  std::string readerName;
+		ReaderDescription & operator= (const ReaderDescription & copy_from_me);
 
-  ///Description of the Reader
-  std::string readerDescription;
+		/**
+		 *  Default constructor, creates a new Reader Description with the given parameters
+		 *  @param readerName Name of the Reader
+		 *  @param readerDescription Description for the Reader
+		 *  @param readerType The type of a Reader this is
+		 *  @param readerProperties A map of the Reader's properties
+		 */
+		ReaderDescription(std::string readerName,
+				std::string readerDescription,
+				std::string readerType,
+				const property_map& readerProperties);
 
-  /// Type of the Reader
-  std::string readerType;
+		ReaderDescription(const ReaderDescription& copy_from_me);
 
-  ///Reader's properties
-  std::map<std::string,Property*> readerProperties;
+		~ReaderDescription();
 
-public:
+		/**
+		 * Returns the Reader's description
+		 * @return Description of the Reader
+		 */
+		std::string getReaderDescription() const
+		{
+			return readerDescription;
+		}
 
-  ReaderDescription & operator= (const ReaderDescription & copy_from_me)
-  {
-    if (this != &copy_from_me) // protect against invalid self-assignment
-    {
-      LOG(LOG_DEBUG) << "Assigning reader description for " << copy_from_me.readerName;
-      this->readerName = copy_from_me.readerName;
-      this->readerDescription = copy_from_me.readerDescription;
-      this->readerType = copy_from_me.readerType;
-      this->readerProperties = std::map<std::string,Property*>();
-      for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.readerProperties.begin(); iter != copy_from_me.readerProperties.end(); ++iter)
-      {
-        Property* newProperty;
-        switch(iter->second->getType())
-        {
-        case Property::Integer:
-          newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::Double:
-          newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::String:
-          newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::Combo:
-          newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-          break;
-        }
-        this->readerProperties[iter->first] = newProperty;
-      }
-    }
-    // by convention, always return *this
-    return *this;
-  }
+		/**
+		 * Returns the name of the Reader
+		 * @return Name of the Reader
+		 */
+		std::string getReaderName() const
+		{
+			return readerName;
+		}
 
-  /**
-   *  Default constructor, creates a new Reader Description with the given parameters
-   *  @param readerName Name of the Reader
-   *  @param readerDescription Description for the Reader
-   *  @param readerType The type of a Reader this is
-   *  @param readerProperties A map of the Reader's properties
-   */
-  ReaderDescription(std::string readerName, std::string readerDescription, std::string readerType, std::map<std::string,Property*> readerProperties)
-  {
-    this->readerName = readerName;
-    this->readerDescription = readerDescription;
-    this->readerType = readerType;
-    this->readerProperties = readerProperties;
-  }
+		/**
+		 * Returns the Reader's type
+		 * @return Reader's type
+		 */
+		std::string getReaderType() const
+		{
+			return readerType;
+		}
 
-  ReaderDescription(const ReaderDescription& copy_from_me)
-  {
-    LOG(LOG_DEBUG) << "Copying reader description for " << copy_from_me.readerName;
-    this->readerName = copy_from_me.readerName;
-    this->readerDescription = copy_from_me.readerDescription;
-    this->readerType = copy_from_me.readerType;
-    this->readerProperties = std::map<std::string,Property*>();
-    for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.readerProperties.begin(); iter != copy_from_me.readerProperties.end(); ++iter)
-    {
-      Property* newProperty;
-      switch(iter->second->getType())
-      {
-      case Property::Integer:
-        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Double:
-        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::String:
-        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Combo:
-        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-        break;
-      }
-      this->readerProperties[iter->first] = newProperty;
-    }
-  }
+		/**
+		 * Returns a map of the Reader's properties
+		 * @return Map of the Reader's properties
+		 */
+		//  std::map<std::string,Property*> getReaderProperties() const
+		//  {
+		//    std::map<std::string,Property*> result = std::map<std::string,Property*>();
+		//    for(std::map<std::string,Property*>::const_iterator iter = this->readerProperties.begin(); iter != this->readerProperties.end(); ++iter)
+		//    {
+		//      Property* newProperty;
+		//      switch(iter->second->getType())
+		//      {
+		//      case Property::Integer:
+		//        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
+		//        break;
+		//      case Property::Double:
+		//        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
+		//        break;
+		//      case Property::String:
+		//        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
+		//        break;
+		//      case Property::Combo:
+		//        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
+		//        break;
+		//      }
+		//      result[iter->first] = newProperty;
+		//      }
+		//      return result;
+		//  }
+		property_map getReaderProperties()
+		{
+			return this->readerProperties;
+		}
 
-  ~ReaderDescription()
-  {
-    LOG(LOG_DEBUG) << "Description " << this->getReaderName() << " destroyed!";
-    for(std::map<std::string,Property*>::iterator iter = readerProperties.begin(); iter != readerProperties.end(); ++iter)
-    {
-      delete iter->second;
-    }
-    readerProperties.clear();
-  }
+	private:
 
-  /**
-   * Returns the Reader's description
-   * @return Description of the Reader
-   */
-  std::string getReaderDescription() const
-  {
-      return readerDescription;
-  }
+		///Name of the Reader
+		std::string readerName;
 
-  /**
-   * Returns the name of the Reader
-   * @return Name of the Reader
-   */
-  std::string getReaderName() const
-  {
-      return readerName;
-  }
+		///Description of the Reader
+		std::string readerDescription;
 
-  /**
-   * Returns the Reader's type
-   * @return Reader's type
-   */
-  std::string getReaderType() const
-  {
-      return readerType;
-  }
+		/// Type of the Reader
+		std::string readerType;
 
-  /**
-   * Returns a map of the Reader's properties
-   * @return Map of the Reader's properties
-   */
-//  std::map<std::string,Property*> getReaderProperties() const
-//  {
-//    std::map<std::string,Property*> result = std::map<std::string,Property*>();
-//    for(std::map<std::string,Property*>::const_iterator iter = this->readerProperties.begin(); iter != this->readerProperties.end(); ++iter)
-//    {
-//      Property* newProperty;
-//      switch(iter->second->getType())
-//      {
-//      case Property::Integer:
-//        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-//        break;
-//      case Property::Double:
-//        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-//        break;
-//      case Property::String:
-//        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-//        break;
-//      case Property::Combo:
-//        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-//        break;
-//      }
-//      result[iter->first] = newProperty;
-//      }
-//      return result;
-//  }
-  std::map<std::string,Property*> getReaderProperties()
-  {
-    return this->readerProperties;
-  }
-
+		///Reader's properties
+		property_map readerProperties;
 };
 
 
