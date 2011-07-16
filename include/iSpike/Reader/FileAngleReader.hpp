@@ -74,7 +74,7 @@ public:
    */
   void initialise()
   {
-	  initialise(this->readerDescription->getReaderProperties());
+	  initialise(propertyMap());
   }
 
   /**
