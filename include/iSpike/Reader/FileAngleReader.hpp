@@ -35,7 +35,7 @@ public:
   /*
    * The default constructor, only initialises the default parameters and the description
    */
-  FileAngleReader()
+  FileAngleReader(const std::string& fileName="anglesIn.txt")
   {
     /**
      * First define the properties of this reader
@@ -44,7 +44,7 @@ public:
     properties["Filename"] =
 		boost::shared_ptr<Property>(new StringProperty(
           "Filename",
-          "anglesIn.txt",
+		  fileName,
           "The file where the angles will be read from",
           true
         ));
@@ -74,7 +74,7 @@ public:
    */
   void initialise()
   {
-	  initialise(propertyMap());
+	  initialise(this->readerDescription->getReaderProperties());
   }
 
   /**
