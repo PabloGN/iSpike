@@ -6,8 +6,38 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 SET(Boost_USE_MULTITHREADED ON)
 
+SET(project_SRCS
+		Channel/Channel.cpp
+		Channel/InputChannel/InputChannel.cpp
+		Channel/InputChannel/JointInputChannel.cpp
+		Channel/InputChannel/VisualInputChannel.cpp
+		Channel/OutputChannel/JointOutputChannel.cpp
+		Channel/OutputChannel/OutputChannel.cpp
+		Common.cpp
+		Log/Log.cpp
+		NeuronSim/IzhikevichNeuronSim.cpp
+		Reader/ConsoleAngleReader.cpp
+		Reader/FileAngleReader.cpp
+		Reader/FileVisualReader.cpp
+		Reader/Reader.cpp
+		Reader/ReaderFactory.cpp
+		Reader/YarpAngleReader.cpp
+		Reader/YarpAudioReader.cpp
+		Reader/YarpTextReader.cpp
+		Reader/YarpVisualReader.cpp
+		Reader/ReaderDescription.cpp
+		VisualDataReducer/LogpolarVisualDataReducer.cpp
+		VisualFilter/DOGVisualFilter.cpp
+		VisualFilter/MovementFilter.cpp
+		Writer/FileAngleWriter.cpp
+		Writer/WriterFactory.cpp
+		Writer/YarpAngleWriter.cpp
+		YarpConnection.cpp
+		YarpPortDetails.cpp
+		version.cpp
+	)
 
-FILE (GLOB_RECURSE project_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
+
 IF(WIN32)
     SET (project_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} "ws2_32")
 ELSE()
