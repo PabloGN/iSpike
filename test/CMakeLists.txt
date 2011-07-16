@@ -1,3 +1,5 @@
+FIND_PACKAGE (Boost 1.42 COMPONENTS "unit_test_framework" REQUIRED)
+
 FILE (GLOB_RECURSE test_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 IF(WIN32)
     SET (test_LIBS ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${PROJECT_NAME} "ws2_32")
