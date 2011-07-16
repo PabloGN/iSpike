@@ -18,249 +18,226 @@
  */
 class Property
 {
- public:
-    enum ValueType {
-          Integer,
-          Double,
-          String,
-          Combo
-       };
-  protected:
-    ValueType type;
-    std::string name;
-    std::string description;
-    bool readOnly;
+	public:
 
-  public:
+		enum ValueType {
+			Integer,
+			Double,
+			String,
+			Combo
+		};
 
-    virtual std::string toString()
-    {
+	protected:
 
-    }
+		ValueType type;
+		std::string name;
+		std::string description;
+		bool readOnly;
 
-    ValueType getType()
-    {
-      return this->type;
-    }
+	public:
 
-    std::string getName()
-    {
-      return this->name;
-    }
+		virtual std::string toString()
+		{
 
-    std::string getDescription()
-    {
-      return this->description;
-    }
+		}
 
-    bool isReadOnly()
-    {
-      return this->readOnly;
-    }
+		ValueType getType()
+		{
+			return this->type;
+		}
 
-    virtual ~Property()
-    {
+		std::string getName()
+		{
+			return this->name;
+		}
 
-    }
+		std::string getDescription()
+		{
+			return this->description;
+		}
 
+		bool isReadOnly()
+		{
+			return this->readOnly;
+		}
+
+		virtual ~Property()
+		{
+
+		}
 };
+
+
 
 /**
  * Describer an Integer Property
  */
 class IntegerProperty : public Property
 {
-  private:
-    int value;
 
-  public:
+	private:
 
-    std::string toString()
-    {
-      return boost::lexical_cast<std::string>(this->value);
-    }
+		int value;
 
-    int getValue()
-    {
-      return this->value;
-    }
+	public:
 
-    void setValue(int value)
-    {
-      this->value = value;
-    }
+		std::string toString()
+		{
+			return boost::lexical_cast<std::string>(this->value);
+		}
 
-    IntegerProperty(std::string paramName, int paramValue, std::string paramDescription, bool readOnly)
-    {
-      this->name = paramName;
-      this->value = paramValue;
-      this->description = paramDescription;
-      this->type = Property::Integer;
-      this->readOnly = readOnly;
-    }
+		int getValue()
+		{
+			return this->value;
+		}
 
-    IntegerProperty (const IntegerProperty& copy_from_me)
-    {
-      this->description = copy_from_me.description;
-      this->name = copy_from_me.name;
-      this->type = copy_from_me.type;
-      this->value = copy_from_me.value;
-      this->readOnly = readOnly;
-    }
+		void setValue(int value)
+		{
+			this->value = value;
+		}
+
+		IntegerProperty(std::string paramName, int paramValue, std::string paramDescription, bool readOnly)
+		{
+			this->name = paramName;
+			this->value = paramValue;
+			this->description = paramDescription;
+			this->type = Property::Integer;
+			this->readOnly = readOnly;
+		}
 };
+
+
 
 /**
  * Describes a Double Property
  */
 class DoubleProperty : public Property
 {
-  private:
-    double value;
+	private:
+		double value;
 
-  public:
+	public:
 
-    std::string toString()
-    {
-      return boost::lexical_cast<std::string>(this->value);
-    }
+		std::string toString()
+		{
+			return boost::lexical_cast<std::string>(this->value);
+		}
 
-    double getValue()
-    {
-      return this->value;
-    }
+		double getValue()
+		{
+			return this->value;
+		}
 
-    void setValue(double value)
-    {
-      this->value = value;
-    }
+		void setValue(double value)
+		{
+			this->value = value;
+		}
 
-    DoubleProperty(std::string paramName, double paramValue, std::string paramDescription, bool readOnly)
-    {
-      this->name = paramName;
-      this->value = paramValue;
-      this->description = paramDescription;
-      this->type = Property::Double;
-      this->readOnly = readOnly;
-    }
-
-    DoubleProperty (const DoubleProperty& copy_from_me)
-    {
-      this->description = copy_from_me.description;
-      this->name = copy_from_me.name;
-      this->type = copy_from_me.type;
-      this->value = copy_from_me.value;
-      this->readOnly = readOnly;
-    }
+		DoubleProperty(std::string paramName, double paramValue, std::string paramDescription, bool readOnly)
+		{
+			this->name = paramName;
+			this->value = paramValue;
+			this->description = paramDescription;
+			this->type = Property::Double;
+			this->readOnly = readOnly;
+		}
 };
+
+
 
 /**
  * Describes a String Property
  */
 class StringProperty : public Property
 {
-  private:
-    std::string value;
+	private:
 
-  public:
+		std::string value;
 
-    std::string toString()
-    {
-      return this->value;
-    }
+	public:
 
-    std::string getValue()
-    {
-      return this->value;
-    }
+		std::string toString()
+		{
+			return this->value;
+		}
 
-    void setValue(std::string value)
-    {
-      LOG(LOG_DEBUG) << "Setting value to " << value;
-      this->value = value;
-    }
+		std::string getValue()
+		{
+			return this->value;
+		}
 
-    StringProperty(std::string paramName, std::string paramValue, std::string paramDescription, bool readOnly)
-    {
-      this->name = paramName;
-      this->value = paramValue;
-      this->description = paramDescription;
-      this->type = Property::String;
-      this->readOnly = readOnly;
-    }
+		void setValue(std::string value)
+		{
+			LOG(LOG_DEBUG) << "Setting value to " << value;
+			this->value = value;
+		}
 
-    StringProperty (const StringProperty& copy_from_me)
-    {
-      this->description = copy_from_me.description;
-      this->name = copy_from_me.name;
-      this->type = copy_from_me.type;
-      this->value = copy_from_me.value;
-      this->readOnly = readOnly;
-    }
+		StringProperty(std::string paramName, std::string paramValue, std::string paramDescription, bool readOnly)
+		{
+			this->name = paramName;
+			this->value = paramValue;
+			this->description = paramDescription;
+			this->type = Property::String;
+			this->readOnly = readOnly;
+		}
 };
+
+
 
 /**
  * Describes a Combo Property
  */
 class ComboProperty : public Property
 {
-  private:
-    std::string value;
-    std::vector<std::string> options;
+	private:
 
-  public:
+		std::string value;
+		std::vector<std::string> options;
 
-    std::string toString()
-    {
-      return this->value;
-    }
+	public:
 
-    std::string getValue()
-    {
-      return this->value;
-    }
+		std::string toString()
+		{
+			return this->value;
+		}
 
-    /**
-     * Fills in the value from the options
-     */
-    void setValue(int value)
-    {
-      LOG(LOG_DEBUG) << "Setting value to " << this->options.at(value);
-      this->value = this->options.at(value);
-    }
+		std::string getValue()
+		{
+			return this->value;
+		}
 
-    /**
-     * Fills in the value directly
-     */
-    void setValue(std::string value)
-    {
-      this->value = value;
-    }
+		/**
+		 * Fills in the value from the options
+		 */
+		void setValue(int value)
+		{
+			LOG(LOG_DEBUG) << "Setting value to " << this->options.at(value);
+			this->value = this->options.at(value);
+		}
 
-    std::vector<std::string> getOptions()
-    {
-      return this->options;
-    }
+		/**
+		 * Fills in the value directly
+		 */
+		void setValue(std::string value)
+		{
+			this->value = value;
+		}
 
-    ComboProperty(std::string paramName, std::string paramValue, std::string paramDescription,
-    		std::vector<std::string> paramOptions, bool readOnly)
-    {
-      this->name = paramName;
-      this->value = paramValue;
-      this->description = paramDescription;
-      this->type = Property::Combo;
-      this->options = paramOptions;
-      this->readOnly = readOnly;
-    }
+		std::vector<std::string> getOptions()
+		{
+			return this->options;
+		}
 
-    ComboProperty (const ComboProperty& copy_from_me)
-    {
-      this->description = copy_from_me.description;
-      this->name = copy_from_me.name;
-      this->type = copy_from_me.type;
-      this->value = copy_from_me.value;
-      this->options = copy_from_me.options;
-      this->readOnly = readOnly;
-    }
+		ComboProperty(std::string paramName, std::string paramValue, std::string paramDescription,
+				std::vector<std::string> paramOptions, bool readOnly)
+		{
+			this->name = paramName;
+			this->value = paramValue;
+			this->description = paramDescription;
+			this->type = Property::Combo;
+			this->options = paramOptions;
+			this->readOnly = readOnly;
+		}
 };
 
 
