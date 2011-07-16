@@ -32,12 +32,12 @@ public:
       return *(readerDescription);
   }
 
+  virtual void initialise(property_map properties) = 0;
+
   void initialise()
   {
     initialise(readerDescription->getReaderProperties());
   }
-
-  virtual void initialise(property_map properties) = 0;
 
   virtual ~Reader()
   {

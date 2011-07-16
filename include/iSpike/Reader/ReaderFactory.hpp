@@ -35,7 +35,7 @@ class ReaderFactory {
 		ReaderFactory();
 		ReaderFactory(std::string ip, std::string port);
 		std::vector<ReaderDescription> getReadersOfType(std::string readerType);
-		Reader* create(std::string readerName, std::map<std::string,Property*> readerProperties );
+		Reader* create(std::string readerName, property_map readerProperties );
 };
 
 

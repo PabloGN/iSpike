@@ -68,14 +68,15 @@ public:
 		yarpPortNames.push_back(iter->first);
 	}
 
-	 std::map<std::string,Property*> properties;
-	 properties["Port Name"] = new ComboProperty(
+	 property_map properties;
+	 properties["Port Name"] =
+	 	boost::shared_ptr<Property>(new ComboProperty(
 		   "Port Name",
 		   "/icubSim/left_arm/state:o",
 		   "The Yarp Port name",
 		   yarpPortNames,
 		   true
-	 );
+	 ));
     /**
      * Now let's create the description
      */
@@ -104,7 +105,7 @@ public:
    */
   Bitmap getData();
 
-  void initialise(std::map<std::string,Property*> properties);
+  void initialise(property_map properties);
 
   /**
    * Initialises the reader and starts the main thread

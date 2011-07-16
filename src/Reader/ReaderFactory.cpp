@@ -68,7 +68,7 @@ std::vector<ReaderDescription> ReaderFactory::getReadersOfType(std::string reade
  * @param readerProperties Initialisation properties for the new Reader
  * @return A new Reader
  */
-Reader* ReaderFactory::create(std::string readerName, std::map<std::string,Property*> readerProperties){
+Reader* ReaderFactory::create(std::string readerName, property_map readerProperties){
 	Reader* result;
 	if(readerName == "File Angle Reader") {
 		result = new FileAngleReader();

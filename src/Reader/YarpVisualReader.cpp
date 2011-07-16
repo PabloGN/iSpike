@@ -52,10 +52,10 @@ void YarpVisualReader::workerFunction()
   }
 }
 
-void YarpVisualReader::initialise(std::map<std::string,Property*> properties)
+void YarpVisualReader::initialise(property_map properties)
 {
   LOG(LOG_DEBUG) << "start of initialisation";
-  this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
+  this->setPortName(static_cast<ComboProperty*>(properties["Port Name"].get())->getValue());
   this->buffer = new Bitmap(0,0,0,NULL);
   this->initialised = false;
   LOG(LOG_DEBUG) << "exiting initialisation";

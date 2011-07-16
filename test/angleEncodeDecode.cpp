@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
       LOG(LOG_DEBUG) << "Neuron Count: " << neuronCount;
       //Create the Reader
       FileAngleReader* reader = new FileAngleReader();
-      std::map<std::string, Property*> inputProperties = reader->getReaderDescription().getReaderProperties();
-      Property* newFilename = new StringProperty("Filename", "anglesIn.txt", "whatever", true);
-      inputProperties.at("Filename") = newFilename;
+      property_map inputProperties = reader->getReaderDescription().getReaderProperties();
+      inputProperties.at("Filename") = boost::shared_ptr<Property>(
+		  new StringProperty("Filename", "anglesIn.txt", "whatever", true));
       reader->initialise(inputProperties);
       JointInputChannel* inputChannel = new JointInputChannel();
       std::map<std::string, Property*> inputChannelProperties = inputChannel->getChannelDescription().getChannelProperties();

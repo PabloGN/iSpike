@@ -79,5 +79,5 @@ void FileAngleReader::start()
 void FileAngleReader::initialise(property_map properties)
 {
 	this->buffer = new std::vector<double>();
-	this->fileName = ((StringProperty*)(properties["Filename"]))->getValue();
+	this->fileName = static_cast<StringProperty*>(properties["FileName"].get())->getValue();
 }

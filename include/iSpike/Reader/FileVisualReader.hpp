@@ -41,13 +41,14 @@ public:
     /**
      * First define the properties of this reader
      */
-    std::map<std::string,Property*> properties;
-    properties["Filename"] = new StringProperty(
+	property_map properties;
+    properties["Filename"] =
+		boost::shared_ptr<Property>(new StringProperty(
           "Filename",
           "image.ppm",
           "Path to a PPM format image",
           true
-        );
+        ));
     /**
      * Now let's create the description
      */
@@ -69,7 +70,7 @@ public:
    */
   Bitmap getData();
 
-  void initialise(std::map<std::string,Property*> properties);
+  void initialise(property_map properties);
 
   /**
    * Initialises the reader and starts the execution of the main thread

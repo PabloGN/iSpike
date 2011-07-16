@@ -11,8 +11,11 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <iSpike/Log/Log.hpp>
+
 #include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include <iSpike/Log/Log.hpp>
 
 /**
  * Describes a general Channel, Reader or Writer Property
@@ -162,7 +165,7 @@ class StringProperty : public Property
 			return this->value;
 		}
 
-		std::string getValue()
+		std::string getValue() const
 		{
 			return this->value;
 		}
@@ -243,7 +246,7 @@ class ComboProperty : public Property
 
 
 
-typedef std::map< std::string, Property*> property_map;
+typedef std::map< std::string, boost::shared_ptr<Property> > property_map;
 
 
 #endif /* PROPERTY_HPP_ */

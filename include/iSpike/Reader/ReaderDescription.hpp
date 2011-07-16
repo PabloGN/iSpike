@@ -10,7 +10,6 @@
 
 #include <string>
 #include <map>
-#include <boost/shared_ptr.hpp>
 #include <iSpike/Property.hpp>
 #include <iSpike/Log/Log.hpp>
 
@@ -27,8 +26,6 @@ class ReaderDescription
 {
 	public:
 
-		ReaderDescription & operator= (const ReaderDescription & copy_from_me);
-
 		/**
 		 *  Default constructor, creates a new Reader Description with the given parameters
 		 *  @param readerName Name of the Reader
@@ -40,10 +37,6 @@ class ReaderDescription
 				std::string readerDescription,
 				std::string readerType,
 				const property_map& readerProperties);
-
-		ReaderDescription(const ReaderDescription& copy_from_me);
-
-		~ReaderDescription();
 
 		/**
 		 * Returns the Reader's description

@@ -49,7 +49,7 @@ class YarpAngleReader : public AngleReader, public iSpikeThread {
 
 		std::vector<double> getData();
 		void initialise();
-		void initialise(std::map<std::string,Property*> properties);
+		void initialise(property_map properties);
 		std::string getPortName(){ return this->portName; }
 		void setPortName(std::string portName){ this->portName = portName;}
 		bool getInitialised() const	{ return initialised; }

@@ -42,8 +42,13 @@ YarpAngleReader::YarpAngleReader(std::string nameserverIP, std::string nameserve
 	}
 	LOG(LOG_DEBUG) << "filling in properties";
 
-	std::map<std::string,Property*> properties;
-	properties["Port Name"] = new ComboProperty("Port Name", "/icubSim/left_arm/state:o", "The Yarp Port name",	yarpPortNames, true);
+	property_map properties;
+	properties["Port Name"] = boost::shared_ptr<Property>(
+			new ComboProperty("Port Name",
+				"/icubSim/left_arm/state:o",
+				"The Yarp Port name",
+				yarpPortNames,
+				true));
 
 	//Now let's create the description
 	this->readerDescription = new ReaderDescription("Yarp Angle Reader", "This is a Yarp angle reader",	"Angle Reader", properties);
@@ -84,8 +89,8 @@ void YarpAngleReader::initialise(){
 /**
  * Creates a new empty buffer and initialises the port name
  */
-void YarpAngleReader::initialise(std::map<std::string,Property*> properties){
-	this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
+void YarpAngleReader::initialise(property_map properties){
+	this->setPortName(static_cast<ComboProperty*>(properties["Port Name"].get())->getValue());
 	LOG(LOG_DEBUG) << "INITIALIZATION FUNCTION 2. YARP Port: " << this->getPortName();
 	buffer.clear();
 	this->initialised = false;

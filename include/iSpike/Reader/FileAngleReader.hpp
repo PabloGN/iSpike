@@ -41,12 +41,13 @@ public:
      * First define the properties of this reader
      */
 	property_map properties;
-    properties["Filename"] = new StringProperty(
+    properties["Filename"] =
+		boost::shared_ptr<Property>(new StringProperty(
           "Filename",
           "anglesIn.txt",
           "The file where the angles will be read from",
           true
-        );
+        ));
     /**
      * Now let's create the description
      */

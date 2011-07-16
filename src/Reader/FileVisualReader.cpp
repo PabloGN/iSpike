@@ -77,8 +77,8 @@ Bitmap* readPPMImage(const char* fname)
 
 }
 
-void FileVisualReader::initialise(std::map<std::string,Property*> properties)
+void FileVisualReader::initialise(property_map properties)
 {
-  std::string filename = ((StringProperty*)(properties["Filename"]))->getValue();
+	std::string filename = static_cast<const StringProperty*>(properties["Filename"].get())->getValue();
 	this->buffer = readPPMImage(filename.c_str());
 }
