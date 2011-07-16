@@ -80,12 +80,12 @@ public:
     /**
      * Now let's create the description
      */
-    this->readerDescription = new ReaderDescription(
+    this->readerDescription.reset(new ReaderDescription(
           "Yarp Visual Reader",
           "This is a Yarp visual reader",
           "Visual Reader",
           properties
-        );
+        ));
     LOG(LOG_DEBUG) << "exiting";
   }
 

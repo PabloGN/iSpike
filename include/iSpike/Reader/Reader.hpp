@@ -8,6 +8,7 @@
 #ifndef READER_HPP_
 #define READER_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include <iSpike/Reader/ReaderDescription.hpp>
 #include <iSpike/Log/Log.hpp>
 
@@ -24,12 +25,13 @@
 class Reader {
 
 protected:
-  ReaderDescription* readerDescription;
+	boost::scoped_ptr<ReaderDescription> readerDescription;
 
 public:
+
   ReaderDescription getReaderDescription() const
   {
-      return *(readerDescription);
+      return *readerDescription;
   }
 
   virtual void initialise(property_map properties) = 0;
@@ -37,11 +39,6 @@ public:
   void initialise()
   {
     initialise(readerDescription->getReaderProperties());
-  }
-
-  virtual ~Reader()
-  {
-    delete this->readerDescription;
   }
 
 };

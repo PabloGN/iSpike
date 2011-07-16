@@ -51,12 +51,12 @@ public:
     /**
      * Now let's create the description
      */
-    this->readerDescription = new ReaderDescription(
+    this->readerDescription.reset(new ReaderDescription(
           "File Angle Reader",
           "This is a file angle reader",
           "Angle Reader",
           properties
-        );
+        ));
   }
 
   /*~FileAngleReader()

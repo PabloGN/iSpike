@@ -8,6 +8,7 @@
 #ifndef CONSOLEANGLEREADER_HPP_
 #define CONSOLEANGLEREADER_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Property.hpp>
 #include <string>
@@ -39,12 +40,12 @@ public:
     /**
      * Now let's create the description
      */
-    this->readerDescription = new ReaderDescription(
+    this->readerDescription.reset(new ReaderDescription(
           "Console Angle Reader",
           "This is a console angle reader",
           "Angle Reader",
           properties
-        );
+        ));
   }
 
   /**

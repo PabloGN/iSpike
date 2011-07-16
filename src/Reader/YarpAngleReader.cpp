@@ -51,7 +51,10 @@ YarpAngleReader::YarpAngleReader(std::string nameserverIP, std::string nameserve
 				true));
 
 	//Now let's create the description
-	this->readerDescription = new ReaderDescription("Yarp Angle Reader", "This is a Yarp angle reader",	"Angle Reader", properties);
+	this->readerDescription.reset(new ReaderDescription("Yarp Angle Reader",
+				"This is a Yarp angle reader",
+				"Angle Reader",
+				properties));
 	LOG(LOG_DEBUG) << "exiting";
 }
 

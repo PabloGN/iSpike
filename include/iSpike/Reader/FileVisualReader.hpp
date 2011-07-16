@@ -52,12 +52,12 @@ public:
     /**
      * Now let's create the description
      */
-    this->readerDescription = new ReaderDescription(
+    this->readerDescription.reset(new ReaderDescription(
           "File Visual Reader",
           "This is a file visual reader",
           "Visual Reader",
           properties
-        );
+        ));
   }
 
   /*~FileVisualReader()
