@@ -4,105 +4,89 @@
 #include <string>
 #include <map>
 #include <iSpike/Property.hpp>
+namespace ispike {
 
-/**
- * @class Channel
- * @brief Channel class
- *
- * This class represents a Channel
- *
- * @author Edgars Lazdins
- *
- */
-class Channel {
-protected:
+	/** Abstract class holding properties common to all input and output channels */
+	class Channel {
+		public:
+			Channel(){ initialized = false; }
+			virtual ~Channel() {}
 
-  ///Channel Identifier
-  int id;
+			/** Retrieves the Channel Identifier  */
+			int getId()	{ return this->id; }
 
-  ///Neuron Width
-  int width;
+			/** Sets the identifier of the Channel */
+			void setId(int id){ this->id = id; }
 
-  ///Neuron Height
-  int height;
+			/** Retrieves the width of the Channel */
+			int getWidth(){ return this->width;	}
 
-  ///Channel Description
-  std::string description;
+			/** Sets the width of the Channel */
+			void setWidth(int width){ this->width = width; }
 
-public:
+			/** Retrieves the height of the Channel  */
+			int getHeight(){ return this->height; }
 
-  virtual ~Channel() = 0;
+			/** Sets the height of the Channel */
+			void setHeight(int height){	this->height = height;	}
 
-  /**
-   * Enables updating channel properties during run-time
-   */
-  virtual void updateProperties(std::map<std::string,Property*> properties) = 0;
+			/** Retrieves the description of a Channel  */
+			std::string getDescription(){ return this->description;	}
 
-  /**
-   * Retrieves the Channel Identifier
-   * @return Channel Identifier
-   */
-  int getId()
-  {
-    return this->id;
-  }
+			/** Sets the description of a Channel */
+			void setDescription(std::string description){ this->description = description; }
 
-  /**
-   * Sets the identifier of the Channel
-   * @param id The new identifier value
-   */
-  void setId(int id)
-  {
-    this->id = id;
-  };
+			/** Returns a map containing the current properties */
+			virtual map<string, Property> getProperties(){ return propertyMap; }
 
-  /**
-   * Retrieves the width of the Channel
-   */
-  int getWidth(){
-    return this->width;
-  }
+			/** Sets the properties */
+			virtual setProperties(map<string, Property>& properties);
 
-  /**
-   * Sets the width of the Channel
-   */
-  void setWidth(int width){
-    this->width = width;
-  }
+			/** Advances the channel by one time step */
+			void step() = 0;
 
-  /**
-   * Retrieves the height of the Channel
-   */
-  int getHeight(){
-    return this->height;
-  }
 
-  /**
-   * Sets the height of the Channel
-   */
-  void setHeight(int height){
-    this->height = height;
-  }
+		protected:
+			//============================  VARIABLES  =========================
+			/** Channel Identifier */
+			int id;
 
-  /**
-   * Retrieves the description of a Channel
-   */
-  std::string getDescription(){
-    return this->description;
-  }
+			/** Neuron Width */
+			int width;
 
-  /**
-   * Sets the description of a Channel
-   */
-  void setDescription(std::string description){
-    this->description = description;
-  }
+			/** Neuron Height */
+			int height;
 
-  virtual bool isInitialised() = 0;
+			/** Channel Description */
+			std::string description;
 
-  virtual void step() = 0;
-  //ChannelType getChannelType();
-  //void setChannelType(ChannelType channelType);
-};
+			/** Map holding the current properties */
+			map<string, Property> propertyMap;
+
+			/** Map holding new properties, for updating when thread has finished processing the current time step*/
+			map<string, Property> newPropertyMap;
+
+			/** Flag to indicate that properties should be updated */
+			bool copyProperties;
+
+			/** Records if we are in the middle of a step */
+			bool isStepping;
+
+			//=============================  METHODS  ===========================
+			bool isInitialised() {return initialized; }
+
+			/** Enables updating channel properties during run-time  */
+			virtual void updateProperties(std::map<std::string,Property*> properties) = 0;
+
+			void setInitialized(bool initialized) { this->initialized = initialized; }
+
+
+		private:
+			/** Flag recording whether channel is initialized or not */
+			bool initialized;
+
+	};
+
+}
 
 #endif /* CHANNEL_H_ */

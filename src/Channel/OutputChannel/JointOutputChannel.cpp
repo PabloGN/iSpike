@@ -1,110 +1,69 @@
-/*
- * JointOutputChannel.cpp
- *
- *  Created on: 23 Feb 2011
- *      Author: Edgars Lazdins
- */
+//iSpike includes
 #include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
-#include <iostream>
-#include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
-#include <fstream>
 #include <iSpike/Log/Log.hpp>
-#include <sstream>
 #include <iSpike/ISpikeException.hpp>
+using namespace ispike;
 
-void JointOutputChannel::setFiring(std::vector<int>* buffer)
-{
-  //boost::mutex::scoped_lock lock(this->mutex);
-  //delete this->buffer;
-  //this->buffer = new std::vector<int>(*buffer);
+//Other includes
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+
+/** Constructor */
+JointOutputChannel::JointOutputChannel(){
+	//First define the properties of this channel
+	properties["Minimum Angle"] = new DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true);
+	properties["Maximum Angle"] = new DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true);
+	properties["Rate Of Decay"] = new DoubleProperty(0.005,"Rate Of Decay",  "The rate of decay of the angle variables", false);
+	properties["Neuron Width"] = new IntegerProperty(10, "Neuron Width", "Width of the neuron network", true);
+	properties["Neuron Height"] = new IntegerProperty(1, "Neuron Height", "Height of the neuron network", true);
+
+	//Create the description
+	channelDescription.reset(new OutputChannelDescription("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer", properties));
 }
 
-void JointOutputChannel::start()
-{
-  LOG(LOG_DEBUG) << "Starting JointOutputChannel";
-  if(!initialised)
-  {
-    //this->buffer = new std::queue< std::vector<int> >();
-    this->buffer = new std::vector<int>();
-    this->writer->start();
-    this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
-    initialised = true;
-  }
+
+/** Destructor */
+JointOutputChannel::~JointOutputChannel(){
+	LOG(LOG_DEBUG) << "Entering JointOutputChannel destructor";
+	if(isInitialized()){
+		delete [] variables;
+	}
+	LOG(LOG_DEBUG) << "Exiting JointOutputChannel destructor";
 }
 
-/**
- * Updates the properties by first checking if any are read-only
- */
-void JointOutputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly)
-{
-  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
-  {
-    if(!updateReadOnly)
-      ///Check if any of the properties are read only
-      if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
-        throw ISpikeException("Cannot update read-only parameters");
 
-    ///Update the properties, this is ugly and should be improved
-    std::string paramName = iter->second->getName();
-    switch (iter->second->getType())
-    {
-      case Property::Integer:
-      {
-        int value = ((IntegerProperty*)(iter->second))->getValue();
-        if (paramName == "Neuron Width")
-          this->width = value;
-        else if (paramName == "Neuron Height")
-          this->height = value;
-        break;
-      }
-      case Property::Double:
-      {
-        double value = ((DoubleProperty*)(iter->second))->getValue();
-        if (paramName == "Minimum Angle")
-          this->minAngle = value;
-        else if (paramName == "Maximum Angle")
-          this->maxAngle = value;
-        else if (paramName == "Rate Of Decay")
-          this->rateOfDecay = value;
-        break;
-      }
-      case Property::Combo:
-      case Property::String:
-      {
-        std::string value;
-        if(iter->second->getType() == Property::String)
-          value = ((StringProperty*)(iter->second))->getValue();
-        else
-          value = ((ComboProperty*)(iter->second))->getValue();
-        break;
-      }
-    }
-  }
+void JointOutputChannel::setFiring(std::vector<int>& buffer){
+	//Work through the neuron ids in the buffer
+	for(vector<int>::iterator iter =buffer.begin(); iter != buffer.end(); ++ iter){
+		variables[*iter] += currentIncrement;
+	}
 }
 
-void JointOutputChannel::initialise(AngleWriter* writer, std::map<std::string,Property*> properties)
-{
-  LOG(LOG_DEBUG) << "Entering JointOutputChannel initialisation";
-  this->initialised = false;
-  this->stopRequested = false;
-  this->sleeping = false;
-  this->setWriter(writer);
-  this->updateProperties(properties, true);
+
+/** Initialises the Joint Input Channel with the parameters
+	 @param reader The associated Angle Reader */
+void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> properties){
+	if(reader == NULL)
+		throw iSpikeException("Cannot initialize JointOutputChannel with a null reader.");
+	this->writer = writer;
+	this->writer->start();
+
+	updateProperties(properties, false);
+
+	//Set up current variables
+	numVariables = getWidth() * getHeight();
+	variables = new double[numVariables];
+
+	setInitialized(true);
 }
 
-void JointOutputChannel::step()
-{
-  while(!this->sleeping){}
-	this->wait_condition.notify_all();
-}
 
-void JointOutputChannel::workerFunction()
-{
-  std::vector<double> variables(this->width * this->height,0);
-  std::vector<int> times(this->width * this->height,0);
-  while(!stopRequested)
-  {
+void JointOutputChannel::step(){
+	isStepping = true;
+
     LOG(LOG_DEBUG) << "Entering JointOutputChannel work loop, stopRequested is " << stopRequested;
     bool enoughFrames = false;
     {
@@ -115,8 +74,7 @@ void JointOutputChannel::workerFunction()
     /**
      * Spikes received
      */
-    if(enoughFrames)
-    {
+	if(enoughFrames) {
       //std::vector<int> currentFrame = this->buffer->front();
       std::vector<int> currentFrame = *(this->buffer);
       {
@@ -145,27 +103,80 @@ void JointOutputChannel::workerFunction()
         this->writer->addAngle(angle);
       }
     }
-    /**
-     * Decay the variables according to the following function:
+	/* Decay the variables according to the following function:
      * N(t+1) = N(t)*e^(-rateOfDecay*t)
      */
-    for(unsigned int i = 0; i < variables.size(); i++)
-    {
+	for(unsigned int i=0; i < numVariables; ++i) {
       variables[i] = variables[i] * exp(-(this->rateOfDecay) * times[i]);
+	  FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
+
       //variableText << variables[i] << ", ";
       //fileStream << variables[i] << ",";
       if(times[i] < 100000)
         times[i]++;
     }
-    if(!stopRequested)
-    {
-      LOG(LOG_DEBUG) << "JointOutputChannel: Falling asleep";
-      boost::mutex::scoped_lock lk(this->wait_mutex);
-      this->sleeping = true;
-      this->wait_condition.wait(lk);
-      this->sleeping = false;
-      LOG(LOG_DEBUG) << "woke up!";
-    }
-  }
-  LOG(LOG_INFO) << "JointOutputChannel: Exiting worker thread";
+
+	//Update properties if this has been requested
+	if(copyProperties){
+		updateProperties(newPropertyMap, true);
+		copyProperties = false;
+	}
+
+	isStepping = false;
 }
+
+
+
+
+/*--------------------------------------------------------------------*/
+/*---------              PROTECTED METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+/** Updates the properties by first checking if any are read-only  */
+void JointOutputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) {
+  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
+  {
+	if(!updateReadOnly)
+	  ///Check if any of the properties are read only
+	  if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
+		throw ISpikeException("Cannot update read-only parameters");
+
+	///Update the properties, this is ugly and should be improved
+	std::string paramName = iter->second->getName();
+	switch (iter->second->getType())
+	{
+	  case Property::Integer:
+	  {
+		int value = ((IntegerProperty*)(iter->second))->getValue();
+		if (paramName == "Neuron Width")
+		  this->width = value;
+		else if (paramName == "Neuron Height")
+		  this->height = value;
+		break;
+	  }
+	  case Property::Double:
+	  {
+		double value = ((DoubleProperty*)(iter->second))->getValue();
+		if (paramName == "Minimum Angle")
+		  this->minAngle = value;
+		else if (paramName == "Maximum Angle")
+		  this->maxAngle = value;
+		else if (paramName == "Rate Of Decay")
+		  this->rateOfDecay = value;
+		break;
+	  }
+	  case Property::Combo:
+	  case Property::String:
+	  {
+		std::string value;
+		if(iter->second->getType() == Property::String)
+		  value = ((StringProperty*)(iter->second))->getValue();
+		else
+		  value = ((ComboProperty*)(iter->second))->getValue();
+		break;
+	  }
+	}
+  }
+}
+
+

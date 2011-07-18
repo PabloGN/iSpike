@@ -11,8 +11,10 @@ SET(project_SRCS
 		Channel/InputChannel/InputChannel.cpp
 		Channel/InputChannel/JointInputChannel.cpp
 		Channel/InputChannel/VisualInputChannel.cpp
+		Channel/InputChannel/InputChannelFactory.cpp
 		Channel/OutputChannel/JointOutputChannel.cpp
 		Channel/OutputChannel/OutputChannel.cpp
+		Channel/OutputChannel/OutputChannelFactory.cpp
 		Common.cpp
 		Log/Log.cpp
 		NeuronSim/IzhikevichNeuronSim.cpp
@@ -32,6 +34,7 @@ SET(project_SRCS
 		Writer/FileAngleWriter.cpp
 		Writer/WriterFactory.cpp
 		Writer/YarpAngleWriter.cpp
+		Property.cpp
 		YarpConnection.cpp
 		YarpPortDetails.cpp
 		version.cpp

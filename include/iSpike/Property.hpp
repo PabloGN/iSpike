@@ -1,252 +1,108 @@
-/*
- * Property.hpp
- *
- *  Created on: 12 Mar 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef PROPERTY_HPP_
 #define PROPERTY_HPP_
 
 #include <map>
 #include <string>
 #include <vector>
-
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
-
 #include <iSpike/Log/Log.hpp>
+using namespace std;
 
-/**
- * Describes a general Channel, Reader or Writer Property
- */
-class Property
-{
-	public:
+namespace ispike {
 
-		enum ValueType {
-			Integer,
-			Double,
-			String,
-			Combo
-		};
+	/** Describes a general Channel, Reader or Writer Property */
+	class Property {
+		public:
+			enum ValueType {
+				Integer,
+				Double,
+				String,
+				Combo
+			};
 
-	protected:
+		protected:
+			ValueType type;
+			string name;
+			string description;
+			bool readOnly;
 
-		ValueType type;
-		std::string name;
-		std::string description;
-		bool readOnly;
+		public:
+			Property(ValueType type, string name, string description, bool readOnly);
+			Property(const Property& prop);
+			virtual ~Property();
+			virtual string toString() = 0;
+			ValueType getType() { return this->type; }
+			std::string getName() {	return this->name; }
+			std::string getDescription() { return this->description; }
+			bool isReadOnly() { return this->readOnly; }
 
-	public:
-
-		virtual std::string toString()
-		{
-
-		}
-
-		ValueType getType()
-		{
-			return this->type;
-		}
-
-		std::string getName()
-		{
-			return this->name;
-		}
-
-		std::string getDescription()
-		{
-			return this->description;
-		}
-
-		bool isReadOnly()
-		{
-			return this->readOnly;
-		}
-
-		virtual ~Property()
-		{
-
-		}
-};
+	};
 
 
+	/** Describer an Integer Property */
+	class IntegerProperty : public Property{
+		private:
+			int value;
 
-/**
- * Describer an Integer Property
- */
-class IntegerProperty : public Property
-{
+		public:
+			IntegerProperty(int paramValue, string paramName, string paramDescription, bool readOnly);
+			IntegerProperty(const IntegerProperty& intProp);
+			string toString() { return boost::lexical_cast<string>(this->value); }
+			int getValue() { return this->value; }
+			void setValue(int value) { this->value = value;	}
+			IntegerProperty& operator=(const IntegerProperty& rhs);
+	};
 
-	private:
 
-		int value;
+	/** Describes a Double Property */
+	class DoubleProperty : public Property {
+		private:
+			double value;
 
-	public:
-
-		std::string toString()
-		{
-			return boost::lexical_cast<std::string>(this->value);
-		}
-
-		int getValue()
-		{
-			return this->value;
-		}
-
-		void setValue(int value)
-		{
-			this->value = value;
-		}
-
-		IntegerProperty(std::string paramName, int paramValue, std::string paramDescription, bool readOnly)
-		{
-			this->name = paramName;
-			this->value = paramValue;
-			this->description = paramDescription;
-			this->type = Property::Integer;
-			this->readOnly = readOnly;
-		}
-};
+		public:
+			DoubleProperty(double paramValue, string paramName, string paramDescription, bool readOnly);
+			DoubleProperty(const DoubleProperty& doubProp);
+			string toString() { return boost::lexical_cast<string>(this->value); }
+			double getValue() { return this->value; }
+			void setValue(double value) { this->value = value;	}
+			DoubleProperty& operator=(const DoubleProperty& rhs);
+	};
 
 
 
-/**
- * Describes a Double Property
- */
-class DoubleProperty : public Property
-{
-	private:
-		double value;
+	/** Describes a String Property */
+	class StringProperty : public Property {
+		private:
+			string value;
 
-	public:
-
-		std::string toString()
-		{
-			return boost::lexical_cast<std::string>(this->value);
-		}
-
-		double getValue()
-		{
-			return this->value;
-		}
-
-		void setValue(double value)
-		{
-			this->value = value;
-		}
-
-		DoubleProperty(std::string paramName, double paramValue, std::string paramDescription, bool readOnly)
-		{
-			this->name = paramName;
-			this->value = paramValue;
-			this->description = paramDescription;
-			this->type = Property::Double;
-			this->readOnly = readOnly;
-		}
-};
+		public:
+			StringProperty(string paramValue, string paramName, string paramDescription, bool readOnly);
+			StringProperty(const StringProperty& doubProp);
+			std::string toString() { return value; }
+			string getValue() { return value; }
+			void setValue(string value) { this->value = value;	}
+			StringProperty& operator=(const StringProperty& rhs);
+	};
 
 
+	/** Describes a Combo Property */
+	class ComboProperty : public Property {
+		private:
+			string value;
+			vector<string> options;
 
-/**
- * Describes a String Property
- */
-class StringProperty : public Property
-{
-	private:
+		public:
+			ComboProperty(vector<string> paramOptions, string paramValue, string paramName, string paramDescription, bool readOnly);
+			ComboProperty(const ComboProperty& doubProp);
+			std::string toString() { return boost::lexical_cast<std::string>(this->value); }
+			string getValue() { return this->value; }
+			void setValue(string value) { this->value = value;	}
+			ComboProperty& operator=(const ComboProperty& rhs);
+	};
 
-		std::string value;
+}
 
-	public:
-
-		std::string toString()
-		{
-			return this->value;
-		}
-
-		std::string getValue() const
-		{
-			return this->value;
-		}
-
-		void setValue(std::string value)
-		{
-			LOG(LOG_DEBUG) << "Setting value to " << value;
-			this->value = value;
-		}
-
-		StringProperty(std::string paramName, std::string paramValue, std::string paramDescription, bool readOnly)
-		{
-			this->name = paramName;
-			this->value = paramValue;
-			this->description = paramDescription;
-			this->type = Property::String;
-			this->readOnly = readOnly;
-		}
-};
-
-
-
-/**
- * Describes a Combo Property
- */
-class ComboProperty : public Property
-{
-	private:
-
-		std::string value;
-		std::vector<std::string> options;
-
-	public:
-
-		std::string toString()
-		{
-			return this->value;
-		}
-
-		std::string getValue()
-		{
-			return this->value;
-		}
-
-		/**
-		 * Fills in the value from the options
-		 */
-		void setValue(int value)
-		{
-			LOG(LOG_DEBUG) << "Setting value to " << this->options.at(value);
-			this->value = this->options.at(value);
-		}
-
-		/**
-		 * Fills in the value directly
-		 */
-		void setValue(std::string value)
-		{
-			this->value = value;
-		}
-
-		std::vector<std::string> getOptions()
-		{
-			return this->options;
-		}
-
-		ComboProperty(std::string paramName, std::string paramValue, std::string paramDescription,
-				std::vector<std::string> paramOptions, bool readOnly)
-		{
-			this->name = paramName;
-			this->value = paramValue;
-			this->description = paramDescription;
-			this->type = Property::Combo;
-			this->options = paramOptions;
-			this->readOnly = readOnly;
-		}
-};
-
-
-
-typedef std::map< std::string, boost::shared_ptr<Property> > property_map;
 
 
 #endif /* PROPERTY_HPP_ */

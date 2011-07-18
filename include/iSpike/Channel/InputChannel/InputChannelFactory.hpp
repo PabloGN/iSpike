@@ -1,10 +1,3 @@
-/*
- * InputChannelFactory.hpp
- *
- *  Created on: 13 Mar 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef INPUTCHANNELFACTORY_HPP_
 #define INPUTCHANNELFACTORY_HPP_
 
@@ -15,65 +8,24 @@
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
 #include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
 
-/**
- * @class InputChannelFactory
- * @brief A Factory of Input Channels
- *
- * The Input Channel Factory can list all Input Channels available in the system and can produce a particular type of an Input Channel
- */
-class InputChannelFactory {
+namespace ispike {
 
-private:
-  /// A list of available Input Channels
-  std::vector<InputChannelDescription> channelList;
+	/**
+	 * @class InputChannelFactory
+	 * @brief A Factory of Input Channels
+	 *
+	 * The Input Channel Factory can list all Input Channels available in the system and can produce a particular type of an Input Channel  */
+	class InputChannelFactory {
+		private:
+			/** A list of available Input Channels */
+			std::vector<InputChannelDescription> channelList;
 
-public:
+		public:
+			InputChannelFactory();
+			std::vector<InputChannelDescription> getAllChannels();
+			InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties);
+	};
 
-  /**
-   * Default constructor
-   * Initialises the list of Input Channels, if you've made a new Input Channel, add it here!
-   */
-  InputChannelFactory()
-  {
-    LOG(LOG_DEBUG) << "Before.";
-    this->channelList.push_back(JointInputChannel().getChannelDescription());
-    this->channelList.push_back(VisualInputChannel().getChannelDescription());
-    LOG(LOG_DEBUG) << "After.";
-  }
-
-  /**
-   * Returns all Input Channels in the system
-   * @return All available Input Channels
-   */
-  std::vector<InputChannelDescription> getAllChannels()
-  {
-    return channelList;
-  }
-
-  /**
-   * Creates a particular Input Channel
-   * @param channelName Type of Input Channel to create
-   * @param reader A reader for the new Input Channel
-   * @param channelProperties A map of properties for the new Input Channel
-   * @return An initialised Input Channel of a given type
-   */
-  InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties)
-  {
-    if(channelName == "Joint Input Channel")
-    {
-      JointInputChannel* channel = new JointInputChannel();
-      channel->initialise((AngleReader*)reader, channelProperties);
-      return channel;
-    } else if(channelName == "Visual Input Channel")
-    {
-      VisualInputChannel* channel = new VisualInputChannel();
-      channel->initialise((VisualReader*)reader, channelProperties);
-      return channel;
-    } else {
-      throw std::logic_error("Invalid channel type");
-    }
-  }
-};
-
+}
 
 #endif /* INPUTCHANNELFACTORY_HPP_ */

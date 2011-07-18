@@ -1,52 +1,32 @@
 #ifndef OUTPUTCHANNEL_H_
 #define OUTPUTCHANNEL_H_
-#include <string>
-#include <vector>
+
+//iSpike includes
 #include <iSpike/Channel/Channel.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/mutex.hpp>
 #include <iSpike/Channel/OutputChannel/OutputChannelDescription.hpp>
 
-/**
- * @class OutputChannel
- * @brief Output Channel class
- *
- * This class represents a Channel that can be written to e.g. it is possible
- * to send spikes to this channel, which are decoded into something else
- *
- * @author Edgars Lazdins
- *
- */
+//Other includes
+#include <boost/scoped_ptr.hpp>
+#include <string>
+#include <vector>
 
-class OutputChannel : public Channel {
-protected:
-  OutputChannelDescription* channelDescription;
-  boost::condition wait_condition;
-  boost::mutex mutex, wait_mutex;
-  virtual void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) = 0;
-public:
+namespace ispike {
 
-  virtual ~OutputChannel()
-  {
-    delete this->channelDescription;
-  }
+	/** Represents a Channel that can be written to e.g. it is possible
+		to send spikes to this channel, which are decoded into something else */
+	class OutputChannel : public Channel {
+		public:
+			OutputChannel()  : Channel() {}
+			OutputChannelDescription getChannelDescription() { return *(channelDescription); }
 
-  /**
-   * Sets the current spike pattern
-   */
-  virtual void setFiring(std::vector<int>* buffer) = 0;
+			/**  Sets the current spike pattern  */
+			virtual void setFiring(std::vector<int>& buffer) = 0;
 
-  /**
-   * Initialises the channel
-   */
-  virtual void start() = 0;
 
-  virtual void step() = 0;
+		protected:
+			boost::scoped_ptr<OutputChannelDescription> channelDescription;
 
-  OutputChannelDescription getChannelDescription()
-  {
-    return *(channelDescription);
-  }
-};
+	};
+}
 
 #endif /* OUTPUTCHANNEL_H_ */
