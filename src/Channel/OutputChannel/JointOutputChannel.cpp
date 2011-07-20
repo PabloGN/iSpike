@@ -5,14 +5,11 @@
 using namespace ispike;
 
 //Other includes
-#include <boost/lexical_cast.hpp>
 #include <iostream>
-#include <fstream>
-#include <sstream>
-
+using namespace std;
 
 /** Constructor */
-JointOutputChannel::JointOutputChannel(){
+JointOutputChannel::JointOutputChannel() : OutputChannel() {
 	//First define the properties of this channel
 	properties["Minimum Angle"] = new DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true);
 	properties["Maximum Angle"] = new DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true);
@@ -21,20 +18,27 @@ JointOutputChannel::JointOutputChannel(){
 	properties["Neuron Height"] = new IntegerProperty(1, "Neuron Height", "Height of the neuron network", true);
 
 	//Create the description
-	channelDescription.reset(new OutputChannelDescription("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer", properties));
+	channelDescription = OutputChannelDescription("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
+
+	//Initialize variables
+	writer = NULL;
+	copyProperties = false;
 }
 
 
 /** Destructor */
 JointOutputChannel::~JointOutputChannel(){
-	LOG(LOG_DEBUG) << "Entering JointOutputChannel destructor";
 	if(isInitialized()){
 		delete [] variables;
 	}
-	LOG(LOG_DEBUG) << "Exiting JointOutputChannel destructor";
 }
 
 
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+//Inherited from OutputChannel
 void JointOutputChannel::setFiring(std::vector<int>& buffer){
 	//Work through the neuron ids in the buffer
 	for(vector<int>::iterator iter =buffer.begin(); iter != buffer.end(); ++ iter){
@@ -43,8 +47,7 @@ void JointOutputChannel::setFiring(std::vector<int>& buffer){
 }
 
 
-/** Initialises the Joint Input Channel with the parameters
-	 @param reader The associated Angle Reader */
+//Inherited from OutputChannel
 void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> properties){
 	if(reader == NULL)
 		throw iSpikeException("Cannot initialize JointOutputChannel with a null reader.");
@@ -56,65 +59,39 @@ void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> p
 	//Set up current variables
 	numVariables = getWidth() * getHeight();
 	variables = new double[numVariables];
+	for(int i=0; i<numVariables; ++i)
+		variables[i] = 0.0;
 
 	setInitialized(true);
 }
 
 
+//Inherited from Channel
 void JointOutputChannel::step(){
 	isStepping = true;
 
-    LOG(LOG_DEBUG) << "Entering JointOutputChannel work loop, stopRequested is " << stopRequested;
-    bool enoughFrames = false;
-    {
-      boost::mutex::scoped_lock lock(this->mutex);
-      //enoughFrames = !(this->buffer->empty());
-      enoughFrames = !(this->buffer->empty());
-    }
-    /**
-     * Spikes received
-     */
-	if(enoughFrames) {
-      //std::vector<int> currentFrame = this->buffer->front();
-      std::vector<int> currentFrame = *(this->buffer);
-      {
-        boost::mutex::scoped_lock lock(this->mutex);
-        //this->buffer->pop();
-        this->buffer->clear();
-      }
-      for(unsigned int neuronID = 0; neuronID < currentFrame.size(); neuronID++)
-      {
-        variables[currentFrame[neuronID]]++;
-        times[currentFrame[neuronID]] = 0;
-      }
-      double angleSum = 0;
-      double weightSum = 0;
-      for(unsigned int j = 0; j < variables.size(); j++)
-      {
+	//Calculate the angle from the current variables
+	double angleSum = 0;
+	double weightSum = 0;
+	for(unsigned int j = 0; j < variables.size(); j++)     {
         double currentAngle = (this->maxAngle - this->minAngle) / ((this->width * this->height)-1) * j + this->minAngle;
         angleSum += variables[j] * currentAngle;
         weightSum += variables[j];
-      }
-      if(!weightSum == 0)
-      {
+	}
+	if(!weightSum == 0) {
         double angle = angleSum / weightSum;
         LOG(LOG_DEBUG) << "Angle: " << angle;
         this->currentAngle = angle;
         this->writer->addAngle(angle);
-      }
-    }
+	}
+
 	/* Decay the variables according to the following function:
      * N(t+1) = N(t)*e^(-rateOfDecay*t)
      */
 	for(unsigned int i=0; i < numVariables; ++i) {
-      variables[i] = variables[i] * exp(-(this->rateOfDecay) * times[i]);
-	  FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
-
-      //variableText << variables[i] << ", ";
-      //fileStream << variables[i] << ",";
-      if(times[i] < 100000)
-        times[i]++;
-    }
+		variables[i] = variables[i] * exp(-(this->rateOfDecay) * times[i]);
+		//FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
+	}
 
 	//Update properties if this has been requested
 	if(copyProperties){
@@ -126,57 +103,61 @@ void JointOutputChannel::step(){
 }
 
 
-
-
 /*--------------------------------------------------------------------*/
 /*---------              PROTECTED METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
 /** Updates the properties by first checking if any are read-only  */
-void JointOutputChannel::updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly) {
-  for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)
-  {
-	if(!updateReadOnly)
-	  ///Check if any of the properties are read only
-	  if(this->getChannelDescription().getChannelProperties()[iter->first]->isReadOnly())
-		throw ISpikeException("Cannot update read-only parameters");
+void JointOutputChannel::updateProperties(map<string, Property> properties, bool updateReadOnly) {
+	if(propertyMap.size() != properties.size())
+		throw iSpikeException("JointOutputChannel: Current properties do not match new properties.");
 
-	///Update the properties, this is ugly and should be improved
-	std::string paramName = iter->second->getName();
-	switch (iter->second->getType())
-	{
-	  case Property::Integer:
-	  {
-		int value = ((IntegerProperty*)(iter->second))->getValue();
-		if (paramName == "Neuron Width")
-		  this->width = value;
-		else if (paramName == "Neuron Height")
-		  this->height = value;
-		break;
-	  }
-	  case Property::Double:
-	  {
-		double value = ((DoubleProperty*)(iter->second))->getValue();
-		if (paramName == "Minimum Angle")
-		  this->minAngle = value;
-		else if (paramName == "Maximum Angle")
-		  this->maxAngle = value;
-		else if (paramName == "Rate Of Decay")
-		  this->rateOfDecay = value;
-		break;
-	  }
-	  case Property::Combo:
-	  case Property::String:
-	  {
-		std::string value;
-		if(iter->second->getType() == Property::String)
-		  value = ((StringProperty*)(iter->second))->getValue();
-		else
-		  value = ((ComboProperty*)(iter->second))->getValue();
-		break;
-	  }
+	for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter){
+		//Check property exists
+		if(propertyMap.count(iter->first) == 0){
+			LOG(LOG_CRITICAL) << "JointIntputChannel: Property does not exist: " << iter->first<<endl;
+			throw ISpikeException("JointInputChannel: Property not recognized");
+		}
+
+		//Check that property name matches the map name
+		std::string paramName = iter->second.getName();
+		if(paramName != iter->first){
+			LOG(LOG_CRITICAL) << "JointIntputChannel: Property name mismatch: " << iter->first<<", "<<paramName<<endl;
+			throw ISpikeException("JointInputChannel: Property name mismatch");
+		}
+
+		//In updateReadOnly mode, only update properties that are not read only
+		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
+			switch (iter->second->getType()) {
+				case Property::Integer: {
+					int value = ((IntegerProperty*)(iter->second))->getValue();
+					((IntegerProperty)propertyMap[paramName]).setValue(value);
+
+					if (paramName == "Neuron Width")
+						setWidth(value);
+					else if (paramName == "Neuron Height")
+						setHeight(value);
+				}
+				break;
+				case Property::Double:{
+					double value = ((DoubleProperty*)(iter->second))->getValue();
+					((DoubleProperty)propertyMap[paramName]).setValue(value);
+
+					if (paramName == "Minimum Angle")
+						this->minAngle = value;
+					else if (paramName == "Maximum Angle")
+						this->maxAngle = value;
+					else if (paramName == "Rate Of Decay")
+						this->rateOfDecay = value;
+				}
+				break;
+				case Property::Combo: break;
+				case Property::String: break;
+				default:
+					throw iSpikeException("Property type not recognized.");
+			}
+		}
 	}
-  }
 }
 
 

@@ -1,46 +1,44 @@
-/*
- * Writer.hpp
- *
- *  Created on: 23 Feb 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef WRITER_HPP_
 #define WRITER_HPP_
 
+//iSpike includes
+#include "iSpike/Property.hpp"
 #include <iSpike/Writer/WriterDescription.hpp>
+#include <iSpike/Log/Log.hpp>
+#include "iSpike/iSpikeThread.hpp"
 
-/**
- * @class Writer
- * @brief Writer class
- *
- * This class represents a Writer
- *
- * @author Edgars Lazdins
- *
- */
-class Writer {
+//Other includes
+#include <map>
+#include <string>
+using namespace std;
 
-protected:
-  WriterDescription* writerDescription;
+namespace ispike {
 
-public:
-  WriterDescription getWriterDescription() const
-    {
-        return *(writerDescription);
-    }
+	/** This class represents a Writer, capable of writing analogue information
+		to a file, socket or other destination. */
+	class Writer : public iSpikeThread {
+		public:
+			Writer(){ initialized = false; }
+			WriterDescription getWriterDescription() const { return writerDescription; }
+			map<string, Property> getProperties() { return propertyMap; }
+			void initialize(map<string, Property>& properties) = 0;
+			bool isInitialized() { return initialized; }
+			void setInitialized(bool initialized) { this->initialized = initialized; }
+			void setProperties(map<string, Property>& properties) = 0;
 
-    void initialise()
-    {
-      initialise(writerDescription->getWriterProperties());
-    }
+		protected:
+			/** Description of the Writer */
+			WriterDescription writerDescripton;
 
-    virtual void initialise(std::map<std::string,Property*> properties) = 0;
+			/** Properties of the Writer */
+			map<string, Property> propertyMap;
 
-    virtual ~Writer()
-    {
-      delete this->writerDescription;
-    }
-};
+		private:
+			/** Records whether Writer has been initialized */
+			bool initialized;
+
+	};
+
+}
 
 #endif /* WRITER_HPP_ */

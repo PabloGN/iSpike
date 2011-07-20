@@ -19,6 +19,15 @@ namespace ispike {
 
 	/** Converts a joint angle input into a spike pattern */
 	class JointInputChannel : public InputChannel {
+		public:
+			JointInputChannel();
+			~JointInputChannel();
+			double getCurrentAngle(){ return currentAngle; }
+			std::vector< std::vector<int> >& getFiring() { return buffer; }
+			void initialize(AngleReader* reader, map<string, Property> properties);
+			void setProperties(map<string, Property>& properties);
+			void step();
+
 
 		private:
 			//==========================  VARIABLES  ==========================
@@ -42,21 +51,18 @@ namespace ispike {
 			double currentFactor;
 			double constantCurrent;
 
+			/** Map holding new properties, for updating when thread has finished processing the current time step*/
+			map<string, Property> newPropertyMap;
+
+			/** Flag to indicate that properties should be updated */
+			bool copyProperties;
+
 
 			//==============================  METHODS  =========================
 			void updateProperties(map<string, Property>& properties, bool updateReadOnly);
 
-
-		public:
-			JointInputChannel();
-			~JointInputChannel();
-			double getCurrentAngle(){ return currentAngle; }
-			std::vector< std::vector<int> >& getFiring() { return buffer; }
-			void initialize(AngleReader* reader, map<string, Property> properties);
-			void setProperties(map<string, Property>& properties);
-			void step();
-
 	};
+
 }
 
 #endif /* JOINTINPUTCHANNEL_HPP_ */

@@ -24,6 +24,7 @@ namespace ispike {
 			virtual ~VisualInputChannel();
 			vector< vector<int> >& getFiring() { return buffer; }
 			void initialize(VisualReader* reader, map<string, Property> properties);
+			void setProperties(map<string, Property>& properties);
 			void step();
 
 
@@ -53,6 +54,13 @@ namespace ispike {
 			int xOffset;
 			int yOffset;
 			int opponentMap;
+
+			/** Map holding new properties, for updating when thread has finished processing the current time step*/
+			map<string, Property> newPropertyMap;
+
+			/** Flag to indicate that properties should be updated */
+			bool copyProperties;
+
 
 	};
 }

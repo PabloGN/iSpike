@@ -17,14 +17,18 @@ namespace ispike {
 	class OutputChannel : public Channel {
 		public:
 			OutputChannel()  : Channel() {}
-			OutputChannelDescription getChannelDescription() { return *(channelDescription); }
+			OutputChannelDescription getChannelDescription() { return channelDescription; }
+
+			/*! Initializes the channel with a reader and set of properties */
+			void initialize(AngleWriter* writer, map<string, Property> properties) = 0;
 
 			/**  Sets the current spike pattern  */
 			virtual void setFiring(std::vector<int>& buffer) = 0;
 
 
 		protected:
-			boost::scoped_ptr<OutputChannelDescription> channelDescription;
+			/** Description of the channel */
+			OutputChannelDescription channelDescription;
 
 	};
 }

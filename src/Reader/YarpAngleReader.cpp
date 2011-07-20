@@ -1,104 +1,86 @@
-/*
- * YarpAngleReader.cpp
- *
- *  Created on: 22 Feb 2011
- *      Author: Edgars Lazdins
- */
-
+//iSpike includes
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <iSpike/YarpPortDetails.hpp>
-#include <vector>
-#include <map>
-#include <string>
-#include <iostream>
+#include <iSpike/YarpConnection.hpp>
+#include <iSpike/Log/Log.hpp>
+#include <iSpike/ISpikeException.hpp>
+using namespace ispike;
+
+//Other includes
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <iSpike/YarpConnection.hpp>
-#include <iSpike/Log/Log.hpp>
-#include <iSpike/ISpikeException.hpp>
+#include <iostream>
 
-/*!
- * The default constructor, only initialises the default parameters and the description
- */
-YarpAngleReader::YarpAngleReader(std::string nameserverIP, std::string nameserverPort){
-	//	throw ISpikeException("TEST YARP ANGLE READER EXCEPTION");
+/** Constructor */
+YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
+	// Connect to YARP and get list of ports
+	yarpConnection == NULL;
+	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
+	portMap = yarpConnection->getPortMap();
 
-	this->initialised = false;
-	// First define the properties of this reader
-	// Get the available yarp ports
-	LOG(LOG_DEBUG) << "before yarp connection";
-	this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-	LOG(LOG_DEBUG) << "before getting portmap";
-	this->portMap = this->yarpConnection->getPortMap();
-
-	//Iterate over them and add as options
-	LOG(LOG_DEBUG) << "iterating";
-	std::map<std::string, YarpPortDetails*>::iterator iter;
-	std::vector<std::string> yarpPortNames;
-	for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++){
+	//Store port names as properties of this reader
+	vector<string> yarpPortNames;
+	for (map<string, YarpPortDetails*>::iterator iter = this->portMap->begin(); iter != this->portMap->end(); iter++){
 		yarpPortNames.push_back(iter->first);
 	}
-	LOG(LOG_DEBUG) << "filling in properties";
+	if(yarpPortNames.empty())
+		propertyMap["Port Name"] = ComboProperty(yarpPortNames, "undefined", "Port Name","The Yarp Port name", true);
+	else
+		propertyMap["Port Name"] = ComboProperty(yarpPortNames, yarpPortNames[0], "Port Name","The Yarp Port name", true);
 
-	property_map properties;
-	properties["Port Name"] = boost::shared_ptr<Property>(
-			new ComboProperty("Port Name",
-				"/icubSim/left_arm/state:o",
-				"The Yarp Port name",
-				yarpPortNames,
-				true));
-
-	//Now let's create the description
-	this->readerDescription.reset(new ReaderDescription("Yarp Angle Reader",
-				"This is a Yarp angle reader",
-				"Angle Reader",
-				properties));
-	LOG(LOG_DEBUG) << "exiting";
+	//Create the description
+	readerDescription = ReaderDescription("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
 }
 
 
 /*! Destructor */
 YarpAngleReader::~YarpAngleReader(){
-	LOG(LOG_DEBUG) << "destroying angle reader";
 	if(isRunning()){
 		requestStop();
 		threadPointer->join();
 	}
-	LOG(LOG_DEBUG) << "destruction complete";
+	if(yarpConnection != NULL)
+		delete yarpConnection;
 }
 
 
-/**
- * Retrieves the vector of joint angles
- */
-std::vector<double> YarpAngleReader::getData(){
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+// Inherited from AngleReader
+vector<double> YarpAngleReader::getData(){
 	boost::mutex::scoped_lock lock(this->mutex);
 	return buffer;
 }
 
 
-/**
- * Initialises the Reader with the default properties
- */
-void YarpAngleReader::initialise(){
-	YarpAngleReader::initialise(this->getReaderDescription().getReaderProperties());
+// Inherited from Reader
+void YarpAngleReader::initialize(map<string, Property>& properties){
+	updateProperties(properties);
 	buffer.clear();
-	LOG(LOG_DEBUG) << "INITIALIZATION FUNCTION 1 - WHAT IS GOING ON HERE";
+	setInitialized(true);
 }
 
 
-/**
- * Creates a new empty buffer and initialises the port name
- */
-void YarpAngleReader::initialise(property_map properties){
-	this->setPortName(static_cast<ComboProperty*>(properties["Port Name"].get())->getValue());
-	LOG(LOG_DEBUG) << "INITIALIZATION FUNCTION 2. YARP Port: " << this->getPortName();
-	buffer.clear();
-	this->initialised = false;
+// Inherited from AngleReader
+void YarpAngleReader::start(){
+	if(!isInitialized())
+		throw iSpikeException("YarpAngleReader thread cannot be started - it has not been initialized.");
+	setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleReader::workerFunction, this))));
 }
 
+
+/*--------------------------------------------------------------------*/
+/*---------                 PRIVATE METHODS                    -------*/
+/*--------------------------------------------------------------------*/
+
+void YarpAngleReader::updateProperties(map<string, Property>& properties){
+	this->setPortName(((ComboProperty)properties["Port Name"]).getValue());
+	propertyMap = properties;
+}
 
 /** Function passed to thread - similar to run() method */
 void YarpAngleReader::workerFunction(){
@@ -106,10 +88,10 @@ void YarpAngleReader::workerFunction(){
 	clearError();
 	try{
 		//Connect to port
-		std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->find(this->getPortName());
-		std::string ip;
-		std::string port;
-		std::string type;
+		map<string, YarpPortDetails>::iterator iter = portMap.find(this->getPortName());
+		string ip;
+		unsigned port;
+		string type;
 		if (iter != this->portMap->end() ) {
 			ip = iter->second->getIp();
 			port = iter->second->getPort();
@@ -119,12 +101,12 @@ void YarpAngleReader::workerFunction(){
 		else {
 			throw ISpikeException("YarpAngleReader: Yarp IP/Port map is empty!");
 		}
-		this->yarpConnection->connect_to_port(ip, port);
-		this->yarpConnection->prepare_to_read_text();
+		yarpConnection->connect_to_port(ip, port);
+		yarpConnection->prepare_to_read_text();
 		while(!isStopRequested()){
-			//std::string contentLine = this->yarpConnection->read_until("\n");
+			//string contentLine = this->yarpConnection->read_until("\n");
 			//Get angle data from YARP server
-			std::string contentLine = this->yarpConnection->getSocketString();
+			string contentLine = this->yarpConnection->getSocketString();
 
 			//Lock mutex while buffer is being filled
 			boost::mutex::scoped_lock lock(this->mutex);
@@ -133,20 +115,20 @@ void YarpAngleReader::workerFunction(){
 			buffer.clear();
 			if(contentLine.length() > 0){
 				boost::regex splitString("\\s+");
-				std::list<std::string> lines;
-				boost::regex_split(std::back_inserter(lines), contentLine, splitString);
+				list<string> lines;
+				boost::regex_split(back_inserter(lines), contentLine, splitString);
 				lines.pop_front();
 				lines.pop_front();
 				while(lines.size() > 0)	{
-					std::string current_string = *(lines.begin());
+					string current_string = *(lines.begin());
 					lines.pop_front();
 					double angle = 0;
 					try{
 						angle = boost::lexical_cast<double>(current_string);
 					}
-					catch (std::exception& e) {
-						std::cout << "Error occured in YarpAngleReader: '" << current_string << "'" << std::endl;
-						std::cout << "Cannot convert this to double: " << current_string;
+					catch (exception& e) {
+						cout << "Error occured in YarpAngleReader: '" << current_string << "'" << endl;
+						cout << "Cannot convert this to double: " << current_string;
 						throw new ISpikeException("Error at YarpAngleReader lexical_cast");
 					}
 					LOG(LOG_INFO) << "Angle: " << angle;
@@ -162,16 +144,5 @@ void YarpAngleReader::workerFunction(){
 		setError("An unknown exception occurred in the YarpAngleReader");
 	}
 	setRunning(false);
-}
-
-
-/**
-* Initialises the reader and starts the main thread
-*/
-void YarpAngleReader::start(){
-	if(!initialised){
-		this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleReader::workerFunction, this))));
-		initialised = true;
-	}
 }
 

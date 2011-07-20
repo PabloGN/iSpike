@@ -3,6 +3,9 @@
 
 #include <iSpike/Log/Log.hpp>
 
+#include <boost/smart_ptr.hpp>
+#include <boost/thread.hpp>
+
 namespace ispike {
 
 	/*! Methods common to all threads in iSpike along with error setting and retrieval */
@@ -44,6 +47,13 @@ namespace ispike {
 			/*!  Initialises the channel and starts the conversion thread  */
 			virtual void start() = 0;
 
+			void workerFunction() = 0;
+
+			boost::shared_ptr<boost::thread> getThreadPointer() const { return threadPointer; }
+			void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer) {	this->threadPointer = threadPointer; }
+			boost::mutex mutex;
+
+
 
 		private:
 			/*! Records if an error has taken place in the thread.  */
@@ -57,6 +67,8 @@ namespace ispike {
 
 			/*! Controls running of thread */
 			bool stopRequested;
+
+			boost::shared_ptr<boost::thread> threadPointer;
 
 	};
 

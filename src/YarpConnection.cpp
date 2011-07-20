@@ -17,7 +17,7 @@
 using boost::asio::ip::tcp;
 
 /** Constructor */
-YarpConnection::YarpConnection(std::string ip, std::string port){
+YarpConnection::YarpConnection(string ip, unsigned port){
 	//boost::asio::io_service io_service;
 	LOG(LOG_DEBUG) << "creating a socket";
 	this->connectionSocket = new tcp::socket(this->io_service);
@@ -37,38 +37,47 @@ YarpConnection::YarpConnection(std::string ip, std::string port){
 
 	boost::system::error_code read_error;
 	LOG(LOG_DEBUG) << "reading reply";
-	std::string response_string = read_text();
+	string response_string = read_text();
 	LOG(LOG_DEBUG) << "disconnecting";
 	disconnect();
 	LOG(LOG_DEBUG) << "disconnected";
 	boost::cmatch matches;
 	boost::regex new_line("\n");
-	std::list<std::string> lines;
-	boost::regex_split(std::back_inserter(lines), response_string, new_line);
+	list<string> lines;
+	boost::regex_split(back_inserter(lines), response_string, new_line);
 	boost::regex expression("registration name (.+?) ip (.+?) port (.+?) type (.+?)");
-	this->portMap = new std::map<std::string, YarpPortDetails*>();
+	portMap.clear();
 	while(lines.size())  {
-		std::string current_string = *(lines.begin());
+		string current_string = *(lines.begin());
 		lines.pop_front();
 
 		if (boost::regex_match(current_string.c_str(), matches, expression)) {
-			std::string portName(matches[1].first, matches[1].second);
-			std::string ip(matches[2].first, matches[2].second);
-			std::string port(matches[3].first, matches[3].second);
-			std::string type(matches[4].first, matches[4].second);
-			YarpPortDetails *details = new YarpPortDetails(ip,port,type);
-			this->portMap->insert(std::pair<std::string, YarpPortDetails*>(portName, details));
+			string portName(matches[1].first, matches[1].second);
+			string ip(matches[2].first, matches[2].second);
+			string port(matches[3].first, matches[3].second);
+			string type(matches[4].first, matches[4].second);
+			YarpPortDetails details(ip,port,type);
+			portMap[portName = details;
 		}
 	}
-	std::map<std::string, YarpPortDetails*>::iterator it;
+
 	LOG(LOG_DEBUG) << "YarpConnection: Received the following Yarp portmap:";
-	for ( it=this->portMap->begin() ; it != this->portMap->end(); ++it )   {
+	for (map<tring, YarpPortDetails>::iterator it=portMap.begin() ; it != portMap.end(); ++it )   {
 		LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort();
 	}
 }
 
 
-int YarpConnection::write_text(std::string message){
+/** Destructor */
+YarpConnection::~YarpConnection(){
+}
+
+
+/*------------------------------------------------------------------*/
+/*---------               PUBLIC METHODS                     -------*/
+/*------------------------------------------------------------------*/
+
+int YarpConnection::write_text(string message){
 	boost::system::error_code connection_error;
 	boost::asio::write( *this->connectionSocket, boost::asio::buffer(message),
 						boost::asio::transfer_all(), connection_error);
@@ -77,32 +86,7 @@ int YarpConnection::write_text(std::string message){
 }
 
 
-int YarpConnection::write_binary(unsigned char* buffer, int length){
-	boost::system::error_code connection_error;
-	boost::asio::write( *this->connectionSocket, boost::asio::buffer(buffer, length),
-						boost::asio::transfer_all(), connection_error);
-	if (connection_error) throw boost::system::system_error(connection_error);
-	return(true);
-}
-
-
-unsigned char YarpConnection::read_char(){
-	std::vector<unsigned char> buf(1);
-	try	{
-		size_t len = read(*this->connectionSocket, boost::asio::buffer(buf));
-		assert(len == 1);
-		//std::cout << buf[0];
-		return buf[0];
-		// process the 4 bytes in buf
-	}
-	catch (...)	{
-		throw new ISpikeException("Error in read_char!" );
-	}
-}
-
-
-std::string YarpConnection::getSocketString()
-{
+string YarpConnection::getSocketString(){
 	unsigned int timeoutCtr = 0;
 	unsigned int timeout = 10000;
 	while(read_char() != 'o' && timeoutCtr < timeout){
@@ -112,7 +96,7 @@ std::string YarpConnection::getSocketString()
 		throw ISpikeException("Timeout exceeded in getSocketString");
 	}
 	timeoutCtr = 0;
-	std::ostringstream strStream (std::ostringstream::out);
+	ostringstream strStream (ostringstream::out);
 	unsigned char newChar = this->read_char();
 	while(newChar != 'd' && timeoutCtr != timeout)	{
 		strStream << newChar;
@@ -126,29 +110,20 @@ std::string YarpConnection::getSocketString()
 }
 
 
-std::string YarpConnection::read_until(std::string until){
+string YarpConnection::read_until(string until){
 	boost::asio::streambuf response;
 	boost::asio::read_until(*this->connectionSocket, response, until);
-	std::istream response_stream(&response);
-	std::string response_string((std::istreambuf_iterator<char>(response_stream)), std::istreambuf_iterator<char>());
+	istream response_stream(&response);
+	string response_string((istreambuf_iterator<char>(response_stream)), istreambuf_iterator<char>());
 	return(response_string);
 }
 
 
-std::string YarpConnection::read_text(){
-	return read_until("*** end of message");
-}
 
 
-int YarpConnection::read_binary(unsigned char* buffer, int length){
-	return boost::asio::read(*this->connectionSocket, boost::asio::buffer(buffer, length));
-}
-
-
-int YarpConnection::connect_to_port(std::string ip, std::string port){
+int YarpConnection::connect_to_port(string ip, unsigned port){
 	boost::asio::io_service io_service;
-	int intPort = boost::lexical_cast<int>(port);
-	boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), intPort);
+	boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), port);
 	boost::system::error_code error = boost::asio::error::host_not_found;
 
 	this->connectionSocket->close();
@@ -159,12 +134,6 @@ int YarpConnection::connect_to_port(std::string ip, std::string port){
 		throw ISpikeException(error.message());
 	}
 	return true;
-}
-
-
-void YarpConnection::disconnect(){
-	write_text("q\n");
-	this->connectionSocket->close();
 }
 
 
@@ -210,13 +179,65 @@ void YarpConnection::prepare_to_read_binary(){
 }
 
 
-int YarpConnection::read_int(unsigned char* buf){
-	unsigned char *ubuf = (unsigned char *)buf;
-	// this could be optimized away on little-endian machines!
-	return ubuf[0] + (ubuf[1]<<8) + (ubuf[2]<<16) + (ubuf[3]<<24);
+Bitmap* YarpConnection::read_image(){
+	int result = read_data_header();
+	if (result>=0) {
+		unsigned char header[4*15];
+		int image_len = result - sizeof(header);
+		result = read_binary((unsigned char*)header,sizeof(header));
+		if (result<0) {
+			throw ISpikeException("Failed to read image header");
+		}
+		int depth = read_int((unsigned char*)(header+4*8)); // header.depth
+		int width = read_int((unsigned char*)(header+4*11)); // header.width
+		int height = read_int((unsigned char*)(header+4*12)); // header.height
+		if (image_len!=width*height*depth) {
+			throw ISpikeException("Image may have padding, yarpreadimage.c needs to be updated to deal with that.");
+		}
+		unsigned char* contents = (unsigned char*)malloc(image_len);
+		read_binary(contents,image_len);
+		Bitmap* image = new Bitmap(width, height, depth, contents);
+		return image;
+	}
+	return new Bitmap(0, 0, 0, 0);
 }
 
 
+/*------------------------------------------------------------------*/
+/*---------              PRIVATE METHODS                     -------*/
+/*------------------------------------------------------------------*/
+
+/** Disconnect the given socket */
+void YarpConnection::disconnect(){
+	write_text("q\n");
+	this->connectionSocket->close();
+}
+
+
+/** Read binary contents from a previously opened socket as per http://eris.liralab.it/yarpdoc/yarp_protocol.html
+* @param buffer Contents will go here
+* @param length How much of the contents to read    */
+int YarpConnection::read_binary(unsigned char* buffer, int length){
+	return boost::asio::read(*this->connectionSocket, boost::asio::buffer(buffer, length));
+}
+
+
+unsigned char YarpConnection::read_char(){
+	vector<unsigned char> buf(1);
+	try	{
+		size_t len = read(*this->connectionSocket, boost::asio::buffer(buf));
+		assert(len == 1);
+		//cout << buf[0];
+		return buf[0];
+		// process the 4 bytes in buf
+	}
+	catch (...)	{
+		throw new ISpikeException("Error in read_char!" );
+	}
+}
+
+
+/**  Reads a Yarp binary data header */
 int YarpConnection::read_data_header(){
 	int i;
 	unsigned char load_hdr_ref[8] = {'Y','A',10, 0, 0, 0,'R','P'};
@@ -277,25 +298,26 @@ int YarpConnection::read_data_header(){
 }
 
 
-Bitmap* YarpConnection::read_image(){
-	int result = read_data_header();
-	if (result>=0) {
-		unsigned char header[4*15];
-		int image_len = result - sizeof(header);
-		result = read_binary((unsigned char*)header,sizeof(header));
-		if (result<0) {
-			throw ISpikeException("Failed to read image header");
-		}
-		int depth = read_int((unsigned char*)(header+4*8)); // header.depth
-		int width = read_int((unsigned char*)(header+4*11)); // header.width
-		int height = read_int((unsigned char*)(header+4*12)); // header.height
-		if (image_len!=width*height*depth) {
-			throw ISpikeException("Image may have padding, yarpreadimage.c needs to be updated to deal with that.");
-		}
-		unsigned char* contents = (unsigned char*)malloc(image_len);
-		read_binary(contents,image_len);
-		Bitmap* image = new Bitmap(width, height, depth, contents);
-		return image;
-	}
-	return new Bitmap(0, 0, 0, 0);
+/** Reads an integer value from the Yarp connection */
+int YarpConnection::read_int(unsigned char* buf){
+	unsigned char *ubuf = (unsigned char *)buf;
+	// this could be optimized away on little-endian machines!
+	return ubuf[0] + (ubuf[1]<<8) + (ubuf[2]<<16) + (ubuf[3]<<24);
+}
+
+
+/** Read text from a previously connected socket
+* @return The text that has been read   */
+string YarpConnection::read_text(){
+	return read_until("*** end of message");
+}
+
+
+/** Write binary contents to a previously opened socket as per http://eris.liralab.it/yarpdoc/yarp_protocol.html */
+int YarpConnection::write_binary(unsigned char* buffer, int length){
+	boost::system::error_code connection_error;
+	boost::asio::write( *this->connectionSocket, boost::asio::buffer(buffer, length),
+						boost::asio::transfer_all(), connection_error);
+	if (connection_error) throw boost::system::system_error(connection_error);
+	return(true);
 }

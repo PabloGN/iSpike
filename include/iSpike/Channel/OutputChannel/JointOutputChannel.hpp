@@ -15,6 +15,19 @@ namespace ispike {
 
 	/** Encodes joint angles into spikes */
 	class JointOutputChannel : public OutputChannel {
+		public:
+			JointOutputChannel();
+			~JointOutputChannel();
+			void initialise(AngleWriter* writer, map<string,Property>& properties);
+			void setFiring(std::vector<int>& buffer);
+			void setProperties(map<string, Property>& properties);
+			void step();
+
+
+		protected:
+			void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+
+
 		private:
 			AngleWriter* writer;
 			double minAngle;
@@ -31,76 +44,13 @@ namespace ispike {
 			/** The amount by which a current variable is incremented with each spike */
 			double currentIncrement;
 
-		protected:
-			void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+			/** Map holding new properties, for updating when thread has finished processing the current time step*/
+			map<string, Property> newPropertyMap;
 
-	public:
-
-		double getCurrentAngle()
-		{
-			return currentAngle;
-		}
-
-		JointOutputChannel();
-		~JointOutputChannel();
+			/** Flag to indicate that properties should be updated */
+			bool copyProperties;
 
 
-		void setFiring(std::vector<int>& buffer);
-
-		/**
-	   * Initialises the channel
-	   */
-		void start();
-
-		AngleWriter* getWriter() const
-		{
-			return writer;
-		}
-
-		void setWriter(AngleWriter *writer)
-		{
-			this->writer = writer;
-		}
-
-		void initialise(AngleWriter* writer)
-		{
-			initialise(writer, channelDescription->getChannelProperties());
-		}
-
-		void initialise(AngleWriter* writer, std::map<std::string,Property*> properties);
-
-		boost::shared_ptr<boost::thread> getThreadPointer()
-		{
-			return threadPointer;
-		}
-
-		void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
-		{
-			this->threadPointer = threadPointer;
-		}
-
-		bool isInitialised()
-		{
-			return this->initialised;
-		}
-
-		void step();
-
-		void updateProperties(std::map<std::string,Property*> properties)
-		{
-			if(this->initialised)
-			{
-				this->stopRequested = true;
-				{
-					this->wait_condition.notify_all();
-				}
-				this->threadPointer->join();
-				this->threadPointer.reset();
-				this->stopRequested = false;
-				this->updateProperties(properties, false);
-				this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&JointOutputChannel::workerFunction, this))));
-			}
-		}
 
 	};
 

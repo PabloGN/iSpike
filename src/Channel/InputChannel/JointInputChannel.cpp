@@ -21,7 +21,7 @@
 
 
 /** Default constructor, initialises the default channel properties */
-JointInputChannel::JointInputChannel() : iSpikeThread(), InputChannel() {
+JointInputChannel::JointInputChannel() {
 	// First define the properties of this channel
 	propertyMap["Degree Of Freedom"] = IntegerProperty(0, "Degree Of Freedom", "The degree of freedom to read from this joint", true);
 	propertyMap["Standard Deviation"] = DoubleProperty(0.5, "Standard Deviation", "The standard deviation as a percentage of neurons covered", true);
@@ -37,13 +37,12 @@ JointInputChannel::JointInputChannel() : iSpikeThread(), InputChannel() {
 	propertyMap["Constant Current"] = DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false);
 
 	// Now let's create the description
-	channelDescription.reset(new InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader", properties));
+	channelDescription = InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader");
 
 	//Initialize variables
 	reader = NULL;
 	copyProperties = false;
 	izhikevichNeuronSim = NULL;
-	isStepping = false;
 }
 
 
@@ -60,8 +59,7 @@ JointInputChannel::~JointInputChannel(){
 /*---------                 PUBLIC METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
-/** Initialises the Joint Input Channel with the default parameters
-	 @param reader The associated Angle Reader */
+//Inherited from InputChannel
 void JointInputChannel::initialize(AngleReader* reader, map<string, Property> properties){
 	if(reader == NULL)
 		throw iSpikeException("Cannot initialize JointInputChannel with a null reader.");
@@ -77,9 +75,30 @@ void JointInputChannel::initialize(AngleReader* reader, map<string, Property> pr
 }
 
 
+//Inherited from Channel. This will be done immediately if we are not stepping or deferred until the end of the step */
+void JointInputChannel::setProperties(map<string,Property>& properties){
+	if(isStepping){
+		newPropertyMap = properties;
+		copyProperties = true;
+	}
+	else{
+		if(isInitialized())
+			updateProperties(properties, true);
+		else
+			updateProperties(properties, false);
+	}
+}
+
+
 //Inherited from InputChannel
 void JointInputChannel::step(){
 	isStepping = true;
+
+	//Check reader for errors
+	if(reader->isError()){
+		LOG(LOG_CRITICAL)<<"AngleReader Error: "<<reader->getErrorMessage();
+		throw iSpikeException("Error in AngleReader");
+	}
 
 	#ifdef RECORD_TIMING
 		std::ofstream timeStream;
@@ -170,12 +189,22 @@ void JointInputChannel::updateProperties(map<string, Property>& properties, bool
 			throw ISpikeException("JointInputChannel: Property not recognized");
 		}
 
+		//Check that property name matches the map name
+		std::string paramName = iter->second.getName();
+		if(paramName != iter->first){
+			LOG(LOG_CRITICAL) << "JointIntputChannel: Property name mismatch: " << iter->first<<", "<<paramName<<endl;
+			throw ISpikeException("JointInputChannel: Property name mismatch");
+		}
+
 		//In updateReadOnly mode, only update properties that are not read only
 		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
-			std::string paramName = iter->second.getName();
 			switch (iter->second.getType()) {
 				case Property::Integer: {
+					//Update the property in the map
 					int value = ((IntegerProperty)(iter->second)).getValue();
+					((IntegerProperty)propertyMap[paramName]).setValue(value);
+
+					//Update the corresponding variable
 					if(paramName == "Degree Of Freedom")
 						this->degreeOfFreedom = value;
 					else if (paramName == "Neuron Width")
@@ -185,7 +214,11 @@ void JointInputChannel::updateProperties(map<string, Property>& properties, bool
 				}
 				break;
 				case Property::Double:  {
+					//Update the property in the map
 					double value = ((DoubleProperty)(iter->second)).getValue();
+					((DoubleProperty)propertyMap[paramName]).setValue(value);
+
+					//Update the corresponding variable
 					if(paramName == "Standard Deviation")
 						this->sd = value;
 					else if (paramName == "Minimum Angle")

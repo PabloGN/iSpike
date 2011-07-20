@@ -1,139 +1,126 @@
-/*
- * YarpAngleWriter.cpp
- *
- *  Created on: 23 Feb 2011
- *      Author: Edgars Lazdins
- */
-
+//iSpike includes
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/YarpPortDetails.hpp>
 #include <iSpike/YarpConnection.hpp>
-#include <sstream>
-#include <iostream>
 #include <iSpike/Log/Log.hpp>
 #include <iSpike/ISpikeException.hpp>
+using namespace ispike;
 
-/**
- * The default constructor, only initialises the default parameters and the description
- */
-YarpAngleWriter::YarpAngleWriter(std::string nameserverIP, std::string nameserverPort){
-	//throw ISpikeException("TEST YARP ANGLE WRITER EXCEPTION");
-	// First define the properties of this writer
-	// Get the available yarp ports
-	this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-	this->portMap = this->yarpConnection->getPortMap();
+//Other includes
+#include <sstream>
+#include <iostream>
 
-	// Iterate over them and add as options
-	std::map<std::string, YarpPortDetails*>::iterator iter;
-	std::vector<std::string> yarpPortNames;
-	for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++){
+/** The default constructor, only initialises the default parameters and the description */
+YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
+	// Connect to YARP and get list of ports
+	yarpConnection == NULL;
+	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
+	portMap = yarpConnection->getPortMap();
+
+	//Store port names as properties of this reader
+	vector<string> yarpPortNames;
+	for (map<string, YarpPortDetails>::iterator iter = portMap.begin(); iter != portMap.end(); iter++){
 		yarpPortNames.push_back(iter->first);
 	}
+	if(yarpPortNames.empty())
+		propertyMap["Port Name"] = ComboProperty(yarpPortNames, "undefined", "Port Name","The Yarp Port name", true);
+	else
+		propertyMap["Port Name"] = ComboProperty(yarpPortNames, yarpPortNames[0], "Port Name","The Yarp Port name", true);
 
-	std::map<std::string,Property*> properties;
-	properties["Port Name"] = new ComboProperty(
-				"Port Name",
-				"/icubSim/left_arm/state:o",
-				"The Yarp Port name",
-				yarpPortNames,
-				true
-				);
-	properties["Degree Of Freedom"] = new IntegerProperty(
-				"Degree Of Freedom",
-				0,
-				"The degree of freedom we would like to control",
-				true
-				);
+	//Other properties
+	propertyMap["Degree Of Freedom"] = IntegerProperty(0, "Degree Of Freedom", "The degree of freedom we would like to control", true);
 
-	// Now let's create the description
-	this->writerDescription = new WriterDescription("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer", properties);
+	//Create the description
+	writerDescription = WriterDescription("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
+
+	//Initialize variables
+	angleChanged = false;
+	angle = 0.0;
 }
 
 
 /** Destructor */
 YarpAngleWriter::~YarpAngleWriter(){
-
 }
 
 
-void YarpAngleWriter::initialise(){
-	YarpAngleWriter::initialise(this->getWriterDescription().getWriterProperties());
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+// Inherited from Writer
+void YarpAngleWriter::initialise(map<string,Property*> properties){
+	updateProperties(properties);
+	setInitialized(true);
 }
 
 
-void YarpAngleWriter::initialise(std::map<std::string,Property*> properties){
-	this->setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
-	this->degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
-	this->angleList = new std::queue<double>();
-	this->initialised = false;
-	this->previousAngle = 0;
-}
-
-
-/** Adds an angle to the processing queue */
-void YarpAngleWriter::addAngle(double angle){
+// Inherited from AngleWriter
+void YarpAngleWriter::setAngle(double angle){
 	boost::mutex::scoped_lock lock(this->mutex);
-	if(abs(angle - this->previousAngle) < 0.5)
-		return;
-	if(this->angleList->size() > 0)
-	{
-		double lastAngle = this->angleList->back();
-		if(abs(angle - lastAngle) < 0.5)
-		{
-			return;
-		}
-	}
-	this->previousAngle = angle;
-	this->angleList->push(angle);
+	updateAngle = false;
+	if(this->angle != angle)
+		updateAngle = true;
+	this->angle = angle;
 }
 
 
-/**
-* Initialises the reader and starts the main thread
-*/
+// Inherited from iSpikeThread
 void YarpAngleWriter::start(){
-	if(!initialised)
-	{
-		this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleWriter::workerFunction, this))));
-		initialised = true;
-	}
+	if(!isInitialized())
+		throw iSpikeException("Cannot start YarpAngleWriter thread - it has not been initialized.");
+	this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleWriter::workerFunction, this))));
 }
 
 
-void YarpAngleWriter::workerFunction(){
+/*--------------------------------------------------------------------*/
+/*---------                 PRIVATE METHODS                    -------*/
+/*--------------------------------------------------------------------*/
+
+void YarpAngleWriter::updateProperties(map<string, Property>& properties){
+	//Store properties
+	setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
+	degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
 	int sleepAmount = 1;
-	std::map<std::string, YarpPortDetails*>::iterator iter = this->portMap->find(this->getPortName());
-	std::string ip;
-	std::string port;
-	std::string type;
-	if (iter != this->portMap->end() )
-	{
+	propertyMap = properties;
+}
+
+FIXME
+void YarpAngleWriter::workerFunction(){
+	setRunning(true);
+
+	map<string, YarpPortDetails>::iterator iter = this->portMap->find(this->getPortName());
+	string ip;
+	unsigned port;
+	string type;
+	if (iter != this->portMap->end() ){
 		ip = iter->second->getIp();
 		port = iter->second->getPort();
 		type = iter->second->getType();
 		LOG(LOG_INFO) << "YarpAngleWriter: Yarp Port IP: " << ip << " Port: " << port;
-	} else {
+	}
+	else {
 		throw ISpikeException("YarpAngleWriter: Yarp IP/Port map is empty!");
 	}
 	this->yarpConnection->connect_to_port(ip, port);
 	this->yarpConnection->write_text("CONNECT foo\n");
-	while(true)
-	{
-		if(this->angleList->size() > 0)
-		{
+	while(!isStopRequested()){
+		if(this->angleList->size() > 0) {
 			double angle = this->angleList->front();
 			{
 				boost::mutex::scoped_lock lock(this->mutex);
 				this->angleList->pop();
 			}
 			this->yarpConnection->write_text("d\n");
-			std::ostringstream commandStream;
+			ostringstream commandStream;
 			commandStream << "set pos " << this->degreeOfFreedom << " " << angle << "\n";
-			std::string command = commandStream.str();
+			string command = commandStream.str();
 			LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
 			this->yarpConnection->write_text(command);
 			LOG(LOG_DEBUG) << "YarpAngleWriter: Received reply " << this->yarpConnection->read_until("\n");
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
 	}
+
+	setRunning(false);
 }

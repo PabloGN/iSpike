@@ -1,118 +1,47 @@
-/*
- * ReaderDescription.hpp
- *
- *  Created on: 13 Mar 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef READERDESCRIPTION_HPP_
 #define READERDESCRIPTION_HPP_
 
-#include <string>
-#include <map>
+//iSpike includes
 #include <iSpike/Property.hpp>
 #include <iSpike/Log/Log.hpp>
 
-/**
- * @class ReaderDescription
- * @brief Reader Description class
- *
- * This class describes a Reader.
- *
- * @author Edgars Lazdins
- *
- */
-class ReaderDescription
-{
-	public:
+//Other includes
+#include <string>
+#include <map>
+using namespace std;
 
-		/**
-		 *  Default constructor, creates a new Reader Description with the given parameters
-		 *  @param readerName Name of the Reader
-		 *  @param readerDescription Description for the Reader
-		 *  @param readerType The type of a Reader this is
-		 *  @param readerProperties A map of the Reader's properties
-		 */
-		ReaderDescription(std::string readerName,
-				std::string readerDescription,
-				std::string readerType,
-				const property_map& readerProperties);
+namespace ispike {
 
-		/**
-		 * Returns the Reader's description
-		 * @return Description of the Reader
-		 */
-		std::string getReaderDescription() const
-		{
-			return readerDescription;
-		}
+	/** Describes a Reader */
+	class ReaderDescription {
+		public:
+			ReaderDescription(string readerName, string readerDescription,	std::string readerType);
+			ReaderDescription(const ReaderDescription& desc);
+			ReaderDescription& operator=(const ReaderDescription& rhs);
 
-		/**
-		 * Returns the name of the Reader
-		 * @return Name of the Reader
-		 */
-		std::string getReaderName() const
-		{
-			return readerName;
-		}
+			/** Returns the Reader's description */
+			std::string getDescription() const { return description;}
 
-		/**
-		 * Returns the Reader's type
-		 * @return Reader's type
-		 */
-		std::string getReaderType() const
-		{
-			return readerType;
-		}
+			/** Returns the name of the Reader */
+			std::string getName() const {	return name; }
 
-		/**
-		 * Returns a map of the Reader's properties
-		 * @return Map of the Reader's properties
-		 */
-		//  std::map<std::string,Property*> getReaderProperties() const
-		//  {
-		//    std::map<std::string,Property*> result = std::map<std::string,Property*>();
-		//    for(std::map<std::string,Property*>::const_iterator iter = this->readerProperties.begin(); iter != this->readerProperties.end(); ++iter)
-		//    {
-		//      Property* newProperty;
-		//      switch(iter->second->getType())
-		//      {
-		//      case Property::Integer:
-		//        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-		//        break;
-		//      case Property::Double:
-		//        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-		//        break;
-		//      case Property::String:
-		//        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-		//        break;
-		//      case Property::Combo:
-		//        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-		//        break;
-		//      }
-		//      result[iter->first] = newProperty;
-		//      }
-		//      return result;
-		//  }
-		property_map getReaderProperties()
-		{
-			return this->readerProperties;
-		}
+			/** Returns the Reader's type */
+			std::string getType() const {	return type; }
 
-	private:
 
-		///Name of the Reader
-		std::string readerName;
+		private:
+			///Name of the Reader
+			string name;
 
-		///Description of the Reader
-		std::string readerDescription;
+			///Description of the Reader
+			string description;
 
-		/// Type of the Reader
-		std::string readerType;
+			/// Type of the Reader
+			string type;
 
-		///Reader's properties
-		property_map readerProperties;
-};
+	};
+
+}
 
 
 #endif /* READERDESCRIPTION_HPP_ */

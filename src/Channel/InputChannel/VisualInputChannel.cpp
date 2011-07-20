@@ -9,14 +9,10 @@
 using namespace ispike;
 
 //Other includes
-#include <iostream>
-#include <fstream>
 #include <boost/asio.hpp>
-#include <vector>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <ios>
 
 
 /** Constructor */
@@ -39,7 +35,12 @@ VisualInputChannel::VisualInputChannel() {
 	propertyMap["Constant Current"] = DoubleProperty(0, "Constant Current", "This value is added to the incoming current",	true);
 
 	//Create the description
-	this->channelDescription.reset(new InputChannelDescription("Visual Input Channel", "This is a visual input channel", "Visual Reader", properties));
+	channelDescription = InputChannelDescription("Visual Input Channel", "This is a visual input channel", "Visual Reader");
+
+	//Initialize variables
+	reader = NULL;
+	copyProperties = false;
+	neuronSim = NULL;
 }
 
 
@@ -79,9 +80,30 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 }
 
 
+/** Sets the properties. This will be done immediately if we are not stepping or deferred until the end of the step */
+void JointInputChannel::setProperties(map<string,Property>& properties){
+	if(isStepping){
+		newPropertyMap = properties;
+		copyProperties = true;
+	}
+	else{
+		if(isInitialized())
+			updateProperties(properties, true);
+		else
+			updateProperties(properties, false);
+	}
+}
+
+
 //Inherited from Channel
 void VisualInputChannel::step() {
 	isStepping = true;
+
+	//Check reader for errors
+	if(reader->isError()){
+		LOG(LOG_CRITICAL)<<"AngleReader Error: "<<reader->getError();
+		throw iSpikeException("Error in AngleReader");
+	}
 
 	///Retrieve the colour oponent image
 	Bitmap* opponentMap = new Bitmap(this->filter->getOpponencyMap());
@@ -138,12 +160,14 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 			switch (iter->second.getType()){
 				case Property::Integer: {
 					int value = ((IntegerProperty)(iter->second)).getValue();
+					((IntegerProperty)propertyMap[paramName]).setValue(value);
+
 					if(paramName == "Opponency Map")
 						this->opponentMap = value;
 					else if (paramName == "Neuron Width")
-						this->width = value;
+						setWidth(value);
 					else if (paramName == "Neuron Height")
-						this->height = value;
+						setHeight(value);
 					else if (paramName == "Image Offset X")
 						this->xOffset = value;
 					else if (paramName == "Image Offset Y")
@@ -152,6 +176,8 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 				}
 				case Property::Double: {
 					double value = ((DoubleProperty)(iter->second)).getValue();
+					((DoubleProperty)propertyMap[paramName]).setValue(value);
+
 					if (paramName == "Parameter A")
 						this->parameterA = value;
 					else if (paramName == "Parameter B")

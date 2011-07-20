@@ -1,14 +1,31 @@
 #include <iSpike/Reader/ReaderDescription.hpp>
+using namespace ispike;
 
-
-ReaderDescription::ReaderDescription(std::string readerName,
-		std::string readerDescription,
-		std::string readerType,
-		const property_map& readerProperties) :
-	readerName(readerName),
-	readerDescription(readerDescription),
-	readerType(readerType),
-	readerProperties(readerProperties)
-{
-	;
+/** Constructor */
+ReaderDescription::ReaderDescription(string readerName, string readerDescription, string readerType) {
+	this->name = readerName;
+	this->description = readerDescription;
+	this->type = readerType;
 }
+
+
+/** Copy constructor */
+ReaderDescription::ReaderDescription(const ReaderDescription& desc) {
+	this->name = desc.name;
+	this->description = desc.description;
+	this->type = desc.type;
+}
+
+
+/** Assignment operator */
+ReaderDescription& ReaderDescription::operator =(const ReaderDescription& rhs) {
+	if(&rhs == this)
+		return *this;
+
+	this->name = rhs.name;
+	this->description = rhs.description;
+	this->type = rhs.type;
+
+	return *this;
+}
+

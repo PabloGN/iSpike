@@ -1,10 +1,3 @@
-/*
- * YarpAngleWriter.hpp
- *
- *  Created on: 23 Feb 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef YARPANGLEWRITER_HPP_
 #define YARPANGLEWRITER_HPP_
 
@@ -20,35 +13,30 @@
 #include <map>
 #include <iSpike/YarpPortDetails.hpp>
 
-class YarpAngleWriter : public AngleWriter {
+namespace ispike {
+	class YarpAngleWriter : public AngleWriter {
+		public:
+			YarpAngleWriter(string nameserverIP, unsigned nameserverPort);
+			virtual ~YarpAngleWriter();
+			void setAngle(double angle);
+			void initialise(map<string,Property> properties);
+			void start();
 
-	private:
-		std::queue<double>* angleList;
-		boost::shared_ptr<boost::thread> threadPointer;
-		void workerFunction();
-		boost::mutex mutex;
-		bool initialised;
-		std::string portName;
-		int degreeOfFreedom;
-		YarpConnection* yarpConnection;
-		std::map<std::string, YarpPortDetails*>* portMap;
-		double previousAngle;
+		private:
+			//===========================  VARIABLES  =========================
+			double angle;
+			string portName;
+			int degreeOfFreedom;
+			YarpConnection* yarpConnection;
+			map<string, YarpPortDetails> portMap;
 
+			/*! Controls whether the angle should be output */
+			bool angleChanged;
 
-	public:
-		YarpAngleWriter(std::string nameserverIP, std::string nameserverPort);
-		virtual ~YarpAngleWriter();
-		void addAngle(double angle);
-		bool getInitialised() { return initialised; }
-		std::string getPortName() { return this->portName; }
-		boost::shared_ptr<boost::thread> getThreadPointer() const {return threadPointer; }
-		void initialise();
-		void initialise(std::map<std::string,Property*> properties);
-		void setPortName(std::string portName) { this->portName = portName; }
-		void setInitialised(bool initialised) { this->initialised = initialised; }
-		void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer) { this->threadPointer = threadPointer; }
-		void start();
+			//===========================  METHODS  ===========================
+			void workerFunction();
+	};
 
-};
+}
 
 #endif /* YARPANGLEWRITER_HPP_ */

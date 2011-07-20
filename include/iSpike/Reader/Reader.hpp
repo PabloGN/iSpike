@@ -1,46 +1,44 @@
-/*
- * Reader.hpp
- *
- *  Created on: 1 Jan 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef READER_HPP_
 #define READER_HPP_
 
-#include <boost/scoped_ptr.hpp>
+//iSpike includes
+#include "iSpike/iSpikeThread.hpp"
+#include "iSpike/Property.hpp"
 #include <iSpike/Reader/ReaderDescription.hpp>
 #include <iSpike/Log/Log.hpp>
 
-/**
- * @class Reader
- * @brief Reader class
- *
- * This class represents a Reader, capable of retrieving analogue information
- * from a predefined source and serving it upon request
- *
- * @author Edgars Lazdins
- *
- */
-class Reader {
+//Other includes
+#include <map>
+#include <string>
+using namespace std;
 
-protected:
-	boost::scoped_ptr<ReaderDescription> readerDescription;
+namespace ispike {
 
-public:
+	/** This class represents a Reader, capable of retrieving analogue information
+	  * from a predefined source and serving it upon request */
+	class Reader : public iSpikeThread  {
+		public:
+			Reader(){ initialized = false; }
+			ReaderDescription getReaderDescription() const { return readerDescription; }
+			map<string, Property> getProperties() { return propertyMap; }
+			void initialize(map<string, Property>& properties) = 0;
+			bool isInitialized() { return initialized; }
+			void setInitialized(bool initialized) { this->initialized = initialized; }
+			void setProperties(map<string, Property>& properties) = 0;
 
-  ReaderDescription getReaderDescription() const
-  {
-      return *readerDescription;
-  }
+		protected:
+			/** Description of the reader */
+			ReaderDescription readerDescripton;
 
-  virtual void initialise(property_map properties) = 0;
+			/** Properties of the reader */
+			map<string, Property> propertyMap;
 
-  void initialise()
-  {
-    initialise(readerDescription->getReaderProperties());
-  }
+		private:
+			/** Records whether reader has been initialized */
+			bool initialized;
 
-};
+	};
+
+}
 
 #endif /* READER_HPP_ */

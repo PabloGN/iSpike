@@ -1,15 +1,21 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+//iSpike includes
+#include <iSpike/Property.hpp>
+#include <iSpike/Log/Log.hpp>
+
+//Other includes
 #include <string>
 #include <map>
-#include <iSpike/Property.hpp>
+using namespace std;
+
 namespace ispike {
 
 	/** Abstract class holding properties common to all input and output channels */
 	class Channel {
 		public:
-			Channel(){ initialized = false; }
+			Channel(){ initialized = false; stepping = false; LOG(LOG_DEBUG) << "CHANNEL CONSTRUCTOR";}
 			virtual ~Channel() {}
 
 			/** Retrieves the Channel Identifier  */
@@ -40,10 +46,10 @@ namespace ispike {
 			virtual map<string, Property> getProperties(){ return propertyMap; }
 
 			/** Sets the properties */
-			virtual setProperties(map<string, Property>& properties);
+			virtual void setProperties(map<string, Property>& properties) = 0;
 
 			/** Advances the channel by one time step */
-			void step() = 0;
+			virtual void step() = 0;
 
 
 		protected:
@@ -63,27 +69,20 @@ namespace ispike {
 			/** Map holding the current properties */
 			map<string, Property> propertyMap;
 
-			/** Map holding new properties, for updating when thread has finished processing the current time step*/
-			map<string, Property> newPropertyMap;
-
-			/** Flag to indicate that properties should be updated */
-			bool copyProperties;
-
-			/** Records if we are in the middle of a step */
-			bool isStepping;
 
 			//=============================  METHODS  ===========================
-			bool isInitialised() {return initialized; }
-
-			/** Enables updating channel properties during run-time  */
-			virtual void updateProperties(std::map<std::string,Property*> properties) = 0;
-
+			bool isInitialized() {return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
+			bool isStepping() { return stepping; }
+			void setStepping(bool stepping){ this->stepping = stepping; }
 
 
 		private:
 			/** Flag recording whether channel is initialized or not */
 			bool initialized;
+
+			/** Records if we are in the middle of a step */
+			bool stepping;
 
 	};
 

@@ -31,7 +31,7 @@ namespace ispike {
 			Property(ValueType type, string name, string description, bool readOnly);
 			Property(const Property& prop);
 			virtual ~Property();
-			virtual string toString() = 0;
+			virtual string toString() { return ""; }
 			ValueType getType() { return this->type; }
 			std::string getName() {	return this->name; }
 			std::string getDescription() { return this->description; }

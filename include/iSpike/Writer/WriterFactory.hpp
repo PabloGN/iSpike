@@ -1,41 +1,33 @@
-/*
- * WriterFactory.hpp
- *
- *  Created on: 13 Mar 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef WRITERFACTORY_HPP_
 #define WRITERFACTORY_HPP_
 
-#include <vector>
-#include <iSpike/Writer/Writer.hpp>
-#include <iSpike/Writer/AngleWriter.hpp>
-#include <iSpike/Writer/YarpAngleWriter.hpp>
-#include <iSpike/Writer/FileAngleWriter.hpp>
+//iSpike includes
 #include <iSpike/Writer/WriterDescription.hpp>
 #include <iSpike/Property.hpp>
 
-/**
- * @class WriterFactory
- * @brief A Factory of Writers
- *
- * The Writer Factory can list all Writers available in the system and can produce a particular type of a Writer
- */
-class WriterFactory {
-	private:
-		/// A list of available writers
-		std::vector<WriterDescription> writerList;
-		std::string ip;
-		std::string port;
+//Other includes
+#include <vector>
+#include <string>
+using namespace std;
 
-	public:
-		WriterFactory();
-		WriterFactory(std::string ip, std::string port);
-		std::vector<WriterDescription> getWritersOfType(std::string writerType);
-		Writer* create(std::string writerName, std::map<std::string,Property*> writerProperties );
+namespace ispike {
 
-};
+	/** List all Writers available in the system and creates a particular type of a Writer */
+	class WriterFactory {
+		private:
+			/** A list of available writers */
+			vector<WriterDescription> writerList;
+			unsigned ip;
+			string port;
+
+		public:
+			WriterFactory();
+			WriterFactory(std::string ip, unsigned port);
+			vector<WriterDescription> getWritersOfType(string writerType);
+			Writer* create(string writerName, map<string,Property*> writerProperties );
+
+	};
+}
 
 
 #endif /* WRITERFACTORY_HPP_ */

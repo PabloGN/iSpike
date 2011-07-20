@@ -1,60 +1,31 @@
-/*
- * YarpPortDetails.hpp
- *
- *  Created on: 31 Dec 2010
- *      Author: Edgars Lazdins
- */
-
 #ifndef YARPPORTDETAILS_HPP_
 #define YARPPORTDETAILS_HPP_
 
 #include <string>
+using namespace std;
 
-class YarpPortDetails
-{
-  private:
-    std::string ip;
-    std::string port;
-    std::string type;
+namespace ispike {
 
-  public:
-    std::string getIp()
-    {
-        return ip;
-    }
+	/** Holds details about a YARP port */
+	class YarpPortDetails {
+		private:
+			string ip;
+			unsigned port;
+			string type;
 
-    std::string getPort()
-    {
-        return port;
-    }
+		public:
+			YarpPortDetails(string ip, unsigned port, string type);
+			YarpPortDetails(const YarpPortDetails& ypd);
+			YarpPortDetails& operator=(const YarpPortDetails& rhs);
+			string getIp(){ return ip; }
+			unsigned getPort() { return port; }
+			string getType() { return type; }
+			void setIp(string ip) { this->ip = ip;}
+			void setPort(unsigned port) { this->port = port; }
+			void setType(string type) { this->type = type; }
 
-    std::string getType()
-    {
-        return type;
-    }
+	};
 
-    void setIp(std::string ip)
-    {
-        this->ip = ip;
-    }
-
-    void setPort(std::string port)
-    {
-        this->port = port;
-    }
-
-    void setType(std::string type)
-    {
-        this->type = type;
-    }
-
-    YarpPortDetails(std::string ip, std::string port, std::string type)
-    {
-      setIp(ip);
-      setPort(port);
-      setType(type);
-    }
-
-};
+}
 
 #endif /* YARPPORTDETAILS_HPP_ */

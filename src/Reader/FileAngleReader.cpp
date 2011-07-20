@@ -1,83 +1,95 @@
-/*
- * FileAngleReader.cpp
- *
- *  Created on: 9 Mar 2011
- *      Author: Edgars Lazdins
- */
-
+//iSpike includes
 #include <iSpike/Reader/FileAngleReader.hpp>
+#include <iSpike/Property.hpp>
+#include <iSpike/ISpikeException.hpp>
+#include <iSpike/Log/Log.hpp>
+using namespace ispike;
+
+//Other includes
+#include <boost/asio.hpp>
 #include <vector>
 #include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-#include <iSpike/Property.hpp>
-#include <iSpike/ISpikeException.hpp>
-#include <iSpike/Log/Log.hpp>
+using namespace std;
 
-std::vector<double> FileAngleReader::getData()
-{
-  return *(this->buffer);
+/** Constructor */
+FileAngleReader() {
+	// Define the properties of this reader
+	properties["Filename"] = StringProperty("anglesIn.txt", "Filename", "The file where the angles will be read from", true);
+
+	//Create description
+	readerDescription = ReaderDescription("File Angle Reader", "This is a file angle reader", "Angle Reader");
 }
 
-std::vector<double>* readAngleFromFile(const char* fileName)
-{
- std::ifstream fileStream;
- std::string contents;
 
- fileStream.open(fileName, std::ios::in | std::ios::binary);
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
 
- if (!fileStream) {
-   std::ostringstream messageStream;
-   messageStream << "Can't read angles: " << fileName;
-   std::string message(messageStream.str());
-   throw ISpikeException(message);
- }
- fileStream >> contents;
+//Inherited from Reader
+void FileAngleReader::initialise(map<string, Property> &properties){
+	buffer.clear();
 
- LOG(LOG_INFO) << "FileAngleReader: Read the following angles: " << contents;
+	//Check property exists
+	if(propertyMap.count("Filename") == 0)
+		throw iSpikeException("Filename property does not exist.");
 
- if (fileStream.fail()) {
-   std::ostringstream messageStream;
-   messageStream << "Can't read angles: " << fileName;
-   std::string message(messageStream.str());
-   throw ISpikeException(message);
- }
+	fileName = ((StringProperty)properties["FileName"]).getValue();
 
- fileStream.close();
-
- std::vector<double> *angles = new std::vector<double>();
- boost::regex split_string(" ");
- std::list<std::string> lines;
- boost::regex_split(std::back_inserter(lines), contents, split_string);
- while(lines.size() > 0)
- {
-   std::string current_string = *(lines.begin());
-   lines.pop_front();
-   double angle = boost::lexical_cast<double>(current_string);
-   angles->push_back(angle);
- }
-
- return angles;
-
+	setInitialized(true);
 }
 
-void FileAngleReader::start()
-{
-  if(!initialised)
-  {
-    initialised = true;
-    LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
-    this->buffer = readAngleFromFile(fileName.c_str());
-  }
+
+// Inherited from AngleReader
+void FileAngleReader::start() {
+	if(!isInitialized()){
+		LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
+		readAngleFromFile();
+		setInitialized(true);
+	}
 }
 
-void FileAngleReader::initialise(property_map properties)
-{
-	this->buffer = new std::vector<double>();
-	this->fileName = static_cast<StringProperty*>(properties["FileName"].get())->getValue();
+
+/*--------------------------------------------------------------------*/
+/*---------                PRIVATE METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+/** Reads angles from a file */
+void FileAngleReader::readAngleFromFile() {
+	ifstream fileStream;
+	string contents;
+
+	fileStream.open(fileName.c_str(), std::ios::in | std::ios::binary);
+
+	if (!fileStream) {
+		std::ostringstream messageStream;
+		messageStream << "Can't read angles: " << fileName;
+		std::string message(messageStream.str());
+		throw ISpikeException(message);
+	}
+	fileStream >> contents;
+
+	LOG(LOG_INFO) << "FileAngleReader: Read the following angles: " << contents;
+
+	if (fileStream.fail()) {
+		std::ostringstream messageStream;
+		messageStream << "Can't read angles: " << fileName;
+		std::string message(messageStream.str());
+		throw ISpikeException(message);
+	}
+
+	fileStream.close();
+
+	buffer.clear();
+	boost::regex split_string(" ");
+	std::list<std::string> lines;
+	boost::regex_split(std::back_inserter(lines), contents, split_string);
+	while(lines.size() > 0)	{
+		std::string current_string = *(lines.begin());
+		lines.pop_front();
+		double angle = boost::lexical_cast<double>(current_string);
+		buffer.push_back(angle);
+	}
 }

@@ -1,147 +1,37 @@
-/*
- * VisualReader.hpp
- *
- *  Created on: 1 Jan 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef YARPVISUALREADER_HPP_
 #define YARPVISUALREADER_HPP_
 
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
-#include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <map>
 #include <iSpike/YarpPortDetails.hpp>
 
-/**
- * @class YarpVisualReader
- * @brief YarpVisualReader class
- *
- * This class represents a YarpVisualReader, it retrieves an image from a given yarp port
- * and makes it available upon request
- *
- * @author Edgars Lazdins
- *
- */
+namespace ispike{
+
+/** Retrieves an image from a given yarp port and makes it available upon request */
 class YarpVisualReader : public VisualReader {
+	public:
+		YarpVisualReader(string nameserverIP, unsigned nameserverPort);
+		~YarpVisualReader();
+		Bitmap getData();
+		void initialise(map<string, Property>& properties);
+		void start();
 
-private:
-  Bitmap* buffer;
-  boost::shared_ptr<boost::thread> threadPointer;
-  void workerFunction();
-  boost::mutex mutex;
-  bool initialised;
-  std::string portName;
-  YarpConnection* yarpConnection;
-  std::map<std::string, YarpPortDetails*>* portMap;
+	private:
+		//=============================  VARIABLES  =========================
+		Bitmap* buffer;
+		string portName;
+		YarpConnection* yarpConnection;
+		map<string, YarpPortDetails> portMap;
 
-public:
 
-  /*
-   * The default constructor, only initialises the default parameters and the description
-   */
-  YarpVisualReader(std::string nameserverIP, std::string nameserverPort)
-  {
-    this->initialised = false;
-    /**
-     * First define the properties of this reader
-     */
-	 /**
-	 * Get the available yarp ports
-	 */
-    LOG(LOG_DEBUG) << "before yarp connection";
-	  this->yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-	  LOG(LOG_DEBUG) << "getting port map";
-	  this->portMap = this->yarpConnection->getPortMap();
+		//=============================  METHODS  ============================
+		void workerFunction();
 
-    /**
-     * Iterate over them and add as options
-     */
-	 LOG(LOG_DEBUG) << "iterating";
-	 std::map<std::string, YarpPortDetails*>::iterator iter;
-	 std::vector<std::string> yarpPortNames;
-	for (iter = this->portMap->begin(); iter != this->portMap->end(); iter++)
-	{
-		yarpPortNames.push_back(iter->first);
-	}
+	};
 
-	 property_map properties;
-	 properties["Port Name"] =
-	 	boost::shared_ptr<Property>(new ComboProperty(
-		   "Port Name",
-		   "/icubSim/left_arm/state:o",
-		   "The Yarp Port name",
-		   yarpPortNames,
-		   true
-	 ));
-    /**
-     * Now let's create the description
-     */
-    this->readerDescription.reset(new ReaderDescription(
-          "Yarp Visual Reader",
-          "This is a Yarp visual reader",
-          "Visual Reader",
-          properties
-        ));
-    LOG(LOG_DEBUG) << "exiting";
-  }
-
-  ~YarpVisualReader()
-  {
-    if(this->initialised)
-    {
-      this->threadPointer->interrupt();
-      this->threadPointer->join();
-      delete this->threadPointer.get();
-      delete this->buffer;
-    }
-  }
-
-  /**
-   * Retrieves the image
-   */
-  Bitmap getData();
-
-  void initialise(property_map properties);
-
-  /**
-   * Initialises the reader and starts the main thread
-   */
-  void start();
-
-  std::string getPortName()
-  {
-    return this->portName;
-  }
-
-  void setPortName(std::string portName)
-  {
-    this->portName = portName;
-  }
-
-  bool getInitialised() const
-  {
-      return initialised;
-  }
-
-  void setInitialised(bool initialised)
-  {
-      this->initialised = initialised;
-  }
-
-  boost::shared_ptr<boost::thread> getThreadPointer() const
-  {
-      return threadPointer;
-  }
-
-  void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer)
-  {
-      this->threadPointer = threadPointer;
-  }
-
-};
+}
 
 #endif /* YARPVISUALREADER_HPP_ */

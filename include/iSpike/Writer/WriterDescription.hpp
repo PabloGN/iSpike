@@ -1,186 +1,47 @@
-/*
- * WriterDescription.hpp
- *
- *  Created on: 13 Mar 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef WRITERDESCRIPTION_HPP_
 #define WRITERDESCRIPTION_HPP_
 
+//iSpike includes
+#include <iSpike/Property.hpp>
+#include <iSpike/Log/Log.hpp>
+
+//Other includes
 #include <string>
 #include <map>
-#include <iSpike/Property.hpp>
+using namespace std;
 
-/**
- * @class WriterDescription
- * @brief Writer Description class
- *
- * This class describes a Writer.
- *
- * @author Edgars Lazdins
- *
- */
-class WriterDescription {
+namespace ispike {
 
-private:
-  /// Name of the Writer
-  std::string writerName;
+	/** Describes a Writer */
+	class WriterDescription {
+		public:
+			WriterDescription(string name, string description, string type);
+			WriterDescription(const WriterDescription& desc);
+			WriterDescription& operator=(const WriterDescription& rhs);
 
-  ///Writer's description
-  std::string writerDescription;
+			/** Returns the Writer's description */
+			string getDescription() const { return description;}
 
-  ///Type of a Writer this is
-  std::string writerType;
+			/** Returns the name of the Writer */
+			string getName() const { return name; }
 
-  ///A map of the Writer's properties
-  std::map<std::string,Property*> writerProperties;
+			/** Returns the Writer's type */
+			string getType() const { return type; }
 
-public:
 
-  /**
-   *  Default constructor, creates a new Writer Description with the given parameters
-   *  @param writerName Name of the Writer
-   *  @param writerDescription Description for the Writer
-   *  @param writerType The type of a Writer this is
-   *  @param writerProperties A map of the Writer's properties
-   */
-  WriterDescription(std::string writerName, std::string writerDescription, std::string writerType, std::map<std::string,Property*> writerProperties)
-  {
-    this->writerName = writerName;
-    this->writerDescription = writerDescription;
-    this->writerType = writerType;
-    this->writerProperties = writerProperties;
-  }
+		private:
+			///Name of the Writer
+			string name;
 
-  WriterDescription & operator= (const WriterDescription & copy_from_me)
-  {
-    if (this != &copy_from_me) // protect against invalid self-assignment
-    {
-      this->writerName = copy_from_me.writerName;
-      this->writerDescription = copy_from_me.writerDescription;
-      this->writerType = copy_from_me.writerType;
-      this->writerProperties = std::map<std::string,Property*>();
-      for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.writerProperties.begin(); iter != copy_from_me.writerProperties.end(); ++iter)
-      {
-        Property* newProperty;
-        switch(iter->second->getType())
-        {
-        case Property::Integer:
-          newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::Double:
-          newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::String:
-          newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-          break;
-        case Property::Combo:
-          newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-          break;
-        }
-        this->writerProperties[iter->first] = newProperty;
-      }
-    }
-    // by convention, always return *this
-    return *this;
-  }
+			///Description of the Writer
+			string description;
 
-  WriterDescription(const WriterDescription& copy_from_me)
-  {
-    this->writerName = copy_from_me.writerName;
-    this->writerDescription = copy_from_me.writerDescription;
-    this->writerType = copy_from_me.writerType;
-    this->writerProperties = std::map<std::string,Property*>();
-    for(std::map<std::string,Property*>::const_iterator iter = copy_from_me.writerProperties.begin(); iter != copy_from_me.writerProperties.end(); ++iter)
-    {
-      Property* newProperty;
-      switch(iter->second->getType())
-      {
-      case Property::Integer:
-        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Double:
-        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::String:
-        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Combo:
-        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-        break;
-      }
-      this->writerProperties[iter->first] = newProperty;
-    }
-  }
+			/// Type of the Writer
+			string type;
 
-  ~WriterDescription()
-  {
-    for(std::map<std::string,Property*>::iterator iter = writerProperties.begin(); iter != writerProperties.end(); ++iter)
-    {
-      delete iter->second;
-    }
-    writerProperties.clear();
-  }
+	};
 
-  /**
-   * Returns the Writer's description
-   * @return Description of the Reader
-   */
-  std::string getWriterDescription() const
-  {
-      return writerDescription;
-  }
+}
 
-  /**
-   * Returns the name of the Writer
-   * @return Name of the Writer
-   */
-  std::string getWriterName() const
-  {
-      return writerName;
-  }
-
-  /**
-   * Returns the Writer's type
-   * @return Writer's type
-   */
-  std::string getWriterType() const
-  {
-      return writerType;
-  }
-
-  /**
-   * Returns a map of the Writer's properties
-   * @return Map of the Writer's properties
-   */
-  std::map<std::string,Property*> getWriterProperties() const
-  {
-   /* std::map<std::string,Property*> result = std::map<std::string,Property*>();
-    for(std::map<std::string,Property*>::const_iterator iter = this->writerProperties.begin(); iter != this->writerProperties.end(); ++iter)
-    {
-      Property* newProperty;
-      switch(iter->second->getType())
-      {
-      case Property::Integer:
-        newProperty = new IntegerProperty(iter->second->getName(), ((IntegerProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Double:
-        newProperty = new DoubleProperty(iter->second->getName(), ((DoubleProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::String:
-        newProperty = new StringProperty(iter->second->getName(), ((StringProperty*)(iter->second))->getValue(), iter->second->getDescription(), iter->second->isReadOnly());
-        break;
-      case Property::Combo:
-        newProperty = new ComboProperty(iter->second->getName(), ((ComboProperty*)(iter->second))->getValue(), iter->second->getDescription(), ((ComboProperty*)(iter->second))->getOptions(), iter->second->isReadOnly());
-        break;
-      }
-      result[iter->first] = newProperty;
-      }
-      return result;*/
-    return this->writerProperties;
-  }
-
-};
 
 #endif /* WRITERDESCRIPTION_HPP_ */
