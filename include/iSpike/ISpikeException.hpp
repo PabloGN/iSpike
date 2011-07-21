@@ -1,34 +1,31 @@
-/*
- * ISpikeException.hpp
- *
- *  Created on: 24 Mar 2011
- *      Author: Edgars
- */
-
 #ifndef ISPIKEEXCEPTION_HPP_
 #define ISPIKEEXCEPTION_HPP_
 
 #include <string>
-class ISpikeException : public std::exception
-{
-private:
-    std::string description;
-public:
-	ISpikeException(std::string description) throw()
-	{
-		this->description = description;
-	}
+using namespace std;
 
-	const std::string& Msg() const {
-	    return description;
-	}
+namespace ispike {
 
-	const char* what() const throw() {
-	    return description.c_str();
-	}
+	class ISpikeException : public exception {
+		private:
+			string description;
 
+		public:
+			ISpikeException(string description) throw() {
+				this->description = description;
+			}
+			~ISpikeException() throw() {}
 
-    ~ISpikeException() throw() {}
-};
+			const string& msg() const {
+				return description;
+			}
+
+			const char* what() const throw() {
+				return description.c_str();
+			}
+
+		};
+
+}
 
 #endif /* ISPIKEEXCEPTION_HPP_ */

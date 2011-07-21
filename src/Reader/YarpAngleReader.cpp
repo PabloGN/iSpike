@@ -13,6 +13,10 @@ using namespace ispike;
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+//Property defines
+#define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
+#define PORT_NAME_PROP "Port Name"
+
 /** Constructor */
 YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 	// Connect to YARP and get list of ports
@@ -26,9 +30,10 @@ YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
-		propertyMap["Port Name"] = ComboProperty(yarpPortNames, "undefined", "Port Name","The Yarp Port name", true);
+		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
 	else
-		propertyMap["Port Name"] = ComboProperty(yarpPortNames, yarpPortNames[0], "Port Name","The Yarp Port name", true);
+		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
+	addProperty(IntegerProperty(0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
 
 	//Create the description
 	readerDescription = ReaderDescription("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
@@ -59,8 +64,8 @@ vector<double> YarpAngleReader::getData(){
 
 // Inherited from Reader
 void YarpAngleReader::initialize(map<string, Property>& properties){
-	updateProperties(properties);
-	buffer.clear();
+	updateProperties(properties, );
+	angle = 0.0;
 	setInitialized(true);
 }
 
@@ -68,7 +73,7 @@ void YarpAngleReader::initialize(map<string, Property>& properties){
 // Inherited from AngleReader
 void YarpAngleReader::start(){
 	if(!isInitialized())
-		throw iSpikeException("YarpAngleReader thread cannot be started - it has not been initialized.");
+		throw ISpikeException("YarpAngleReader thread cannot be started - it has not been initialized.");
 	setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleReader::workerFunction, this))));
 }
 
@@ -77,25 +82,37 @@ void YarpAngleReader::start(){
 /*---------                 PRIVATE METHODS                    -------*/
 /*--------------------------------------------------------------------*/
 
-void YarpAngleReader::updateProperties(map<string, Property>& properties){
-	this->setPortName(((ComboProperty)properties["Port Name"]).getValue());
-	propertyMap = properties;
+/** Updates the properties */
+void YarpAngleReader::updateProperties(map<string, Property>& properties, bool updateReadOnly){
+	if(properties.count(PORT_NAME_PROP) == 0)
+		throw ISpikeException("Property Port Name cannot be found.");
+	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+		setPortName(updatePropertyValue(properties[PORT_NAME_PROP]));
+
+	if(properties.count(DEGREE_OF_FREEDOM_PROP) == 0)
+		throw ISpikeException("Property Degree of Freedom cannot be found.");
+	if((updateReadOnly && !propertyMap[DEGREE_OF_FREEDOM_PROP].isReadOnly()) || !updateReadOnly)
+		degreeOfFreedom = updatePropertyValue(properties[DEGREE_OF_FREEDOM_PROP]);
 }
+
 
 /** Function passed to thread - similar to run() method */
 void YarpAngleReader::workerFunction(){
 	setRunning(true);
 	clearError();
+
+	//Variables to be used in the loop
+	vector<double> buffer;
+	double tmpAngle;
+
 	try{
 		//Connect to port
 		map<string, YarpPortDetails>::iterator iter = portMap.find(this->getPortName());
 		string ip;
 		unsigned port;
-		string type;
 		if (iter != this->portMap->end() ) {
 			ip = iter->second->getIp();
 			port = iter->second->getPort();
-			type = iter->second->getType();
 			LOG(LOG_INFO) << "YarpAngleReader: Yarp Port IP: " << ip << " Port: " << port;
 		}
 		else {
@@ -103,15 +120,13 @@ void YarpAngleReader::workerFunction(){
 		}
 		yarpConnection->connect_to_port(ip, port);
 		yarpConnection->prepare_to_read_text();
+
+		//Main run loop
 		while(!isStopRequested()){
-			//string contentLine = this->yarpConnection->read_until("\n");
 			//Get angle data from YARP server
 			string contentLine = this->yarpConnection->getSocketString();
 
-			//Lock mutex while buffer is being filled
-			boost::mutex::scoped_lock lock(this->mutex);
-
-			//Fill buffer with new data
+			//Extract the angles
 			buffer.clear();
 			if(contentLine.length() > 0){
 				boost::regex splitString("\\s+");
@@ -122,19 +137,22 @@ void YarpAngleReader::workerFunction(){
 				while(lines.size() > 0)	{
 					string current_string = *(lines.begin());
 					lines.pop_front();
-					double angle = 0;
 					try{
-						angle = boost::lexical_cast<double>(current_string);
+						tmpAngle = boost::lexical_cast<double>(current_string);
 					}
 					catch (exception& e) {
-						cout << "Error occured in YarpAngleReader: '" << current_string << "'" << endl;
-						cout << "Cannot convert this to double: " << current_string;
+						LOG(LOG_CRITICAL)<<"Error occured in YarpAngleReader: '"<<current_string<<"'"<<"Cannot convert this to double: "<<current_string;
 						throw new ISpikeException("Error at YarpAngleReader lexical_cast");
 					}
 					LOG(LOG_INFO) << "Angle: " << angle;
-					buffer.push_back(angle);
+					buffer.push_back(tmpAngle);
 				}
 			}
+
+			//Set the angle to the appropriate degree of freedom
+			if(degreeOfFreedom >= buffer.size())
+				throw ISpikeException("Degree of freedom is greater than the buffer size.");
+			setAngle(buffer[degreeOfFreedom]);
 		}
 	}
 	catch(ISpikeException& ex){
@@ -143,6 +161,7 @@ void YarpAngleReader::workerFunction(){
 	catch(...){
 		setError("An unknown exception occurred in the YarpAngleReader");
 	}
+
 	setRunning(false);
 }
 

@@ -18,22 +18,28 @@ namespace ispike {
 		public:
 			YarpAngleWriter(string nameserverIP, unsigned nameserverPort);
 			virtual ~YarpAngleWriter();
-			void setAngle(double angle);
-			void initialise(map<string,Property> properties);
+			void initialize(map<string,Property>& properties);
 			void start();
 
 		private:
 			//===========================  VARIABLES  =========================
-			double angle;
-			string portName;
-			int degreeOfFreedom;
 			YarpConnection* yarpConnection;
+
+			/** Holds the output ports that are available */
 			map<string, YarpPortDetails> portMap;
 
 			/*! Controls whether the angle should be output */
 			bool angleChanged;
 
+			/** The port to use */
+			string portName;
+
+			/** Amount to sleep in between writing commands */
+			unsigned sleepDuration_ms;
+
+
 			//===========================  METHODS  ===========================
+			void updateProperties(map<string, Property>& properties);
 			void workerFunction();
 	};
 

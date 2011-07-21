@@ -42,12 +42,6 @@ namespace ispike {
 			/** Sets the description of a Channel */
 			void setDescription(std::string description){ this->description = description; }
 
-			/** Returns a map containing the current properties */
-			virtual map<string, Property> getProperties(){ return propertyMap; }
-
-			/** Sets the properties */
-			virtual void setProperties(map<string, Property>& properties) = 0;
-
 			/** Advances the channel by one time step */
 			virtual void step() = 0;
 
@@ -65,9 +59,6 @@ namespace ispike {
 
 			/** Channel Description */
 			std::string description;
-
-			/** Map holding the current properties */
-			map<string, Property> propertyMap;
 
 
 			//=============================  METHODS  ===========================

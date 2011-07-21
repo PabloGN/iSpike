@@ -9,6 +9,11 @@ using namespace ispike;
 //Other includes
 #include <sstream>
 #include <iostream>
+using namespace std;
+
+//Names of properties used
+#define PORT_NAME_PROP "Port Name"
+#define SLEEP_DURATION_PROP "Sleep Duration ms"
 
 /** The default constructor, only initialises the default parameters and the description */
 YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
@@ -23,24 +28,25 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
-		propertyMap["Port Name"] = ComboProperty(yarpPortNames, "undefined", "Port Name","The Yarp Port name", true);
+		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
 	else
-		propertyMap["Port Name"] = ComboProperty(yarpPortNames, yarpPortNames[0], "Port Name","The Yarp Port name", true);
+		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
 
 	//Other properties
-	propertyMap["Degree Of Freedom"] = IntegerProperty(0, "Degree Of Freedom", "The degree of freedom we would like to control", true);
+	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
 
 	//Create the description
 	writerDescription = WriterDescription("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
 
 	//Initialize variables
 	angleChanged = false;
-	angle = 0.0;
 }
 
 
 /** Destructor */
 YarpAngleWriter::~YarpAngleWriter(){
+	if(yarpConnection != NULL)
+		delete yarpConnection;
 }
 
 
@@ -49,19 +55,17 @@ YarpAngleWriter::~YarpAngleWriter(){
 /*--------------------------------------------------------------------*/
 
 // Inherited from Writer
-void YarpAngleWriter::initialise(map<string,Property*> properties){
+void YarpAngleWriter::initialize(map<string,Property>& properties){
 	updateProperties(properties);
 	setInitialized(true);
 }
 
 
 // Inherited from AngleWriter
-void YarpAngleWriter::setAngle(double angle){
-	boost::mutex::scoped_lock lock(this->mutex);
-	updateAngle = false;
-	if(this->angle != angle)
-		updateAngle = true;
-	this->angle = angle;
+void YarpAngleWriter::setAngle(double newAngle){
+	if(this->angle != newAngle)
+		angleChanged = true;
+	this->angle = newAngle;
 }
 
 
@@ -77,49 +81,65 @@ void YarpAngleWriter::start(){
 /*---------                 PRIVATE METHODS                    -------*/
 /*--------------------------------------------------------------------*/
 
+/** Updates the properties with values from the map */
 void YarpAngleWriter::updateProperties(map<string, Property>& properties){
-	//Store properties
-	setPortName(((ComboProperty*)(properties["Port Name"]))->getValue());
-	degreeOfFreedom = ((IntegerProperty*)(properties["Degree Of Freedom"]))->getValue();
-	int sleepAmount = 1;
-	propertyMap = properties;
+	if(properties.count(PORT_NAME_PROP) == 0)
+		throw ISpikeException("Property Port Name cannot be found.");
+	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+		portName = updatePropertyValue(properties[PORT_NAME_PROP]);
+
+	if(properties.count(SLEEP_DURATION_PROP) == 0)
+		throw ISpikeException("Property Sleep Duration cannot be found.");
+	if((updateReadOnly && !propertyMap[SLEEP_DURATION_PROP].isReadOnly()) || !updateReadOnly)
+		sleepDuration_ms = updatePropertyValue(properties[SLEEP_DURATION_PROP]);
 }
 
-FIXME
+//Inherited from iSpikeThread
 void YarpAngleWriter::workerFunction(){
 	setRunning(true);
+	clearError();
 
-	map<string, YarpPortDetails>::iterator iter = this->portMap->find(this->getPortName());
-	string ip;
-	unsigned port;
-	string type;
-	if (iter != this->portMap->end() ){
-		ip = iter->second->getIp();
-		port = iter->second->getPort();
-		type = iter->second->getType();
-		LOG(LOG_INFO) << "YarpAngleWriter: Yarp Port IP: " << ip << " Port: " << port;
-	}
-	else {
-		throw ISpikeException("YarpAngleWriter: Yarp IP/Port map is empty!");
-	}
-	this->yarpConnection->connect_to_port(ip, port);
-	this->yarpConnection->write_text("CONNECT foo\n");
-	while(!isStopRequested()){
-		if(this->angleList->size() > 0) {
-			double angle = this->angleList->front();
-			{
-				boost::mutex::scoped_lock lock(this->mutex);
-				this->angleList->pop();
-			}
-			this->yarpConnection->write_text("d\n");
-			ostringstream commandStream;
-			commandStream << "set pos " << this->degreeOfFreedom << " " << angle << "\n";
-			string command = commandStream.str();
-			LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
-			this->yarpConnection->write_text(command);
-			LOG(LOG_DEBUG) << "YarpAngleWriter: Received reply " << this->yarpConnection->read_until("\n");
+	try{
+		//Connect to YARP
+		map<string, YarpPortDetails>::iterator iter = this->portMap->find(this->getPortName());
+		string ip;
+		unsigned port;
+		if (iter != this->portMap->end() ){
+			ip = iter->second->getIp();
+			port = iter->second->getPort();
+			LOG(LOG_INFO) << "YarpAngleWriter: Yarp Port IP: " << ip << " Port: " << port;
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(sleepAmount));
+		else {
+			throw ISpikeException("YarpAngleWriter: Yarp IP/Port map is empty!");
+		}
+		yarpConnection->connect_to_port(ip, port);
+		yarpConnection->write_text("CONNECT foo\n");
+
+		//Main run loop
+		while(!isStopRequested()){
+			if(angleChanged){
+				//Send new angle
+				this->yarpConnection->write_text("d\n");
+				ostringstream commandStream;
+				commandStream << "set pos " << this->degreeOfFreedom << " " << angle << "\n";
+				string command = commandStream.str();
+				LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
+				this->yarpConnection->write_text(command);
+				LOG(LOG_DEBUG) << "YarpAngleWriter: Received reply " << this->yarpConnection->read_until("\n");
+
+				//Record that we have sent angle
+				angleChanged = false;
+			}
+
+			//Sleep for the specified amount
+			boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
+		}
+	}
+	catch(ISpikeException& ex){
+		setError(ex.msg());
+	}
+	catch(...){
+		setError("An unknown exception occurred in the YarpVisualReader");
 	}
 
 	setRunning(false);

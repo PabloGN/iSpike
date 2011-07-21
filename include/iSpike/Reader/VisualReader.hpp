@@ -1,45 +1,24 @@
-/*
- * FileVisualReader.hpp
- *
- *  Created on: 1 Jan 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef VISUALREADER_HPP_
 #define VISUALREADER_HPP_
 
+//iSpike includes
 #include <iSpike/Reader/Reader.hpp>
 #include <iSpike/Bitmap.hpp>
+
+//Other includes
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-/**
- * @class VisualReader
- * @brief VisualReader class
- *
- * VisualReader continuously fetches and retrieves an image upon request
- *
- * @author Edgars Lazdins
- *
- */
-class VisualReader : public Reader {
+namespace ispike {
 
-public:
+	/** Continuously fetches and retrieves an image upon request */
+	class VisualReader : public Reader {
+		public:
+		  /** Returns a reference to the image in the visual reader  */
+		  virtual Bitmap& getBitmap() = 0;
 
-  /**
-   * Retrieves the image
-   */
-  virtual Bitmap getData() = 0;
+	};
 
-  /**
-   * Initialises the reader and starts the main thread
-   */
-  virtual void start() = 0;
-
-  virtual bool getInitialised() const = 0;
-
-  virtual void setInitialised(bool initialised) = 0;
-
-};
+}
 
 #endif /* VISUALREADER_HPP_ */

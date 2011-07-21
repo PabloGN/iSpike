@@ -15,15 +15,23 @@ class YarpVisualReader : public VisualReader {
 	public:
 		YarpVisualReader(string nameserverIP, unsigned nameserverPort);
 		~YarpVisualReader();
-		Bitmap getData();
-		void initialise(map<string, Property>& properties);
+		Bitmap* getData();
+		void initialize(map<string, Property>& properties);
 		void start();
 
 	private:
 		//=============================  VARIABLES  =========================
-		Bitmap* buffer;
-		string portName;
+		/** Image for loading from YARP and returning */
+		Bitmap* bitmap1;
+
+		/** Image for loading from YARP and returning */
+		Bitmap* bitmap2;
+
+		/** Controls which bitmap is returned to the user */
+		bool returnBitmap1;
+
 		YarpConnection* yarpConnection;
+
 		map<string, YarpPortDetails> portMap;
 
 

@@ -50,10 +50,7 @@ namespace ispike {
 		   * read. It will no longer be possible to write to this
 		   * port  */
 			void prepare_to_read_binary();
-
-			/** Retrieves a bitmap image across a Yarp connection
-		   * @return The retrieved Bitmap  */
-			Bitmap* read_image();
+			bool read_image(Bitmap& bitmap);
 
 
 		private:

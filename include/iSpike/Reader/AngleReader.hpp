@@ -10,13 +10,17 @@ namespace ispike {
 	/** AngleReader continuously fetches and retrieves joint angles upon request */
 	class AngleReader : public Reader {
 		public:
-			virtual ~AngleReader() {}
+			virtual ~AngleReader() { angle = 0.0; }
 
-			/** Retrieves the angles  */
-			virtual std::vector<double> getData() = 0;
+			/** Retrieves the angle  */
+			double getAngle() { return angle; }
 
-			/** Initialises the reader and starts the main thread  */
-			virtual void start() = 0;
+			/** Sets the angle */
+			void setAngle(double angle) { this->angle = angle; }
+
+		private:
+			/** The angle that is read by the reader */
+			double angle;
 
 	};
 

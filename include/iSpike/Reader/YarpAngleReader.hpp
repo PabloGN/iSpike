@@ -18,24 +18,26 @@ using namespace std;
 namespace ispike {
 
 	/** Retrieves a vector of joint angles from a given yarp port and makes it available upon request */
-	class YarpAngleReader : public AngleReader {
+	class YarpAngleReader : public AngleReader, public iSpikeThread {
 		public:
 			YarpAngleReader(string nameserverIP, unsigned nameserverPort);
 			virtual ~YarpAngleReader();
-			std::vector<double> getData();
 			void initialise(map<string, Property>& properties);
-			std::string getPortName(){ return this->portName; }
-			void setPortName(std::string portName){ this->portName = portName;}
 			void start();
 
 		private:
 			//=========================  VARIABLES  ===========================
-			vector<double> buffer;
-			string portName;
 			YarpConnection* yarpConnection;
+
+			/** Map of the ports that are availabe in YARP */
 			map<string, YarpPortDetails> portMap;
 
+			/** Degree of freedom controlling which angle is stored and returned */
+			unsigned degreeOfFreedom;
+
+
 			//============================  METHODS  ===========================
+			void updateProperties(map<string, Property>& properties, bool updateReadOnly);
 			void workerFunction();
 
 	};

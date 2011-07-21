@@ -5,6 +5,7 @@
 #include <iSpike/Channel/Channel.hpp>
 #include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
 #include "iSpike/Reader/AngleReader.hpp"
+#include "iSpike/PropertyHolder.hpp"
 
 //Other includes
 #include <string>
@@ -17,7 +18,7 @@ namespace ispike {
 	 * This class represents a directed Channel from a signal source (eg vision)
 	 * to a spike output, so spikes can be read from this channel
 	 */
-	class InputChannel : public Channel {
+	class InputChannel : public Channel, public PropertyHolder {
 		protected:
 			InputChannelDescription channelDescription;
 

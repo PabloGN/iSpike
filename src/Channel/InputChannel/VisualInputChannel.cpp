@@ -102,7 +102,7 @@ void VisualInputChannel::step() {
 	//Check reader for errors
 	if(reader->isError()){
 		LOG(LOG_CRITICAL)<<"AngleReader Error: "<<reader->getError();
-		throw iSpikeException("Error in AngleReader");
+		throw ISpikeException("Error in AngleReader");
 	}
 
 	///Retrieve the colour oponent image

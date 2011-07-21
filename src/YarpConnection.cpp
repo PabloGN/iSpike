@@ -1,3 +1,11 @@
+//iSpike includes
+#include <iSpike/YarpConnection.hpp>
+#include <iSpike/YarpPortDetails.hpp>
+#include <iSpike/ISpikeException.hpp>
+#include <iSpike/Log/Log.hpp>
+using namespace ispike;
+
+//Other includes
 #include <iostream>
 #include <sstream>
 #include <iterator>
@@ -9,11 +17,7 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
-#include <iSpike/YarpConnection.hpp>
-#include <iSpike/YarpPortDetails.hpp>
-#include <iSpike/ISpikeException.hpp>
-#include <iSpike/Log/Log.hpp>
-
+using namespace std;
 using boost::asio::ip::tcp;
 
 /** Constructor */
@@ -179,7 +183,9 @@ void YarpConnection::prepare_to_read_binary(){
 }
 
 
-Bitmap* YarpConnection::read_image(){
+/** Reads image data into the supplied bitmap, resizing it if necessary
+	Returns true if data has been successfully read, false otherwise. */
+bool YarpConnection::read_image(Bitmap& bitmap){
 	int result = read_data_header();
 	if (result>=0) {
 		unsigned char header[4*15];
@@ -188,18 +194,23 @@ Bitmap* YarpConnection::read_image(){
 		if (result<0) {
 			throw ISpikeException("Failed to read image header");
 		}
+
+		//Extract the width, height and depth of the image
 		int depth = read_int((unsigned char*)(header+4*8)); // header.depth
 		int width = read_int((unsigned char*)(header+4*11)); // header.width
 		int height = read_int((unsigned char*)(header+4*12)); // header.height
-		if (image_len!=width*height*depth) {
-			throw ISpikeException("Image may have padding, yarpreadimage.c needs to be updated to deal with that.");
+
+		//Create new bitmap contents if width, height and depth do not match
+		if (bitmap.getWidth() != width || bitmap.getHeight() != height || bitmap.getDepth() != depth) {
+			bitmap.reset(width, height, depth);
 		}
-		unsigned char* contents = (unsigned char*)malloc(image_len);
-		read_binary(contents,image_len);
-		Bitmap* image = new Bitmap(width, height, depth, contents);
-		return image;
+
+		//Read into bitmap
+		unsigned char* contents = bitmap.getContents();
+		read_binary(contents, bitmap.size());
+		return true;
 	}
-	return new Bitmap(0, 0, 0, 0);
+	return false;
 }
 
 

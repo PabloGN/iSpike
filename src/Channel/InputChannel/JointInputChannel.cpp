@@ -23,18 +23,18 @@
 /** Default constructor, initialises the default channel properties */
 JointInputChannel::JointInputChannel() {
 	// First define the properties of this channel
-	propertyMap["Degree Of Freedom"] = IntegerProperty(0, "Degree Of Freedom", "The degree of freedom to read from this joint", true);
-	propertyMap["Standard Deviation"] = DoubleProperty(0.5, "Standard Deviation", "The standard deviation as a percentage of neurons covered", true);
-	propertyMap["Minimum Angle"] = DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true);
-	propertyMap["Maximum Angle"] = DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true);
-	propertyMap["Neuron Width"] = IntegerProperty(10, "Neuron Width", "Width of the neuron network", true);
-	propertyMap["Neuron Height"] = IntegerProperty(1, "Neuron Height", "Height of the neuron network", true);
-	propertyMap["Parameter A"] = DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false);
-	propertyMap["Parameter B"] = DoubleProperty(0.2, "Parameter B", "Parameter B of the Izhikevich Neuron Model", false);
-	propertyMap["Parameter C"] = DoubleProperty(-65, "Parameter C", "Parameter C of the Izhikevich Neuron Model", false);
-	propertyMap["Parameter D"] = DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model", false);
-	propertyMap["Current Factor"] = DoubleProperty(400, "Current Factor", "Incoming current is multiplied by this value", false);
-	propertyMap["Constant Current"] = DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false);
+	addProperty(IntegerProperty(0, "Degree Of Freedom", "The degree of freedom to read from this joint", true));
+	addProperty(DoubleProperty(0.5, "Standard Deviation", "The standard deviation as a percentage of neurons covered", true));
+	addProperty(DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true));
+	addProperty(DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true));
+	addProperty(IntegerProperty(10, "Neuron Width", "Width of the neuron network", true));
+	addProperty(IntegerProperty(1, "Neuron Height", "Height of the neuron network", true));
+	addProperty(DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false));
+	addProperty(DoubleProperty(0.2, "Parameter B", "Parameter B of the Izhikevich Neuron Model", false));
+	addProperty(DoubleProperty(-65, "Parameter C", "Parameter C of the Izhikevich Neuron Model", false));
+	addProperty(DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model", false));
+	addProperty(DoubleProperty(400, "Current Factor", "Incoming current is multiplied by this value", false));
+	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
 
 	// Now let's create the description
 	channelDescription = InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader");
@@ -183,26 +183,12 @@ void JointInputChannel::updateProperties(map<string, Property>& properties, bool
 		throw iSpikeException("JointInputChannel: Current properties do not match new properties.");
 
 	for(map<string, Property>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter)  {
-		//Check property exists
-		if(propertyMap.count(iter->first) == 0){
-			LOG(LOG_CRITICAL) << "JointIntputChannel: Property does not exist: " << iter->first<<endl;
-			throw ISpikeException("JointInputChannel: Property not recognized");
-		}
-
-		//Check that property name matches the map name
-		std::string paramName = iter->second.getName();
-		if(paramName != iter->first){
-			LOG(LOG_CRITICAL) << "JointIntputChannel: Property name mismatch: " << iter->first<<", "<<paramName<<endl;
-			throw ISpikeException("JointInputChannel: Property name mismatch");
-		}
-
 		//In updateReadOnly mode, only update properties that are not read only
 		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
 			switch (iter->second.getType()) {
 				case Property::Integer: {
 					//Update the property in the map
-					int value = ((IntegerProperty)(iter->second)).getValue();
-					((IntegerProperty)propertyMap[paramName]).setValue(value);
+					int value = updatePropertyValue(iter->second);
 
 					//Update the corresponding variable
 					if(paramName == "Degree Of Freedom")
@@ -215,8 +201,7 @@ void JointInputChannel::updateProperties(map<string, Property>& properties, bool
 				break;
 				case Property::Double:  {
 					//Update the property in the map
-					double value = ((DoubleProperty)(iter->second)).getValue();
-					((DoubleProperty)propertyMap[paramName]).setValue(value);
+					double value = updatePropertyValue(iter->second);
 
 					//Update the corresponding variable
 					if(paramName == "Standard Deviation")

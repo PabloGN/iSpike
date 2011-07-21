@@ -37,7 +37,9 @@ SET(project_SRCS
 		Writer/WriterFactory.cpp
 		Writer/YarpAngleWriter.cpp
 		Writer/WriterDescription.cpp
+		Bitmap.cpp 
 		Property.cpp
+		PropertyHolder.cpp
 		YarpConnection.cpp
 		YarpPortDetails.cpp
 		version.cpp

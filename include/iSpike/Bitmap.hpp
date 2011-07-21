@@ -1,114 +1,40 @@
-/*
- * Bitmap.hpp
- *
- *  Created on: 6 Jan 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef BITMAP_HPP_
 #define BITMAP_HPP_
 
+//Other includes
 #include <string>
+using namespace std;
 
-/**
- * This class represents a bitmap representation of an image or just
- * any sequence of bytes, has a height, width and depth
- */
-class Bitmap
-{
-  private:
-    int width;
-    int height;
-    int depth;
-    unsigned char* contents;
+namespace ispike {
 
-  public:
-    Bitmap(int width, int height, int depth, unsigned char* contents)
-    {
-      this->width = width;
-      this->height = height;
-      this->depth = depth;
-      this->contents = contents;
-    }
+	/** Represents a bitmap representation of an image or just
+	 * any sequence of bytes, has a height, width and depth  */
+	class Bitmap {
+		public:
+			Bitmap(unsigned width, unsigned height, unsigned depth) ;
+			Bitmap (const Bitmap& copy_from_me);
+			~Bitmap();
+			Bitmap& operator=(const Bitmap& rhs);
+			unsigned char* getContents() const  { return contents;  }
+			unsigned char getPixel(unsigned x, unsigned y) ;
+			unsigned getDepth() const { return depth; }
+			unsigned getHeight() const { return height; }
+			unsigned getWidth() const { return width; }
+			void reset(unsigned width, unsigned height, unsigned depth);
 
-    Bitmap(int width, int height, int depth)
-    {
-      this->width = width;
-      this->height = height;
-      this->depth = depth;
-      this->contents = new unsigned char[width * height * depth];
-    }
+		private:
+			//========================  VARIABLES  ========================
+			unsigned width;
+			unsigned height;
+			unsigned depth;
+			unsigned char* contents;
 
-    Bitmap (const Bitmap& copy_from_me)
-    {
-    	if(copy_from_me.width == 0)
-    		this->width = 0;
-    		else
-    			this->width = copy_from_me.width;
-      this->height = copy_from_me.height;
-      this->depth = copy_from_me.depth;
-      int content_size = copy_from_me.width * copy_from_me.height * copy_from_me.depth;
-      this->contents = new unsigned char[content_size];
-      std::copy(copy_from_me.contents, copy_from_me.contents + content_size, this->contents);
-    }
+			//======================  METHODS  ============================
+			bool isEmpty() { if (size() > 0) return true; return false; }
+			int size() { return width*height*depth; }
 
-    ~Bitmap(){
-    	if((this->width * this->height * this->depth) > 0)
-    		delete this->contents;
-    }
+	};
 
-    unsigned char *getContents() const
-    {
-        return contents;
-    }
-
-    /**
-     * Returns a pointer to the corresponding pixel in the image
-     * @return pointer to the pixel in image
-     */
-    unsigned char getPixel(int x, int y)
-    {
-      if( x >= 0 && x < this->width
-          && y >= 0 && y < this->height)
-        return *(contents + (this->width * y) + x);
-    }
-
-    int getDepth() const
-    {
-        return depth;
-    }
-
-    int getHeight() const
-    {
-        return height;
-    }
-
-    int getWidth() const
-    {
-        return width;
-    }
-
-    void setContents(unsigned char *contents)
-    {
-        this->contents = contents;
-    }
-
-    void setDepth(int depth)
-    {
-        this->depth = depth;
-    }
-
-    void setHeight(int height)
-    {
-        this->height = height;
-    }
-
-    void setWidth(int width)
-    {
-        this->width = width;
-    }
-
-};
-
+}
 
 #endif /* BITMAP_HPP_ */

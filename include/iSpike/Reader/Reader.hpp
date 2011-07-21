@@ -16,7 +16,7 @@ namespace ispike {
 
 	/** This class represents a Reader, capable of retrieving analogue information
 	  * from a predefined source and serving it upon request */
-	class Reader : public iSpikeThread  {
+	class Reader : public PropertyHolder {
 		public:
 			Reader(){ initialized = false; }
 			ReaderDescription getReaderDescription() const { return readerDescription; }
@@ -27,11 +27,11 @@ namespace ispike {
 			void setProperties(map<string, Property>& properties) = 0;
 
 		protected:
+			//=======================  VARIABLES  =========================
 			/** Description of the reader */
 			ReaderDescription readerDescripton;
 
-			/** Properties of the reader */
-			map<string, Property> propertyMap;
+
 
 		private:
 			/** Records whether reader has been initialized */
