@@ -14,8 +14,17 @@ namespace ispike {
 	/** Continuously fetches and retrieves an image upon request */
 	class VisualReader : public Reader {
 		public:
-		  /** Returns a reference to the image in the visual reader  */
-		  virtual Bitmap& getBitmap() = 0;
+			VisualReader() { imageID = 0; }
+
+			/** Returns a reference to the image in the visual reader  */
+			virtual Bitmap& getBitmap() = 0;
+			unsigned getImageID() { return imageID; }
+
+
+		protected:
+			/** Records an ID of the bitmap so that classes connecting to this reader only update
+			when image changes */
+			unsigned imageID;
 
 	};
 

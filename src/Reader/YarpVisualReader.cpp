@@ -56,10 +56,11 @@ YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
 /*--------------------------------------------------------------------*/
 
 //Inherited from VisualReader
-Bitmap& YarpVisualReader::getData(){
+Bitmap& YarpVisualReader::getBitmap(){
+	boost::mutex::scoped_lock lock(this->mutex);
 	if(returnBitmap1)
-		return bitmap1;
-	return bitmap2;
+		return *bitmap1;
+	return *bitmap2;
 }
 
 
@@ -68,6 +69,38 @@ void YarpVisualReader::start() {
 	if(!isInitialized())
 		throw ISpikeException("YarpVisualReader cannot be started because it has not been initialized.");
 	this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpVisualReader::workerFunction, this))));
+}
+
+
+//Inherited from Reader
+void YarpVisualReader::initialize(map<string, Property>& properties){
+	if(properties.count(PORT_NAME_PROP) == 0)
+		throw ISpikeException("Property Port Name cannot be found.");
+	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+		setPortName(updatePropertyValue(properties[PORT_NAME_PROP]));
+
+	bitmap1 = new Bitmap(0,0,0);
+	bitmap2 = new Bitmap(0,0,0);
+	returnBitmap1 = true;
+
+	setInitialized(true);
+}
+
+
+/*--------------------------------------------------------------------*/
+/*---------                PRIVATE METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+/** Swaps the returned bitmaps in a thread safe way */
+void YarpVisualReader::swapBitmap(){
+	boost::mutex::scoped_lock lock(this->mutex);
+	if(returnBitmap1)
+		returnBitmap1 = false;
+	else
+		returnBitmap1 = true;
+
+	//Image has changed so increment the image ID
+	++imageID;
 }
 
 
@@ -97,11 +130,11 @@ void YarpVisualReader::workerFunction(){
 			//Load new version of image into new buffer
 			if(returnBitmap1){
 				yarpConnection->read_image(bitmap2);
-				returnBitmap1 = false;
+				swapBitmap();
 			}
 			else{
 				yarpConnection->read_image(bitmap1);
-				returnBitmap1 = true;
+				swapBitmap();
 			}
 		}
 	}
@@ -115,17 +148,3 @@ void YarpVisualReader::workerFunction(){
 	setRunning(false);
 }
 
-
-//Inherited from Reader
-void YarpVisualReader::initialize(map<string, Property>& properties){
-	if(properties.count(PORT_NAME_PROP) == 0)
-		throw ISpikeException("Property Port Name cannot be found.");
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		setPortName(updatePropertyValue(properties[PORT_NAME_PROP]));
-
-	bitmap1 = new Bitmap(0,0,0);
-	bitmap2 = new Bitmap(0,0,0);
-	returnBitmap1 = true;
-
-	setInitialized(true);
-}

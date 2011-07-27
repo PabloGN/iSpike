@@ -20,6 +20,7 @@ namespace ispike {
 			unsigned getDepth() const { return depth; }
 			unsigned getHeight() const { return height; }
 			unsigned getWidth() const { return width; }
+			bool isEmpty() { if (size() > 0) return true; return false; }
 			void reset(unsigned width, unsigned height, unsigned depth);
 
 		private:
@@ -30,7 +31,6 @@ namespace ispike {
 			unsigned char* contents;
 
 			//======================  METHODS  ============================
-			bool isEmpty() { if (size() > 0) return true; return false; }
 			int size() { return width*height*depth; }
 
 	};

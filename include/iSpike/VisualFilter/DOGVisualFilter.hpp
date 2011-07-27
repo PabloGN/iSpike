@@ -1,111 +1,72 @@
-/*
- * DOGVisualFilter.hpp
- *
- *  Created on: 5 Feb 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef DOGVISUALFILTER_HPP_
 #define DOGVISUALFILTER_HPP_
 
+//iSpike includes
 #include <iSpike/VisualFilter/VisualFilter.hpp>
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
+#include "iSpike/iSpikeThread.hpp"
+
+//Other includes
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 
-/**
- * @class DOGVisualFilter
- * @brief DOGVisualFilter class
- *
- * This class represents a Difference Of Gaussians filter
- *
- * @author Edgars Lazdins
- *
- */
-class DOGVisualFilter : public VisualFilter {
-private:
+namespace ispike {
 
-  Bitmap* buffer;
-  VisualDataReducer* reducer;
-  int queryInterval;
-  boost::shared_ptr<boost::thread> threadPointer;
-  boost::mutex mutex;
-  double plusSigma;
-  double minusSigma;
-  double ratio1;
-  double ratio2;
-  int opponencyMap;
-  bool stopRequested;
+	/** This class represents a Difference Of Gaussians filter */
+	class DOGVisualFilter : public VisualFilter, public PropertyHolder {
+		public:
+			DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma, double ratio1, double ratio2, int opponencyMap);
+			~DOGVisualFilter();
+			Bitmap& getOpponencyMap();
+			void update();
 
-  /**
-   * Main thread execution loop
-   */
-  void workerFunction();
+		private:
+			//==========================  VARIABLES  =======================
+			VisualDataReducer* reducer;
+			int queryInterval;
+			boost::shared_ptr<boost::thread> threadPointer;
+			boost::mutex mutex;
+			double plusSigma;
+			double minusSigma;
+			double ratio1;
+			double ratio2;
+			int opponencyTypeID;
 
-  /**
-   * Gaussian blurs an image
-   */
-  unsigned char* gaussianBlur(unsigned char* image, double sigma, int width, int height);
+			/** Records when class has been initialized */
+			bool initialized;
 
-  /**
-   * Extracts the red channel from a given image
-   */
-  unsigned char* extractRedChannel(Bitmap* image);
+			/** Final output bitmap */
+			Bitmap* opponencyBitmap;
 
-  /**
-   * Extracts the green channel from a given image
-   */
-  unsigned char* extractGreenChannel(Bitmap* image);
+			/** Red visual data */
+			Bitmap* redBitmap;
 
-  /**
-   * Extracts the blue channel from a given image
-   */
-  unsigned char* extractBlueChannel(Bitmap* image);
+			/** Green visual data */
+			Bitmap* greenBitmap;
 
-  /**
-   * Constructs the yellow channel from red and green channels
-   */
-  unsigned char* extractYellowChannel(unsigned char* redChannel, unsigned char* greenChannel, int width, int height);
+			/** Blue visual data */
+			Bitmap* blueBitmap;
 
-  /**
-   * Subtracts one image from another of the same dimensions, ratios can be applied to each
-   */
-  unsigned char* subtractImages(unsigned char* firstImage, unsigned char* secondImage, double ratio1, double ratio2, int width, int height);
+			/** Yellow visual data */
+			Bitmap* yellowBitmap;
 
-public:
+			/** Positive blurred bitmap */
+			Bitmap* positiveBlurredBitmap;
 
-  DOGVisualFilter(
-		  VisualDataReducer* reducer,
-		  int queryInterval,
-		  double plusSigma,
-		  double minusSigma,
-			double ratio1,
-	  double ratio2,
-		  int opponencyMap
-	  );
+			/** Negative blurred bitmap */
+			Bitmap negativeBlurredBitmap;
 
-  ~DOGVisualFilter()
-  {
-    LOG(LOG_DEBUG) << "Entering dogfilter destructor";
-    LOG(LOG_DEBUG) << "Setting stop requested to true";
-    this->stopRequested = true;
-    LOG(LOG_DEBUG) << "Waiting";
-    this->threadPointer->join();
-    this->threadPointer.reset();
-    delete this->buffer;
-    LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
-  }
 
-  /**
-   * Returns the opponency map
-   */
-  Bitmap getOpponencyMap()
-  {
-    boost::mutex::scoped_lock lock(this->mutex);
-    return *(this->buffer);
-  }
+			//==========================  METHODS  =========================
+			unsigned char* extractRedChannel(Bitmap* image);
+			unsigned char* extractGreenChannel(Bitmap* image);
+			unsigned char* extractBlueChannel(Bitmap* image);
+			unsigned char* extractYellowChannel(unsigned char* redChannel, unsigned char* greenChannel, int width, int height);
+			unsigned char* gaussianBlur(unsigned char* image, double sigma, int width, int height);
+			unsigned char* subtractImages(unsigned char* firstImage, unsigned char* secondImage, double ratio1, double ratio2, int width, int height);
+	};
 
-};
+}
 
 #endif /* DOGVISUALFILTER_HPP_ */

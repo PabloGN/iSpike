@@ -1,103 +1,69 @@
-/*
- * LogpolarVisualDataReducer.hpp
- *
- *  Created on: 5 Feb 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef LOGPOLARVISUALDATAREDUCER_HPP_
 #define LOGPOLARVISUALDATAREDUCER_HPP_
 
+//iSpike includes
 #include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
+
+//Other includes
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
+#include <map>
+using namespace std;
 
-typedef std::map< std::pair< int,int >, std::pair< int,int > > CoordMapType;
+namespace ispike {
 
-/**
- * @class LogPolarVisualDataReducer
- * @brief Log Polar Visual Data Reducer class
- *
- * This class represents a Log Polar Visual Data Reducer capable of transforming an image
- * from cartesian to logpolar coordinates
- *
- * @author Edgars Lazdins
- *
- */
-class LogPolarVisualDataReducer : public VisualDataReducer {
-private:
+	/** Maps between a pair of coordinates in one coordinate system to a pair of coordinates in another coordinate system */
+	typedef map< pair<int, int>, pair<int, int> > CoordMapType;
 
-  Bitmap* reducedImage;
-  VisualReader* reader;
-  int queryInterval;
-  int polarWidth;
-  int polarHeight;
-  bool stopRequested;
+	/** Represents a Log Polar Visual Data Reducer capable of transforming an image
+	 * from cartesian to logpolar coordinates */
+	class LogPolarVisualDataReducer : public VisualDataReducer{
+		public:
+			LogPolarVisualDataReducer(int outputWidth, int outputHeight, int foveaSize);
+			~LogPolarVisualDataReducer();
+			Bitmap& getReducedImage();
+			void setBitmap(Bitmap& bitmap);
+			void setProperties(map<string, Property>& propertyMap);
 
-  /**
-   * The main thread execution loop
-   */
-  void workerFunction();
+		private:
+			//========================  VARIABLES  ============================
+			/** Log polar image */
+			Bitmap* reducedImage;
 
-  /**
-   * Initialises a pixel map from polar to cartesian coordinates
-   */
-  CoordMapType* initialisePolarToCartesianMap(Bitmap* image,
-      int polarWidth, int polarHeight, int foveaRadius);
+			/** Width of the incoming image */
+			int inputWidth;
 
-  /**
-   * Initialises a pixel map from cartesian to polar coordinates
-   */
-  CoordMapType* initialiseCartesianToPolarMap(Bitmap* image,
-      int polarWidth, int polarHeight, int foveaRadius);
+			/** Height of the incoming image */
+			int inputHeight;
 
-  /**
-   * Performs the conversion of a cartesian to logPolar image
-   */
-  Bitmap* logPolar(Bitmap* input, int polarWidth, int polarHeight,
-      CoordMapType* polarToCartesianMap);
+			/** Width of the reduced image to be output */
+			int outputWidth;
 
-  /**
-   * Maps the logpolar image to cartesian space
-   */
-  Bitmap* logPolarToCartesian(Bitmap* logPolarImage, int outputWidth, int outputHeight, CoordMapType* cartesianToPolarMap);
+			/** Height of the reduced image to be output */
+			int outputHeight;
 
-  /**
-   * Retrieves the R parameter - distance from center
-   */
-  double getR(int x, int y, double center_x, double center_y);
-  boost::shared_ptr<boost::thread> threadPointer;
-  boost::mutex mutex;
+			/** Map linking a set of Cartesian coordinates in the input image to a set of polar coordinates in the output image */
+			CoordMapType* cartesianToPolarMap;
 
-public:
+			/** Radius of the foveated area */
+			double foveaRadius;
 
-  /**
-   * Default constructor, produces a LogPolarVisualDataReducer
-   * @param reader The associated Reader
-   * @param queryInterval How often the Reader is queried
-   */
-  LogPolarVisualDataReducer(VisualReader* reader, int queryInterval, int polarWidth, int polarHeight);
-  Bitmap getReducedImage()
-  {
-    boost::mutex::scoped_lock lock(this->mutex);
-    return *(this->reducedImage);
-  }
+			/** Records whether the maps for converting cartesian to polar coordinates have been initialized */
+			bool mapsInitialized;
 
-  ~LogPolarVisualDataReducer()
-  {
-    LOG(LOG_DEBUG) << "Entering visualreducer destructor";
-    LOG(LOG_DEBUG) << "Setting stop requested to true";
-    this->stopRequested = true;
-    LOG(LOG_DEBUG) << "Waking up the thread";
-    LOG(LOG_DEBUG) << "Waiting";
-    this->threadPointer->join();
-    this->threadPointer.reset();
-    LOG(LOG_DEBUG) << "Exiting visualreducer destructor";
-    delete this->reducedImage;
-  }
 
-};
+			//========================  METHODS  ==============================
+			double getDistance(int x, int y, double center_x, double center_y);
+			CoordMapType* initialisePolarToCartesianMap(Bitmap* image, int polarWidth, int polarHeight, int foveaRadius);
+			CoordMapType* initialiseCartesianToPolarMap(Bitmap* image, int polarWidth, int polarHeight, int foveaRadius);
+			Bitmap* logPolar(Bitmap* input, int polarWidth, int polarHeight, CoordMapType* polarToCartesianMap);
+			Bitmap* logPolarToCartesian(Bitmap* logPolarImage, int outputWidth, int outputHeight, CoordMapType* cartesianToPolarMap);
+			void calculateReducedImage(Bitmap& bitmap);
+
+	};
+
+}
 
 #endif /* LOGPOLARVISUALDATAREDUCER_HPP_ */

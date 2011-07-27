@@ -18,21 +18,20 @@ using namespace ispike;
 /** Constructor */
 VisualInputChannel::VisualInputChannel() {
 	// Create the properties of this channel
-	propertyMap["Image Offset X"] = IntegerProperty(0, "Image Offset X", "Horizontal offset in the colour oponent image", true);
-	propertyMap["Image Offset Y"] = IntegerProperty(0, "Image Offset Y", "Vertical offset in the colour oponent image", true);
-	propertyMap["Neuron Width"] = IntegerProperty(320, "Neuron Width", "Width of the neuron network", true);
-	propertyMap["Neuron Height"] = IntegerProperty(240, "Neuron Height", "Height of the neuron network", true);
-	propertyMap["Plus Sigma"] = DoubleProperty(2, "Plus Sigma", "Positive Gaussian Sigma", false);
-	propertyMap["Minus Sigma"] =  DoubleProperty(4, "Minus Sigma", "Negative Gaussian Sigma", false);
-	propertyMap["Ratio 1"] = DoubleProperty(4, "Ratio 1", "Multiplication ratio for positive image during subtraction", false);
-	propertyMap["Ratio 2"] = DoubleProperty(2, "Ratio 2", "Multiplication ratio for negative image during subtraction", false);
-	propertyMap["Opponency Map"] = IntegerProperty(0, "Opponency Map", "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true);
-	propertyMap["Parameter A"] = DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false);
-	propertyMap["Parameter B"] = DoubleProperty(0.2, "Parameter B","Parameter B of the Izhikevich Neuron Model",false);
-	propertyMap["Parameter C"] = DoubleProperty(-65, "Parameter C","Parameter C of the Izhikevich Neuron Model",false);
-	propertyMap["Parameter D"] = DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model",false);
-	propertyMap["Current Factor"] = DoubleProperty(20, "Current Factor", "Incoming current is multiplied by this value",false);
-	propertyMap["Constant Current"] = DoubleProperty(0, "Constant Current", "This value is added to the incoming current",	true);
+	addProperty(IntegerProperty(320, "Neuron Width", "Width of the neuron network", true));
+	addProperty(IntegerProperty(240, "Neuron Height", "Height of the neuron network", true));
+	addProperty(DoubleProperty(20, "Fovea Radius", "Radius of the central foveated area", true));
+	addProperty(DoubleProperty(2, "Plus Sigma", "Positive Gaussian Sigma", false));
+	addProperty(DoubleProperty(4, "Minus Sigma", "Negative Gaussian Sigma", false));
+	addProperty(DoubleProperty(4, "Ratio 1", "Multiplication ratio for positive image during subtraction", false));
+	addProperty(DoubleProperty(2, "Ratio 2", "Multiplication ratio for negative image during subtraction", false));
+	addProperty(IntegerProperty(0, "Opponency Map", "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true));
+	addProperty(DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false));
+	addProperty(DoubleProperty(0.2, "Parameter B","Parameter B of the Izhikevich Neuron Model",false));
+	addProperty(DoubleProperty(-65, "Parameter C","Parameter C of the Izhikevich Neuron Model",false));
+	addProperty(DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model",false));
+	addProperty(DoubleProperty(20, "Current Factor", "Incoming current is multiplied by this value",false));
+	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", true));
 
 	//Create the description
 	channelDescription = InputChannelDescription("Visual Input Channel", "This is a visual input channel", "Visual Reader");
@@ -41,6 +40,7 @@ VisualInputChannel::VisualInputChannel() {
 	reader = NULL;
 	copyProperties = false;
 	neuronSim = NULL;
+	currentImageID = 0;
 }
 
 
@@ -48,8 +48,7 @@ VisualInputChannel::VisualInputChannel() {
 VisualInputChannel::~VisualInputChannel() {
 	LOG(LOG_DEBUG) << "Entering VisualInputChannel destructor";
 	if(isInitialised()) {
-		delete movementFilter;
-		delete filter;
+		delete dogFilter;
 		delete dataReducer;
 		delete neuronSim;
 	}
@@ -70,10 +69,11 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 
 	updateProperties(properties, false);
 
-	//Set up visual processing classes and neural simulator
-	this->dataReducer = new LogPolarVisualDataReducer(this->reader, 10, getWidth(), getHeight());
-	this->filter = new DOGVisualFilter(dataReducer, 10, plusSigma, minusSigma, ratio1, ratio2, opponentMap);
-	this->movementFilter = new MovementFilter(filter, 1);
+	//Set up visual processing classes
+	dataReducer = new LogPolarVisualDataReducer(getWidth(), getHeight(), foveaRadius);
+	dogFilter = new DOGVisualFilter(dataReducer, plusSigma, minusSigma, ratio1, ratio2, opponentMapID);
+
+	//Create neural simulator
 	neuronSim = new IzhikevichNeuronSim(getWidth() * getHeight(), parameterA, parameterB, parameterC, parameterD, currentFactor, constantCurrent);
 
 	setInitialized(true);
@@ -105,20 +105,25 @@ void VisualInputChannel::step() {
 		throw ISpikeException("Error in AngleReader");
 	}
 
-	///Retrieve the colour oponent image
-	Bitmap* opponentMap = new Bitmap(this->filter->getOpponencyMap());
+	//Update visual maps
+	if(reader->getImageID() != currentImageID){
+		currentImageID = reader->getImageID();
+		Bitmap tmpBitmap(reader->getBitmap());
+		dataReducer->setBitmap(tmpBitmap);
+		dogFilter->update();
+	}
+
+	//Get reference to opponency map
+	Bitmap& opponencyMap = dogFilter->getOpponencyMap();
 
 	///Check it was retrieved successfully
-	if(opponentMap->getWidth() > 0) {
-		LOG(LOG_DEBUG) << "Got an opponentmap, width: " << opponentMap->getWidth();
-
+	if(!opponencyMap.isEmpty()) {
 		///create a current map for the neuron simulator
-		std::vector<double>* currents = new std::vector<double>(this->width * this->height);
-		for(int i = 0; i < this->width; i++){
-			for(int j = 0; j < this->height; j++){
+		std::vector<double>* currents = new std::vector<double>(getWidth() * getHeight());
+		for(int i = 0; i < width; i++){
+			for(int j = 0; j < height; j++){
 				///retrieve the pixel intensity at the coordinates
-				//LOG(LOG_DEBUG) << "Current " << i << " " << j << " " << (unsigned int)((opponentMap->getPixel(this->xOffset + i,this->yOffset + j)));
-				double current = (unsigned int)opponentMap->getPixel(this->xOffset + i,this->yOffset + j);
+				double current = (unsigned int)opponentMap.getPixel(this->xOffset + i,this->yOffset + j);
 
 				///move it to the current map
 				currents->at(j*(this->width) + i) = current;
@@ -168,10 +173,6 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 						setWidth(value);
 					else if (paramName == "Neuron Height")
 						setHeight(value);
-					else if (paramName == "Image Offset X")
-						this->xOffset = value;
-					else if (paramName == "Image Offset Y")
-						this->yOffset = value;
 					break;
 				}
 				case Property::Double: {
@@ -198,6 +199,8 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 						this->ratio1 = value;
 					else if (paramName == "Ratio 2")
 						this->ratio2 = value;
+					else if (paramName == "Fovea Radius")
+						foveaRadius = value;
 
 					break;
 				}

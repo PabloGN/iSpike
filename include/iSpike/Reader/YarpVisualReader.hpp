@@ -15,7 +15,7 @@ class YarpVisualReader : public VisualReader {
 	public:
 		YarpVisualReader(string nameserverIP, unsigned nameserverPort);
 		~YarpVisualReader();
-		Bitmap* getData();
+		Bitmap& getBitmap();
 		void initialize(map<string, Property>& properties);
 		void start();
 
@@ -36,6 +36,7 @@ class YarpVisualReader : public VisualReader {
 
 
 		//=============================  METHODS  ============================
+		void swapBitmap();
 		void workerFunction();
 
 	};

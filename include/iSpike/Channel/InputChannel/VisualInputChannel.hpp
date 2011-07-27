@@ -38,8 +38,7 @@ namespace ispike {
 			void workerFunction();
 			bool stopRequested;
 			VisualDataReducer* dataReducer;
-			VisualFilter* filter;
-			MovementFilter* movementFilter;
+			VisualFilter* dogFilter;
 			IzhikevichNeuronSim* neuronSim;
 			double parameterA;
 			double parameterB;
@@ -53,7 +52,10 @@ namespace ispike {
 			double ratio2;
 			int xOffset;
 			int yOffset;
-			int opponentMap;
+			int opponentMapID;
+
+			/** Radius of the central foveated area */
+			double foveaRadius;
 
 			/** Map holding new properties, for updating when thread has finished processing the current time step*/
 			map<string, Property> newPropertyMap;
@@ -61,6 +63,8 @@ namespace ispike {
 			/** Flag to indicate that properties should be updated */
 			bool copyProperties;
 
+			/** ID of the current image - used to check for changes to the image provided by the reader */
+			unsigned currentImageID;
 
 	};
 }
