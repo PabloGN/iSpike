@@ -11,22 +11,29 @@ using namespace ispike;
 /** Ouputs debug images to file */
 #define DEBUG_IMAGES
 
+/** Maximum value of a pixel */
+#define MAX_PIXEL_VALUE 255
+
 
 /** Constructor */
-DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double plusSigma, double minusSigma, double ratio1, double ratio2, int opponencyTypeID){
+DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double positiveSigma, double negativeSigma, double positiveFactor, double negativeFactor, int opponencyTypeID, bool normalize){
+	//Store variables
 	this->reducer = reducer;
-	this->plusSigma = plusSigma;
-	this->minusSigma = minusSigma;
-	this->ratio1 = ratio1;
-	this->ratio2 = ratio2;
-	this->opponencyTypeID = opponencyTypeID;
+
+	//Initialize variables
 	initialized = false;
+	positiveSigma = -1.0;
+	negativeSigma = -1.0;
+	positiveFactor = -1.0;
+	negativeFactor = -1.0;
+	opponencyTypeID = -1;
+	normalize = false;
 }
 
 
 /** Destructor */
 ~DOGVisualFilter(){
-	if(initialized){
+	if(isInitialized()){
 		delete redBitmap;
 		delete greenBitmap;
 		delete blueBitmap;
@@ -42,13 +49,21 @@ DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double plusSigma, d
 /*---------                 PUBLIC METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
-/** Returns a reference to the opponency map */
-Bitmap& getOpponencyMap(){
-	return opponencyMap;
+/** Returns a reference to the opponency bitmap */
+Bitmap& DOGVisualFilter::getOpponencyBitmap(){
+	return opponencyBitmap;
 }
 
 
-/*  Updates the opponency map calculated by this filter
+/** Sets the opponency type ID. This can only be done when the class is NOT initialized */
+void DOGVisualFilter::setOpponencyTypeID(int opponencyTypeID){
+	if(isInitialized())
+		throw ISpikeException("DOGVisualFilter: Opponency type ID cannot be set after class has been initialized.");
+	this->opponencyTypeID = opponencyTypeID;
+}
+
+
+/**  Updates the opponency map calculated by this filter
  *  * Retrives a reduced image
  *  * Decomposes it into individual colour channels
  *  * Blurs each of these channels
@@ -57,153 +72,33 @@ Bitmap& getOpponencyMap(){
  *  * Stores each image in the appropriate buffer
  */
 void DOGVisualFilter::update(){
-	//Get reference to the log polar bitmap
+	//Get log polar bitmap and check it is ok
 	Bitmap& reducedImage = reducer->getReducedImage();
+	if(reducedImage.isEmpty())	{
+		LOG(LOG_DEBUG)<<"DOGVisualFilter: Empty bitmap";
+		return;
+	}
 
 	//Create bitmaps if they have not been created already
 	if(!isInitialized()){
 		initialize(reducedImage.getWidth(), reducedImage.getHeight());
 	}
 
-	if(!reducedImage.isEmpty())	{
-		//Calculate red, green and yellow images as appropriate
-		extractRedChannel(reducedImage);
-		extractGreenChannel(reducedImage);
-		if(opponencyTypeID == Common::redVsGreen){
-			calculateOpponency(redBitmap, greenBitmap);
-		}
-		else if(opponencyTypeID == Common::greenVsRed){
-			calculateOpponency(greenBitmap, redBitmap);
-		}
+	//Generate red and green images, which are needed for all maps
+	extractRedChannel(reducedImage);
+	extractGreenChannel(reducedImage);
 
-		if(opponencyTypeID == Common::blueVsYellow){
-			extractBlueChannel(reducedImage);
-			extractYellowChannel();
-			calculateOpponency(blueBitmap, yellowBitmap);
-		}
-
-
-		//unsigned char* red = extractRedChannel(&reducedImage);
-		Bitmap red(reducedImage.getWidth(), reducedImage.getHeight(), 1, extractRedChannel(&reducedImage));
-		if(generateImages)
-			Common::savePPMImage("red.ppm", Common::produceGrayscale(red.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-		Bitmap green(reducedImage.getWidth(), reducedImage.getHeight(), 1, extractGreenChannel(&reducedImage));
-		if(generateImages)
-			Common::savePPMImage("green.ppm", Common::produceGrayscale(green.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-		Bitmap blue(reducedImage.getWidth(), reducedImage.getHeight(), 1, extractBlueChannel(&reducedImage));
-		if(generateImages)
-			Common::savePPMImage("blue.ppm", Common::produceGrayscale(blue.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-		Bitmap yellow(reducedImage.getWidth(), reducedImage.getHeight(), 1,
-					  extractYellowChannel(red.getContents(), green.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-		if(this->opponencyMap == Common::redVsGreen) {
-			Bitmap redPlusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(red.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("redPlusGaussian.ppm", Common::produceGrayscale(redPlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap greenMinusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(green.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("greenMinusGaussian.ppm", Common::produceGrayscale(greenMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap rPlusGMinus(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						subtractImages(redPlusGaussian.getContents(), greenMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("rPlusGMinus.ppm", Common::produceGrayscale(rPlusGMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			/*Bitmap* rPlusGMinusNormalised = new Bitmap(
-          reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          Common::normaliseImage(rPlusGMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
-        );*/
-			Bitmap* rPlusGMinusNormalised = new Bitmap(rPlusGMinus);
-			if(generateImages)
-				Common::savePPMImage("rPlusGMinusNormalised.ppm", Common::produceGrayscale(rPlusGMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			boost::mutex::scoped_lock lock(this->mutex);
-			delete this->buffer;
-			this->buffer = rPlusGMinusNormalised;
-		} else if(this->opponencyMap == Common::greenVsRed)
-		{
-			Bitmap redMinusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(red.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("redMinusGaussian.ppm", Common::produceGrayscale(redMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap greenPlusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(green.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("greenPlusGaussian.ppm", Common::produceGrayscale(greenPlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap gPlusRMinus(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						subtractImages(greenPlusGaussian.getContents(), redMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("gPlusRMinus.ppm", Common::produceGrayscale(gPlusRMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			/*Bitmap* gPlusRMinusNormalised = new Bitmap(
-          reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          Common::normaliseImage(gPlusRMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
-        );*/
-			Bitmap* gPlusRMinusNormalised = new Bitmap(gPlusRMinus);
-			if(generateImages)
-				Common::savePPMImage("gPlusRMinusNormalised.ppm", Common::produceGrayscale(gPlusRMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			boost::mutex::scoped_lock lock(this->mutex);
-			delete this->buffer;
-			this->buffer = gPlusRMinusNormalised;
-		} else if(this->opponencyMap == Common::blueVsYellow)
-		{
-			Bitmap bluePlusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(blue.getContents(), this->plusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("bluePlusGaussian.ppm", Common::produceGrayscale(bluePlusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap yellowMinusGaussian(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						gaussianBlur(yellow.getContents(), this->minusSigma, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("yellowMinusGaussian.ppm", Common::produceGrayscale(yellowMinusGaussian.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			Bitmap bPlusYMinus(
-						reducedImage.getWidth(), reducedImage.getHeight(), 1,
-						subtractImages(bluePlusGaussian.getContents(), yellowMinusGaussian.getContents(), ratio1, ratio2, reducedImage.getWidth(), reducedImage.getHeight())
-						);
-			if(generateImages)
-				Common::savePPMImage("bPlusYMinus.ppm", Common::produceGrayscale(bPlusYMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			/*Bitmap* bPlusYMinusNormalised = new Bitmap(
-          reducedImage.getWidth(), reducedImage.getHeight(), 1,
-          Common::normaliseImage(bPlusYMinus.getContents(), reducedImage.getWidth() * reducedImage.getHeight())
-        );*/
-			Bitmap* bPlusYMinusNormalised = new Bitmap(bPlusYMinus);
-			if(generateImages)
-				Common::savePPMImage("bPlusYMinusNormalised.ppm", Common::produceGrayscale(bPlusYMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight()));
-			boost::mutex::scoped_lock lock(this->mutex);
-			delete this->buffer;
-			this->buffer = bPlusYMinusNormalised;
-		}
-		//Bitmap* image = Common::produceGrayscale(rPlusGMinus.getContents(), reducedImage.getWidth(), reducedImage.getHeight());
-		//Bitmap* normalisedImage = Common::produceGrayscale(rPlusGMinusNormalised->getContents(), reducedImage.getWidth(), reducedImage.getHeight());
-		//Common::savePPMImage("rPlusGMinus.ppm", image);
-		//Common::savePPMImage("normalised.ppm", normalisedImage);
-		//delete image;
-		//delete normalisedImage;
-		/*free(red);
-      free(green);
-      free(blue);
-      free(yellow);
-      free(redPlusGaussian);
-      free(redMinusGaussian);
-      free(greenPlusGaussian);
-      free(greenMinusGaussian);
-      free(bluePlusGaussian);
-      free(yellowMinusGaussian);
-      free(rPlusGMinus);
-      free(gPlusRMinus);
-      free(bPlusYMinus);*/
+	//Calculate opponency map
+	if(opponencyTypeID == Common::redVsGreen){
+		calculateOpponency(redBitmap, greenBitmap);
+	}
+	else if(opponencyTypeID == Common::greenVsRed){
+		calculateOpponency(greenBitmap, redBitmap);
+	}
+	else if(opponencyTypeID == Common::blueVsYellow){
+		extractBlueChannel(reducedImage);
+		extractYellowChannel();
+		calculateOpponency(blueBitmap, yellowBitmap);
 	}
 }
 
@@ -213,18 +108,50 @@ void DOGVisualFilter::update(){
 /*--------------------------------------------------------------------*/
 
 /** Calculate opponency image */
-void DOGVisualFilter::calculateOpponency(Bitmap& posBitmap, Bitmap& minusBitmap){
+void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
+	//Blur the positive image
+	gaussianBlur(bitmap1, positiveBlurredBitmap, positiveSigma);
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("positiveBlur.ppm", positiveBlurredBitmap);
+	#endif//DEBUG_IMAGES
 
-	gaussianBlur(plusBitmap, plusBitmap, minusSigma);
-	gaussianBlur(minusBitmap, greenBitmap, minusSigma);
+	//Blur the negative image
+	gaussianBlur(bitmap2, negativeBlurredBitmap, negativeSigma);
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("negativeBlur.ppm", negativeBlurredBitmap);
+	#endif//DEBUG_IMAGES
 
 	//Subtract the negative from the positive image to get the opponency map
+	subtractImages(positiveBlurredBitmap, positiveBlurredBitmap, opponencyBitmap);
+
+	//Normalize opponency map if required
+	if(normalize)
+		normalizeImage(opponencyBitmap);
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		if(opponencyTypeID == Common::redVsGreen)
+			Common::savePPMImage("Red+Green-.ppm", opponencyBitmap);
+		else if(opponencyTypeID == Common::greenVsRed)
+			Common::savePPMImage("Green+Red-.ppm", opponencyBitmap);
+		if(opponencyTypeID == Common::blueVsYellow)
+			Common::savePPMImage("Blue+Yellow-.ppm", opponencyBitmap);
+	#endif//DEBUG_IMAGES
 }
 
+
 /** Gaussian blurs an image */
-unsigned char* DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma){
-	unsigned char* tempBuffer = (unsigned char*) calloc(width, height);
-	unsigned char* resultBuffer = (unsigned char*) calloc(width, height);
+void DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma){
+	if(inputBitmap.getWidth() != resultBitmap.getWidth() || inputBitmap.getHeight() != resultBitmap.getHeight())
+		throw ISpikeException("DOGVisualFilter: Mismatch between input and results dimensions.");
+	int width = inputBitmap.getWidth();
+	int height = inputBitmap.getHeight();
+
+	//Pointers to arrays in bitmaps
+	unsigned char* inputContents = inputBitmap.getContents();
+	unsigned char* resultContents = resultBitmap.getContents();
+
+	//Create kernel
 	double* kernel = new double[(int)ceil(6 * sigma) + 1];
 	for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
 		int x = i - ceil( 3 * sigma );
@@ -232,11 +159,12 @@ unsigned char* DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& result
 		kernel[i] = k / sqrt( 2 * boost::math::constants::pi<double>() * sigma * sigma );
 	}
 
-	//iterate horizontally
-	for(int y = 0; y < height; y++)
+	//Iterate horizontally
+	for(int y = 0; y < height; y++){
 		for(int x = 0; x < width; x++){
-			unsigned char* targetPtr = tempBuffer + ( y * width ) + x;
 			double colour_value = 0;
+			unsigned char current_colour, *sourcePtr;
+
 			//iterate over the kernel
 			for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
 				int kernel_x = i - ceil( 3 * sigma );
@@ -244,19 +172,20 @@ unsigned char* DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& result
 					continue;
 				else if(x + kernel_x > width)
 					continue;
-				unsigned char* sourcePtr = image + ( y * width ) + x;
-				unsigned char current_colour = (unsigned char) *(sourcePtr + kernel_x);
-				double current_kernel = kernel[i];
-				colour_value += current_colour * current_kernel;
+				sourcePtr = inputContents + ( y * width ) + x;
+				current_colour = (unsigned char) *(sourcePtr + kernel_x);
+				colour_value += current_colour * kernel[i];
 			}
-			*targetPtr = (int)floor( colour_value + 0.5 );
+			resultContents[y * width + x] = (int)floor( colour_value + 0.5 );
 		}
+	}
 
-	//iterate vertically
+	//Iterate vertically
 	for(int x = 0; x < width; x++){
 		for(int y = 0; y < height; y++){
-			unsigned char* targetPtr = resultBuffer + ( y * width ) + x;
 			double colour_value = 0;
+			unsigned char current_colour, *sourcePtr;
+
 			//iterate over the kernel
 			for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
 				int kernel_y = i - ceil( 3 * sigma );
@@ -264,70 +193,119 @@ unsigned char* DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& result
 					continue;
 				else if(y + kernel_y >= height)
 					continue;
-				unsigned char* sourcePtr = tempBuffer + ( y * width ) + x;
-				unsigned char current_colour = (unsigned char) *(sourcePtr + (kernel_y * width));
-				double current_kernel = kernel[i];
-				colour_value += current_colour * current_kernel;
+				sourcePtr = inputContents + ( y * width ) + x;
+				current_colour = (unsigned char) *(sourcePtr + (kernel_y * width));
+				colour_value += current_colour * kernel[i];
 			}
-			*targetPtr += (int)floor( colour_value + 0.5 );
+			resultContents[y * width + x] += (int)floor( colour_value + 0.5 );
 		}
 	}
-	free(tempBuffer);
+
+	//Clean up kernel memory
 	free(kernel);
-	return resultBuffer;
 }
 
 
-/** Extracts the red channel from a given image */
-unsigned char* DOGVisualFilter::extractRedChannel(Bitmap* image){
-	unsigned char* redBuffer = (unsigned char*) calloc(image->getWidth(), image->getHeight());
-	for(int pixel = 0; pixel < (image->getHeight() * image->getWidth()); pixel++) {
-		unsigned char* sourcePtr = image->getContents() + pixel * image->getDepth();
-		unsigned char* targetPtr = redBuffer + pixel;
-		*targetPtr = *sourcePtr;
+/** Extracts the red channel from a given image.
+ Extracts the red information from each pixel in the incoming image, whose dimensions must match. */
+void DOGVisualFilter::extractRedChannel(Bitmap& image){
+	//Check image dimensions match
+	if(image.getWidth() != redBitmap->getWidth() || image.getHeight() != redBitmap->getHeight())
+		throw ISpikeException("DOGVisualFilter: Red image and incoming reduced image have different dimensions");
+
+	//Avoid multiple function calls
+	int imageSize = redBitmap->size();
+	unsigned char* redContents = redBitmap->getContents();
+	unsigned char* imageContents = image.getContents();
+
+	//Copy the red pixels
+	for(int pixel = 0; pixel < imageSize; ++pixel) {
+		redContents[pixel] = imageContents[pixel * 3];
 	}
-	return redBuffer;
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("red.ppm", redBitmap);
+	#endif//DEBUG_IMAGES
 }
 
 
-/** Extracts the green channel from a given image */
-unsigned char* DOGVisualFilter::extractGreenChannel(Bitmap* image){
-	unsigned char* greenBuffer = (unsigned char*) calloc(image->getWidth(), image->getHeight());
-	for(int pixel = 0; pixel < (image->getHeight() * image->getWidth()); pixel++) {
-		unsigned char* sourcePtr = image->getContents() + pixel*image->getDepth() + 1;
-		unsigned char* targetPtr = greenBuffer + pixel;
-		*targetPtr = *sourcePtr;
+/** Extracts the green channel from a given image.
+ Extracts the green information from each pixel in the incoming image, whose dimensions must match. */
+void DOGVisualFilter::extractGreenChannel(Bitmap& image){
+	//Check image dimensions match
+	if(image.getWidth() != greenBitmap->getWidth() || image.getHeight() != greenBitmap->getHeight())
+		throw ISpikeException("DOGVisualFilter: Green image and incoming reduced image have different dimensions");
+
+	//Avoid multiple function calls
+	int imageSize = greenBitmap->size();
+	unsigned char* greenContents = greenBitmap->getContents();
+	unsigned char* imageContents = image.getContents();
+
+	//Copy the green pixels
+	for(int pixel = 0; pixel < imageSize; ++pixel) {
+		greenContents[pixel] = imageContents[pixel * 3 + 1];
 	}
-	return greenBuffer;
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("green.ppm", greenBitmap);
+	#endif//DEBUG_IMAGES
 }
 
 
-/** Extracts the blue channel from a given image */
-unsigned char* DOGVisualFilter::extractBlueChannel(Bitmap* image){
-	unsigned char* blueBuffer = (unsigned char*) calloc(image->getWidth(), image->getHeight());
-	for(int pixel = 0; pixel < (image->getHeight() * image->getWidth()); pixel++){
-		unsigned char* sourcePtr = image->getContents() + pixel*image->getDepth() + 2;
-		unsigned char* targetPtr = blueBuffer + pixel;
-		*targetPtr = *sourcePtr;
+/** Extracts the blue channel from a given image.
+ Extracts the blue information from each pixel in the incoming image, whose dimensions must match. */
+void DOGVisualFilter::extractBlueChannel(Bitmap& image){
+	//Check image dimensions match
+	if(image.getWidth() != blueBitmap->getWidth() || image.getHeight() != blueBitmap->getHeight())
+		throw ISpikeException("DOGVisualFilter: Blue image and incoming reduced image have different dimensions");
+
+	//Avoid multiple function calls
+	int imageSize = blueBitmap->size();
+	unsigned char* blueContents = blueBitmap->getContents();
+	unsigned char* imageContents = image.getContents();
+
+	//Copy the green pixels
+	for(int pixel = 0; pixel < imageSize; ++pixel) {
+		blueContents[pixel] = imageContents[pixel * 3 + 1];
 	}
-	return blueBuffer;
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("blue.ppm", blueBitmap);
+	#endif//DEBUG_IMAGES
 }
 
 
 /** Constructs the yellow channel from red and green channels */
-unsigned char* DOGVisualFilter::extractYellowChannel(unsigned char* redChannel, unsigned char* greenChannel, int width, int height){
-	unsigned char* resultBuffer = (unsigned char*) calloc(width, height);
-	for(int i = 0; i < width * height; i++)	{
-		unsigned char redPixel = (unsigned char) *(redChannel + i);
-		unsigned char greenPixel = (unsigned char) *(greenChannel + i);
-		unsigned char yellowValue = (unsigned int) floor( ( ( (int) redPixel + (int) greenPixel ) / 2 ) + 0.5 );
-		*(resultBuffer + i) = yellowValue;
+void DOGVisualFilter::extractYellowChannel(){
+	//Avoid multiple function calls
+	int imageSize = yellowBitmap->size();
+	unsigned char* redContents = redBitmap->getContents();
+	unsigned char* greenContents = greenBitmap->getContents();
+	unsigned char* yellowContents = yellowBitmap->getContents();
+	int tmpNum;
+
+	//Add green and red to create the yellow
+	for(int pixel=0; pixel < imageSize; ++pixel){
+		tmpNum = redContents[pixel] + greenContents[pixel];
+		yellowContents[pixel] = (unsigned char)(tmpNum/2);
 	}
-	return resultBuffer;
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("yellow.ppm", yellowBitmap);
+	#endif//DEBUG_IMAGES
 }
+
 
 /** Initializes the bitmaps used by the class - this way the memory only has to be allocated once */
 void DOGVisualFilter::initialize(int width, int height){
+	//Check variables have been set
+	if(positiveSigma<0 || negativeSigma<0 || positiveFactor <0 || negativeFactor<0 || opponencyTypeID<0)
+		throw ISpikeException("DOGVisualFilter: Some or all of the parameters have not been set.");
+
 	redBitmap = new Bitmap(width, height, 1);
 	greenBitmap = new Bitmap(width, height, 1);
 	blueBitmap = new Bitmap(width, height, 1);
@@ -339,17 +317,42 @@ void DOGVisualFilter::initialize(int width, int height){
 }
 
 
-/** Subtracts one image from another of the same dimensions, ratios can be applied to each */
-unsigned char* DOGVisualFilter::subtractImages(unsigned char* firstImage, unsigned char* secondImage, double ratio1, double ratio2, int width, int height){
-	unsigned char* resultBuffer = (unsigned char*) calloc(width, height);
-	for(int i = 0; i < width * height; i++)	{
-		unsigned char firstPixel = (unsigned char) *(firstImage + i);
-		unsigned char secondPixel = (unsigned char) *(secondImage + i);
-		int difference = ratio1 * firstPixel - ratio2 * secondPixel;
-		if(difference < 0)
-			difference = 0;
-		unsigned char resultPixel = difference;
-		*(resultBuffer + i) = resultPixel;
+/** Normalizes the values in the bitmap to the range 0-255 */
+void DOGVisualFilter::normalizeImage(Bitmap& image){
+	//References to buffer etc.
+	int imageSize = image.size();
+	unsigned char* imageContents = image.getContents();
+
+	//Find the maximum value in the bitmap
+	unsigned char max = 0;
+	for(int i=0; i<imageSize; ++i){
+		if(imageContents[i] > max)
+			max = imageContents[i];
 	}
-	return resultBuffer;
+
+	//Do nothing if the image is already normalized
+	if(max == MAX_PIXEL_VALUE)
+		return;
+
+	//Normalize the image
+	double factor = MAX_PIXEL_VALUE / (double)max;
+	for(int i=0; i<imageSize; ++i)
+		imageContents[i] = (unsigned char)floor(imageContents[i] * factor);
+}
+
+
+/** Subtracts one image from another of the same dimensions. */
+void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bitmap& result){
+	if(firstImage.size() != secondImage.size() || firstImage.size() != result.size())
+		throw ISpikeException("Subtraction only works between images of the same size. The result must be the same size as well.");
+
+	//Get references to buffers etc.
+	int imageSize = firstImage.size();
+	unsigned char* firstImageContents = firstImage.getContents();
+	unsigned char* secondImageContents = secondImage.getContents();
+	unsigned char* resultContents = result.getContents();
+
+	for(int i=0; i<imageSize; ++i){
+		resultContents[i] = (unsigned char)rint(firstImageContents[i]*plusFactor-secondImageContents[i]*minusFactor);
+	}
 }

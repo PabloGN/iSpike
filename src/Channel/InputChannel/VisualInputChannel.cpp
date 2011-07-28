@@ -17,28 +17,36 @@ using namespace ispike;
 
 /** Constructor */
 VisualInputChannel::VisualInputChannel() {
-	// Create the properties of this channel
-	addProperty(IntegerProperty(320, "Neuron Width", "Width of the neuron network", true));
-	addProperty(IntegerProperty(240, "Neuron Height", "Height of the neuron network", true));
+	// Properties of log polar foveation
+	addProperty(IntegerProperty(100, "Neuron Width", "Width of the neuron network", true));
+	addProperty(IntegerProperty(100, "Neuron Height", "Height of the neuron network", true));
 	addProperty(DoubleProperty(20, "Fovea Radius", "Radius of the central foveated area", true));
-	addProperty(DoubleProperty(2, "Plus Sigma", "Positive Gaussian Sigma", false));
-	addProperty(DoubleProperty(4, "Minus Sigma", "Negative Gaussian Sigma", false));
-	addProperty(DoubleProperty(4, "Ratio 1", "Multiplication ratio for positive image during subtraction", false));
-	addProperty(DoubleProperty(2, "Ratio 2", "Multiplication ratio for negative image during subtraction", false));
+
+	//Properties of the difference of gaussians filter
+	addProperty(DoubleProperty(2, "Positive Sigma", "Positive Gaussian Sigma", false));
+	addProperty(DoubleProperty(4, "Negative Sigma", "Negative Gaussian Sigma", false));
+	addProperty(DoubleProperty(4, "Positive Factor", "Multiplication ratio for positive image during subtraction", false));
+	addProperty(DoubleProperty(2, "Negative Factor", "Multiplication ratio for negative image during subtraction", false));
 	addProperty(IntegerProperty(0, "Opponency Map", "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true));
+
+	//Properties of the neural simulator
 	addProperty(DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false));
 	addProperty(DoubleProperty(0.2, "Parameter B","Parameter B of the Izhikevich Neuron Model",false));
-	addProperty(DoubleProperty(-65, "Parameter C","Parameter C of the Izhikevich Neuron Model",false));
+	addProperty(DoubleProperty(-65, "Parameter C","Parameter C of the Izhikevich Neuron Model",false));I
 	addProperty(DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model",false));
 	addProperty(DoubleProperty(20, "Current Factor", "Incoming current is multiplied by this value",false));
-	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", true));
+	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
 
 	//Create the description
 	channelDescription = InputChannelDescription("Visual Input Channel", "This is a visual input channel", "Visual Reader");
 
+	//Set up visual processing classes and neural simulator
+	dataReducer = new LogPolarVisualDataReducer();
+	dogFilter = new DOGVisualFilter(dataReducer);
+	neuronSim = new IzhikevichNeuronSim();
+
 	//Initialize variables
 	reader = NULL;
-	copyProperties = false;
 	neuronSim = NULL;
 	currentImageID = 0;
 }
@@ -48,6 +56,7 @@ VisualInputChannel::VisualInputChannel() {
 VisualInputChannel::~VisualInputChannel() {
 	LOG(LOG_DEBUG) << "Entering VisualInputChannel destructor";
 	if(isInitialised()) {
+		delete reader;
 		delete dogFilter;
 		delete dataReducer;
 		delete neuronSim;
@@ -67,14 +76,11 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 	this->reader = reader;
 	this->reader->start();
 
+	//Store properties in this and dependent classes
 	updateProperties(properties, false);
 
-	//Set up visual processing classes
-	dataReducer = new LogPolarVisualDataReducer(getWidth(), getHeight(), foveaRadius);
-	dogFilter = new DOGVisualFilter(dataReducer, plusSigma, minusSigma, ratio1, ratio2, opponentMapID);
-
-	//Create neural simulator
-	neuronSim = new IzhikevichNeuronSim(getWidth() * getHeight(), parameterA, parameterB, parameterC, parameterD, currentFactor, constantCurrent);
+	//Initialize neural simulator
+	neuronSim->initialize(getWidth() * getHeight());
 
 	setInitialized(true);
 }
@@ -82,33 +88,25 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 
 /** Sets the properties. This will be done immediately if we are not stepping or deferred until the end of the step */
 void JointInputChannel::setProperties(map<string,Property>& properties){
-	if(isStepping){
-		newPropertyMap = properties;
-		copyProperties = true;
-	}
-	else{
-		if(isInitialized())
-			updateProperties(properties, true);
-		else
-			updateProperties(properties, false);
-	}
+	if(isInitialized())
+		updateProperties(properties, true);
+	else
+		updateProperties(properties, false);
 }
 
 
 //Inherited from Channel
 void VisualInputChannel::step() {
-	isStepping = true;
-
 	//Check reader for errors
 	if(reader->isError()){
 		LOG(LOG_CRITICAL)<<"AngleReader Error: "<<reader->getError();
 		throw ISpikeException("Error in AngleReader");
 	}
 
-	//Update visual maps
+	//Update visual maps if necessary
 	if(reader->getImageID() != currentImageID){
 		currentImageID = reader->getImageID();
-		Bitmap tmpBitmap(reader->getBitmap());
+		Bitmap tmpBitmap(reader->getBitmap());//Get a copy to avoid threading issues
 		dataReducer->setBitmap(tmpBitmap);
 		dogFilter->update();
 	}
@@ -129,17 +127,9 @@ void VisualInputChannel::step() {
 				currents->at(j*(this->width) + i) = current;
 			}
 		}
-		buffer->push_back(*(this->neuronSim->getSpikes(currents)));
+		buffer->push_back(*(neuronSim->getSpikes(currents)));
 		delete currents;
 	}
-
-	//Update properties if this has been requested
-	if(copyProperties){
-		updateProperties(newPropertyMap, true);
-		copyProperties = false;
-	}
-
-	isStepping = false;
 }
 
 
@@ -152,56 +142,44 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 	if(propertyMap.size() != properties.size())
 		throw iSpikeException("VisualInputChannel: Current properties do not match new properties.");
 
-	for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
-		//Check property exists
-		if(propertyMap.count(iter->first) == 0){
-			LOG(LOG_CRITICAL) << "VisualInputChannel: Property does not exist: " << iter->first<<endl;
-			throw ISpikeException("VisualInputChannel: Property not recognized");
-		}
-
+	//Update properties in the property map and the appropriate class
+	for(map<string,Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter) {
 		//In updateReadOnly mode, only update properties that are not read only
-		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
+		if( (updateReadOnly && !iter->second.isReadOnly()) || !updateReadOnly) {
 			string paramName = iter->second.getName();
 			switch (iter->second.getType()){
 				case Property::Integer: {
-					int value = ((IntegerProperty)(iter->second)).getValue();
-					((IntegerProperty)propertyMap[paramName]).setValue(value);
-
 					if(paramName == "Opponency Map")
-						this->opponentMap = value;
+						dogFilter->setOpponencyTypeID(updatePropertyValue(iter->second));
 					else if (paramName == "Neuron Width")
-						setWidth(value);
+						dataReducer->setOuputWidth(updatePropertyValue(iter->second));
 					else if (paramName == "Neuron Height")
-						setHeight(value);
+						dataReducer->setOuputHeight(updatePropertyValue(iter->second));
 					break;
 				}
 				case Property::Double: {
-					double value = ((DoubleProperty)(iter->second)).getValue();
-					((DoubleProperty)propertyMap[paramName]).setValue(value);
-
 					if (paramName == "Parameter A")
-						this->parameterA = value;
+						neuronSim->setParameterA(updatePropertyValue(iter->second));
 					else if (paramName == "Parameter B")
-						this->parameterB = value;
+						neuronSim->setParameterB(updatePropertyValue(iter->second));
 					else if (paramName == "Parameter C")
-						this->parameterC = value;
+						neuronSim->setParameterC(updatePropertyValue(iter->second));
 					else if (paramName == "Parameter D")
-						this->parameterD = value;
+						neuronSim->setParameterD(updatePropertyValue(iter->second));
 					else if (paramName == "Current Factor")
-						this->currentFactor = value;
+						neuronSim->setCurrentFactor(updatePropertyValue(iter->second));
 					else if (paramName == "Constant Current")
-						this->constantCurrent = value;
-					else if (paramName == "Plus Sigma")
-						this->plusSigma = value;
-					else if (paramName == "Minus Sigma")
-						this->minusSigma = value;
-					else if (paramName == "Ratio 1")
-						this->ratio1 = value;
-					else if (paramName == "Ratio 2")
-						this->ratio2 = value;
+						neuronSim->setConstantCurrent(updatePropertyValue(iter->second));
+					else if (paramName == "Positive Sigma")
+						dogFilter->setPositiveSigma(updatePropertyValue(iter->second));
+					else if (paramName == "Negative Sigma")
+						dogFilter->setNegativeSigma(updatePropertyValue(iter->second));
+					else if (paramName == "Positive Factor")
+						dogFilter->setPositiveFactor(updatePropertyValue(iter->second));
+					else if (paramName == "Negative Factor")
+						dogFilter->setNegativeFactor(updatePropertyValue(iter->second));
 					else if (paramName == "Fovea Radius")
-						foveaRadius = value;
-
+						dataReducer->setFoveaRadius(updatePropertyValue(iter->second));
 					break;
 				}
 				case Property::Combo:

@@ -1,4 +1,4 @@
-#include <iSpike/Reader/FileVisualReader.hpp>
+ #include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iostream>
 #include <fstream>

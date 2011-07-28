@@ -15,19 +15,17 @@ using namespace ispike;
 #define DEBUG_IMAGES
 
 /** Constructor */
-LogPolarVisualDataReducer::LogPolarVisualDataReducer(int outputWidth, int outputHeight, double foveaRadius){
-	this->outputWidth = outputWidth;
-	this->outputHeight = outputHeight;
-	this->foveaRadius = foveaRadius;
-
+LogPolarVisualDataReducer::LogPolarVisualDataReducer(){
 	//Initialize variables
+	reducedImage = NULL;
 	mapsInitialized = false;
 }
 
 
 /** Destructor */
 LogPolarVisualDataReducer::~LogPolarVisualDataReducer(){
-	delete reducedImage;
+	if(mapsInitialized)
+		delete reducedImage;
 }
 
 
@@ -48,14 +46,41 @@ void LogPolarVisualDataReducer::setBitmap(Bitmap& bitmap){
 		return;
 	}
 
-	if(!mapsInitialized){
-		inputWidth = bitmap.getWidth();
-		inputHeight = bitmap.getHeight();
-		initialiseCartesianToPolarMap(bitmap);
-		reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
-		mapsInitialized = true;
+	//Prepare for first use if necessary
+	if(!isInitialized()){
+		initialize(bitmap);
 	}
+
+	//Check bitmap is correct size
+	if(bitmap.getWidth() != inputWidth || bitmap.getHeight() != inputHeight)
+		throw ISpikeException("LogPolarVisualDataReducer: Incoming image size has changed.");
+
+	//Calculate the log polar foveated image
 	calculateReducedImage(bitmap);
+}
+
+
+/** Sets the input width, throws exception if class has been initialized. */
+void LogPolarVisualDataReducer::setOutputHeight(int outputHeight){
+	if(isInitialized())
+		throw ISpikeException("LogPolarVisualDataReducer: Output height cannot be set after class has been initialized.");
+	this->outputHeight = outputHeight;
+}
+
+
+/** Sets the output width, throws exception if class has been initialized */
+void LogPolarVisualDataReducer::setOutputWidth(int outputWidth){
+	if(isInitialized())
+		throw ISpikeException("LogPolarVisualDataReducer: Output width cannot be set after class has been initialized.");
+	this->outputWidth = outputWidth;
+}
+
+
+/** Sets fovea radius, throws exception if class has been initialized */
+void LogPolarVisualDataReducer::setFoveaRadius(double foveaRadius){
+	if(isInitialized())
+		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius cannot be set after class has been initialized.");
+	this->foveaRadius = foveaRadius;
 }
 
 
@@ -73,11 +98,19 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	unsigned char* inputImageArray = bitmap.getContents();
 	unsigned char* reducedImageArray = reducedImage->getContents();
 
-	//Work through Cartesian to polar map.
+	//Work through coordinates in log polar output map
+	for(int r=0; r<outputWidth; ++r){
+		for(int theta=0; theta<outputHeight; ++theta){
+		}
+	}
+
+	//Copy the pixels across from the input to the output maps
 	for(CoordMapType::iterator iter = polarToCartesianMap.begin(); iter != polarToCartesianMap.end(); ++iter){
 		for(int d=0; d<tmpDepth; ++d){
 			//Copy pixel data into reduced image array
-			reducedImageArray[outputWidth*iter->second.second + iter->second.first + d] = inputImageArray[inputWidth*iter->first.second + iter->first.first + d];
+			//First coordinate is the polar(r, theta) in the output bitmap; second coordinate is the Cartesian(x,y) in the input bitmap
+			reducedImageArray[outputWidth*iter->first.second*tmpDepth + iter->first.first*tmpDepth + d] =
+					inputImageArray[inputWidth*iter->second.second*tmpDepth + iter->second.first*tmpDepth + d];
 		}
 	}
 
@@ -88,57 +121,66 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 }
 
 
-/** Returns the distance between two points */
-double LogPolarVisualDataReducer::getDistance(int x1, int y1, double x2, double y2){
-	return sqrt(pow(x1 - x2,2) + pow(y1 - y2,2));
+/** Checks that parameters are sensible and initializes the class */
+void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
+	if(outputWidth == 0 || outputHeight == 0)
+		throw ISpikeException("LogPolarVisualDataReducer: Cannot initialize with zero width and/or height.");
+
+	if(foveaRadius > outputWidth || foveaRadius > outputHeight)
+		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to output width and height.");
+
+	if(bitmap.getWidth() <= outputWidth || bitmap.getHeight() <= outputHeight)
+		throw ISpikeException("LogPolarVisualDataReducer: Incoming image must be greater in size than output.");
+
+	inputWidth = bitmap.getWidth();
+	inputHeight = bitmap.getHeight();
+	initialiseCartesianToPolarMap();
+	reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
+	mapsInitialized = true;
 }
 
 
-/** Initialises a pixel map from cartesian to polar coordinates */
-CoordMapType* LogPolarVisualDataReducer::initialiseCartesianToPolarMap(Bitmap& image){
-	//Only process a circular area in input image
+/** Initialises a pixel map from polar to Cartesian coordinates.
+	This will enable us to move through points in the output image and take samples
+	at appropriate points in the input image. */
+void LogPolarVisualDataReducer::initialisePolarToCartesianMap(){
+	polarToCartesianMap.clear();
+
+	//Map between a location on the log polar map and an angle on input map
+	double angleResolution = 360.0 / outputHeight;
+
+	//Get appropriate base for logarithm
 	double inputRadius = inputWidth/2.0;
 	if(inputWidth>inputHeight)
-		inputRadius = inputHeight/2.0;
+		inputRadius = inputHeight/2.0;//Minimum - can only sample a circular pattern in input
 
-	//Interval at which we sample the angle
-	double thetaInterval = 360.0 / outputHeight;
+	//Radius lengths outside foveated area
+	double outputLogRadius = outputWidth - foveaRadius;
+	double inputLogRadius = inputRadius - foveaRadius;
 
-	//Build a map that samples points in the input image and maps them to polar coordinates in the output image
-	for(double theta=0.0; theta<360.0; theta += thetaInterval){//Work through all the angles
-		for(double radius=0; radius<inputRadius; radius += 1.0){//Work along each radius
-			//Sample all points within the fovea radius, otherwise log the radius
-			tmpRadius = radius;
-			if(radius > foveaRadius)
-				tmpRadius = log10(radius);
+	//Find the base such that the maximum value will lie inside the inputRadius
+	double logBase = pow(inputLogRadius, outputLogRadius);
 
-			//Round and add to map - duplicates should be filtered by the map
-			polarToCartesianMap->insert(getNearestInputCartesianCoordinate(tmpRadius, theta), getNearestOutputPolarCoordinate(tmpRadius, theta));
+	for(int r=0; r<outputWidth; ++r){
+		for(int theta=0; theta<outputHeight; ++theta){
+			if(r <= foveaRadius)
+				polarToCartesianMap->insert(make_pair(r, theta), getInputCartesianCoordinate(r, theta*angleResolution));
+			else
+				polarToCartesianMap->insert(make_pair(r, theta), getInputCartesianCoordinate(foveaRadius + pow(logBase, r-foveaRadius), theta*angleResolution));
 		}
 	}
 }
 
 
 /** Gets the nearest Cartesian coordinate in the input image */
-pair<int, int> LogPolarVisualDataReducer::getNearestInputCartesianCoordinate(double radius, double theta){
+pair<int, int> LogPolarVisualDataReducer::getInputCartesianCoordinate(double radius, double theta){
 	int tmpY = nearbyint(radius * sin(theta));
 	if(tmpY >= inputHeight)
 		throw ISpikeException("LogPolarVisualDataReducer: Y out of range.");
 	int tmpX = nearbyint(radius * cos(theta));
 	if(tmpX >= inputWidth)
-		throw ISpikeException("LogPolarVisualDataReducer: Y out of range.");
+		throw ISpikeException("LogPolarVisualDataReducer: X out of range.");
 	return make_pair(tmpX, tmpY);
 }
 
-
-/** Gets the nearest Polar coordinate in the output image */
-pair<int, int> LogPolarVisualDataReducer::getNearestOutputPolarCoordinate(double radius, double theta){
-	int tmpRadius = nearbyint(radius);
-	if(tmpRadius >= outputWidth)
-		throw ISpikeException("LogPolarVisualDataReducer: radius out of range.");
-	int tmpTheta = nearbyint(theta);
-	if(tmpTheta >= outputHeight)
-		throw ISpikeException("LogPolarVisualDataReducer: theta out of range.");
-	return make_pair(tmpRadius, tmpTheta);
-}
 

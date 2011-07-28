@@ -1,30 +1,25 @@
-/*
- * IzhikevichNeuronSim.hpp
- *
- *  Created on: 6 Feb 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef IZHIKEVICHNEURONSIM_HPP_
 #define IZHIKEVICHNEURONSIM_HPP_
 
-#include <iSpike/NeuronSim/NeuronSim.hpp>
+//Other includes
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
+#include <vector>
+using namespace std;
 
-/**
- * @class IzhikevichNeuronSim
- * @brief IzhikevichNeuronSim class
- *
- * Neuron simulator using the Izhikevich model of neurons
- *
- * @author Edgars Lazdins
- *
- */
-class IzhikevichNeuronSim : public NeuronSim {
+namespace ispike {
+
+/** Neuron simulator using the Izhikevich model of neurons */
+class IzhikevichNeuronSim {
+public:
+	IzhikevichNeuronSim();
+	IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d, float currentFactor, float constantCurrent);
+	~IzhikevichNeuronSim();
+	vector<int>* step(std::vector<double>* voltages);
+	void initialize();
 
 private:
-std::vector<int>* spikes;
+vector<int>* spikes;
 float a;
 float b;
 float c;
@@ -33,33 +28,6 @@ float* v;
 float* u;
 float currentFactor;
 float constantCurrent;
-
-public:
-
-/**
- * Converts the voltage map into a spike pattern
- */
-std::vector<int>* getSpikes(std::vector<double>* voltages);
-
-/**
- * Constructor, parameters a-d as in the Izhikevich model
- */
-IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d, float currentFactor, float constantCurrent)
-{
-  this->v = new float[dimensions];
-  this->u = new float[dimensions];
-  this->a =  a;
-  this->b = b;
-  this->c = c;
-  this->d = d;
-  this->currentFactor = currentFactor;
-  this->constantCurrent = constantCurrent;
-  for(int n = 0; n < dimensions; n++)
-  {
-    v[n] = 0.0;
-    u[n] = 0.0;
-  }
-}
 
 };
 

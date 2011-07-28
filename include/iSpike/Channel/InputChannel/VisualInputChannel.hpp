@@ -22,7 +22,7 @@ namespace ispike {
 		public:
 			VisualInputChannel();
 			virtual ~VisualInputChannel();
-			vector< vector<int> >& getFiring() { return buffer; }
+			vector<int>& getFiring() { return spikeBuffer; }
 			void initialize(VisualReader* reader, map<string, Property> properties);
 			void setProperties(map<string, Property>& properties);
 			void step();
@@ -33,36 +33,36 @@ namespace ispike {
 
 
 		private:
-			vector< vector<int> > buffer;
+			/** Holds the spikes that fired in the last time step */
+			vector<int> spikeBuffer;
+
+			/** Extracts visual data from YARP or file */
 			VisualReader* reader;
-			void workerFunction();
-			bool stopRequested;
+
+			/** Foveates the image using log polar */
 			VisualDataReducer* dataReducer;
+
+			/** Uses difference of Gaussians to model colour opponency */
 			VisualFilter* dogFilter;
+
+			/** Neural simulator to convert currents to spikes. */
 			IzhikevichNeuronSim* neuronSim;
-			double parameterA;
+
+			/*double parameterA;
 			double parameterB;
 			double parameterC;
 			double parameterD;
 			double currentFactor;
 			double constantCurrent;
-			double plusSigma;
-			double minusSigma;
-			double ratio1;
-			double ratio2;
-			int xOffset;
-			int yOffset;
+			double positiveSigma;
+			double negativeSigma;
+			double positiveFactor;
+			double negativeFactor;
 			int opponentMapID;
 
-			/** Radius of the central foveated area */
+			/ Radius of the central foveated area
 			double foveaRadius;
-
-			/** Map holding new properties, for updating when thread has finished processing the current time step*/
-			map<string, Property> newPropertyMap;
-
-			/** Flag to indicate that properties should be updated */
-			bool copyProperties;
-
+*/
 			/** ID of the current image - used to check for changes to the image provided by the reader */
 			unsigned currentImageID;
 

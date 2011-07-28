@@ -16,22 +16,38 @@ namespace ispike {
 	/** This class represents a Difference Of Gaussians filter */
 	class DOGVisualFilter : public VisualFilter, public PropertyHolder {
 		public:
-			DOGVisualFilter(VisualDataReducer* reducer, int queryInterval, double plusSigma, double minusSigma, double ratio1, double ratio2, int opponencyMap);
+			DOGVisualFilter(VisualDataReducer* reducer);
 			~DOGVisualFilter();
-			Bitmap& getOpponencyMap();
+			Bitmap& getOpponencyBitmap();
+			bool isInitialized(){ return initialized; }
+			void setPositiveSigma(double positiveSigma) { this->positiveSigma = positiveSigma; }
+			void setNegativeSigma(double negativeSigma) { this->negativeSigma = negativeSigma; }
+			void setPositiveFactor(double positiveFactor) { this->positiveFactor = positiveFactor; }
+			void setNegativeFactor(double negativeFactor) { this->negativeFactor = negativeFactor; }
+			void setOpponencyTypeID(int opponencyTypeID);
 			void update();
 
 		private:
 			//==========================  VARIABLES  =======================
 			VisualDataReducer* reducer;
-			int queryInterval;
-			boost::shared_ptr<boost::thread> threadPointer;
-			boost::mutex mutex;
-			double plusSigma;
-			double minusSigma;
-			double ratio1;
-			double ratio2;
+
+			/** Sigma for Gaussian blurring of positive images */
+			double positiveSigma;
+
+			/** Sigma for Gaussian blurring of negative images */
+			double negativeSigma;
+
+			/** Factor by which positive image is multiplied during subtraction */
+			double positiveFactor;
+
+			/** Factor by which positive image is multiplied during subtraction */
+			double negativeFactor;
+
+			/** ID controlling the type of opponency map that is generated */
 			int opponencyTypeID;
+
+			/** Controls whether the final image is normalized or not */
+			bool normalize;
 
 			/** Records when class has been initialized */
 			bool initialized;
@@ -59,12 +75,15 @@ namespace ispike {
 
 
 			//==========================  METHODS  =========================
-			unsigned char* extractRedChannel(Bitmap* image);
-			unsigned char* extractGreenChannel(Bitmap* image);
-			unsigned char* extractBlueChannel(Bitmap* image);
-			unsigned char* extractYellowChannel(unsigned char* redChannel, unsigned char* greenChannel, int width, int height);
-			unsigned char* gaussianBlur(unsigned char* image, double sigma, int width, int height);
-			unsigned char* subtractImages(unsigned char* firstImage, unsigned char* secondImage, double ratio1, double ratio2, int width, int height);
+			void calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2);
+			unsigned char* extractRedChannel(Bitmap& inputImage);
+			unsigned char* extractGreenChannel(Bitmap& inputImage);
+			unsigned char* extractBlueChannel(Bitmap& inputImage);
+			unsigned char* extractYellowChannel();
+			void gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma);
+			void initialize(int width, int height);
+			void normalizeImage(Bitmap& image);
+			void subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bitmap& result);
 	};
 
 }

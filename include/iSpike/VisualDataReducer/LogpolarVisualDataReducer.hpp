@@ -21,11 +21,14 @@ namespace ispike {
 	 * from cartesian to logpolar coordinates */
 	class LogPolarVisualDataReducer : public VisualDataReducer{
 		public:
-			LogPolarVisualDataReducer(int outputWidth, int outputHeight, int foveaSize);
+			LogPolarVisualDataReducer();
 			~LogPolarVisualDataReducer();
 			Bitmap& getReducedImage();
+			bool isInitialized() { return initialized; }
 			void setBitmap(Bitmap& bitmap);
-			void setProperties(map<string, Property>& propertyMap);
+			void setOutputHeight(int outputHeight);
+			void setOutputWidth(int outputWidth);
+			void setFoveaRadius(double foveaRadius);
 
 		private:
 			//========================  VARIABLES  ============================
@@ -45,23 +48,20 @@ namespace ispike {
 			int outputHeight;
 
 			/** Map linking a set of Cartesian coordinates in the input image to a set of polar coordinates in the output image */
-			CoordMapType* cartesianToPolarMap;
+			CoordMapType* polarToCartesianMap;
 
 			/** Radius of the foveated area */
 			double foveaRadius;
 
 			/** Records whether the maps for converting cartesian to polar coordinates have been initialized */
-			bool mapsInitialized;
+			bool initialized;
 
 
 			//========================  METHODS  ==============================
-			double getDistance(int x, int y, double center_x, double center_y);
-			CoordMapType* initialisePolarToCartesianMap(Bitmap* image, int polarWidth, int polarHeight, int foveaRadius);
-			CoordMapType* initialiseCartesianToPolarMap(Bitmap* image, int polarWidth, int polarHeight, int foveaRadius);
-			Bitmap* logPolar(Bitmap* input, int polarWidth, int polarHeight, CoordMapType* polarToCartesianMap);
-			Bitmap* logPolarToCartesian(Bitmap* logPolarImage, int outputWidth, int outputHeight, CoordMapType* cartesianToPolarMap);
 			void calculateReducedImage(Bitmap& bitmap);
-
+			pair<int, int> getInputCartesianCoordinate(double radius, double theta);
+			void initialize(Bitmap& bitmap);
+			void initialisePolarToCartesianMap();
 	};
 
 }

@@ -7,8 +7,10 @@ using namespace std;
 
 namespace ispike {
 
-	/** Represents a bitmap representation of an image or just
-	 * any sequence of bytes, has a height, width and depth  */
+	/** A bitmap representation of an image, which has a height, width and depth.
+		For example, with depth 3, each unsigned char could hold a red, green or blue value,
+		so the contents array would be arranged as RGBRGBRGBRGB. This could be a 2x2 or a 4x1
+		image, depending on the width and height settings. */
 	class Bitmap {
 		public:
 			Bitmap(unsigned width, unsigned height, unsigned depth) ;
@@ -16,7 +18,7 @@ namespace ispike {
 			~Bitmap();
 			Bitmap& operator=(const Bitmap& rhs);
 			unsigned char* getContents() const  { return contents;  }
-			unsigned char getPixel(unsigned x, unsigned y) ;
+			unsigned char getPixel(unsigned x, unsigned y, unsigned d) ;
 			unsigned getDepth() const { return depth; }
 			unsigned getHeight() const { return height; }
 			unsigned getWidth() const { return width; }

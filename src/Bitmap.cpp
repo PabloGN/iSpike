@@ -81,9 +81,9 @@ Bitmap& Bitmap::operator=(const Bitmap& rhs){
 
 
 /** Returns value of corresponding pixel in the image */
-unsigned char getPixel(unsigned x, unsigned y) {
-	if( (x >= 0 && x < width) && (y >= 0 && y < height))
-		return *(contents + (width * y) + x);
+unsigned char getPixel(unsigned x, unsigned y, unsigned d) {
+	if( (x >= 0 && x < width) && (y >= 0 && y < height) && (d >=0 && d < depth))
+		return *(contents + (width * depth * y) + x * depth + d);
 }
 
 
