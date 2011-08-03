@@ -19,12 +19,12 @@ namespace ispike {
 	class OutputChannelFactory {
 		private:
 			/** A list of available Output Channels */
-			std::vector<OutputChannelDescription> channelList;
+			vector<OutputChannelDescription> channelList;
 
 		public:
 			OutputChannelFactory();
-			std::vector<OutputChannelDescription> getAllChannels();
-			OutputChannel* create(std::string channelName, Writer* writer, std::map<std::string,Property*> channelProperties);
+			vector<OutputChannelDescription> getAllChannels();
+			OutputChannel* create(string channelName, Writer* writer, map<string,Property*> channelProperties);
 		};
 
 }

@@ -36,7 +36,7 @@ namespace ispike {
 			int updatePropertyValue(IntegerProperty& property);
 			string updatePropertyValue(StringProperty& property);
 
-		private:
+		protected:
 			//=======================  VARIABLES  ========================
 			/** Properties */
 			map<string, Property> propertyMap;

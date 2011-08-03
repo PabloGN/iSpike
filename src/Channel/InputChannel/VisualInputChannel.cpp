@@ -43,11 +43,9 @@ VisualInputChannel::VisualInputChannel() {
 	//Set up visual processing classes and neural simulator
 	dataReducer = new LogPolarVisualDataReducer();
 	dogFilter = new DOGVisualFilter(dataReducer);
-	neuronSim = new IzhikevichNeuronSim();
 
 	//Initialize variables
 	reader = NULL;
-	neuronSim = NULL;
 	currentImageID = 0;
 }
 
@@ -59,7 +57,6 @@ VisualInputChannel::~VisualInputChannel() {
 		delete reader;
 		delete dogFilter;
 		delete dataReducer;
-		delete neuronSim;
 	}
 	LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
 }
@@ -80,7 +77,7 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 	updateProperties(properties, false);
 
 	//Initialize neural simulator
-	neuronSim->initialize(getWidth() * getHeight());
+	neuronSim.initialize(getWidth() * getHeight());
 
 	setInitialized(true);
 }
@@ -88,10 +85,7 @@ void VisualInputChannel::initialize(VisualReader* reader, std::map<std::string,P
 
 /** Sets the properties. This will be done immediately if we are not stepping or deferred until the end of the step */
 void JointInputChannel::setProperties(map<string,Property>& properties){
-	if(isInitialized())
-		updateProperties(properties, true);
-	else
-		updateProperties(properties, false);
+	updateProperties(properties, true);
 }
 
 
@@ -111,25 +105,26 @@ void VisualInputChannel::step() {
 		dogFilter->update();
 	}
 
-	//Get reference to opponency map
-	Bitmap& opponencyMap = dogFilter->getOpponencyMap();
 
-	///Check it was retrieved successfully
+	//Load opponency data into neural simulator
 	if(!opponencyMap.isEmpty()) {
-		///create a current map for the neuron simulator
-		std::vector<double>* currents = new std::vector<double>(getWidth() * getHeight());
-		for(int i = 0; i < width; i++){
-			for(int j = 0; j < height; j++){
-				///retrieve the pixel intensity at the coordinates
-				double current = (unsigned int)opponentMap.getPixel(this->xOffset + i,this->yOffset + j);
+		//Get reference to opponency map
+		Bitmap& opponencyMap = dogFilter->getOpponencyMap();
+		int opponencyMapSize = opponencyMap.size();
+		unsigned char* opponencyMapContents = opponencyMap.getContents();
 
-				///move it to the current map
-				currents->at(j*(this->width) + i) = current;
-			}
+		if(opponencyMapSize != size())
+			throw ISpikeException("VisualInputChannel: Incoming map size does not match size of visual channel");
+
+		//Convert pixels to currents in simulator
+		for(int i=0; i<opponencyMapSize; ++i){
+			//Set the input current to the neurons
+			neuronSim.setInputCurrent(i, currentFactor * opponencyMapContents[i] + constantCurrent);
 		}
-		buffer->push_back(*(neuronSim->getSpikes(currents)));
-		delete currents;
 	}
+
+	//Step the simulator
+	neuronSim.step();
 }
 
 
@@ -143,6 +138,7 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 		throw iSpikeException("VisualInputChannel: Current properties do not match new properties.");
 
 	//Update properties in the property map and the appropriate class
+	bool updateReadOnly = !isInitialized();
 	for(map<string,Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter) {
 		//In updateReadOnly mode, only update properties that are not read only
 		if( (updateReadOnly && !iter->second.isReadOnly()) || !updateReadOnly) {
@@ -167,9 +163,9 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties, boo
 					else if (paramName == "Parameter D")
 						neuronSim->setParameterD(updatePropertyValue(iter->second));
 					else if (paramName == "Current Factor")
-						neuronSim->setCurrentFactor(updatePropertyValue(iter->second));
+						currentFactor = updatePropertyValue(iter->second);
 					else if (paramName == "Constant Current")
-						neuronSim->setConstantCurrent(updatePropertyValue(iter->second));
+						constantCurrent = updatePropertyValue(iter->second);
 					else if (paramName == "Positive Sigma")
 						dogFilter->setPositiveSigma(updatePropertyValue(iter->second));
 					else if (paramName == "Negative Sigma")

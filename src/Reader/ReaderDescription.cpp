@@ -1,6 +1,13 @@
 #include <iSpike/Reader/ReaderDescription.hpp>
 using namespace ispike;
 
+/** Empty constructor */
+ReaderDescription::ReaderDescription(){
+	name = "Unnamed";
+	description = "Undescribed";
+	type = "Unknown";
+}
+
 /** Constructor */
 ReaderDescription::ReaderDescription(string readerName, string readerDescription, string readerType) {
 	this->name = readerName;

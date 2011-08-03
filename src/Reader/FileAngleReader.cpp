@@ -14,10 +14,11 @@ using namespace ispike;
 #include <fstream>
 using namespace std;
 
+
 /** Constructor */
-FileAngleReader() {
+FileAngleReader::FileAngleReader() {
 	// Define the properties of this reader
-	properties["Filename"] = StringProperty("anglesIn.txt", "Filename", "The file where the angles will be read from", true);
+	addProperty(StringProperty("anglesIn.txt", "File Name", "The file where the angles will be read from", true));
 
 	//Create description
 	readerDescription = ReaderDescription("File Angle Reader", "This is a file angle reader", "Angle Reader");
@@ -30,25 +31,16 @@ FileAngleReader() {
 
 //Inherited from Reader
 void FileAngleReader::initialise(map<string, Property> &properties){
-	buffer.clear();
-
-	//Check property exists
-	if(propertyMap.count("Filename") == 0)
-		throw iSpikeException("Filename property does not exist.");
-
-	fileName = ((StringProperty)properties["FileName"]).getValue();
-
+	setProperties(properties);
 	setInitialized(true);
 }
 
 
-// Inherited from AngleReader
-void FileAngleReader::start() {
-	if(!isInitialized()){
-		LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
-		readAngleFromFile();
-		setInitialized(true);
-	}
+//Inherited from PropertyHolder
+void FileAngleReader::setProperties(map<string, Property>& properties){
+	string fileName = updatePropertyValue((StringProperty)properties["File Name"]);
+	LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
+	readAngleFromFile(string& fileName);
 }
 
 
@@ -57,7 +49,7 @@ void FileAngleReader::start() {
 /*--------------------------------------------------------------------*/
 
 /** Reads angles from a file */
-void FileAngleReader::readAngleFromFile() {
+void FileAngleReader::readAngleFromFile(string& fileName) {
 	ifstream fileStream;
 	string contents;
 
@@ -79,10 +71,9 @@ void FileAngleReader::readAngleFromFile() {
 		std::string message(messageStream.str());
 		throw ISpikeException(message);
 	}
-
 	fileStream.close();
 
-	buffer.clear();
+	vector<double> buffer;
 	boost::regex split_string(" ");
 	std::list<std::string> lines;
 	boost::regex_split(std::back_inserter(lines), contents, split_string);
@@ -92,4 +83,9 @@ void FileAngleReader::readAngleFromFile() {
 		double angle = boost::lexical_cast<double>(current_string);
 		buffer.push_back(angle);
 	}
+
+	if(!vector.empty())
+		setAngle(buffer[0]);
+	else
+		throw iSpikeException("FileAngleReader: No angles found in file.");
 }

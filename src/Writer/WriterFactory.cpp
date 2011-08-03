@@ -31,9 +31,7 @@ WriterFactory::WriterFactory(string ip, unsigned port){
 /*---------                 PUBLIC METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
-/** Returns all writers of a particular type
- * @param writerType The type of Writer we are interested in
- * @return All writers of the given type */
+/** Returns all writers of a particular type */
 vector<WriterDescription> WriterFactory::getWritersOfType(string writerType){
 	vector<WriterDescription> result;
 	for(int i = 0; i < writerList.size(); i++){
@@ -44,10 +42,7 @@ vector<WriterDescription> WriterFactory::getWritersOfType(string writerType){
 }
 
 
-/** Creates a particular writer
- * @param writerName Type of a Writer we want to create
- * @param writerProperties A map of properties for the new Writer
- * @return An initialised Writer of a given type  */
+/** Creates a particular writer   */
 Writer* WriterFactory::create(string writerName, map<string, Property> writerProperties	){
 	Writer* result;
 	if(writerName == "File Angle Writer") {
@@ -57,7 +52,7 @@ Writer* WriterFactory::create(string writerName, map<string, Property> writerPro
 		result = new YarpAngleWriter(this->ip, this->port);
 	}
 	else {
-		throw logic_error("Invalid writer type");
+		throw ISpikeException("Invalid writer name");
 	}
 	result->initialise(writerProperties);
 	return result;

@@ -1,15 +1,18 @@
 #ifndef JOINTOUTPUTCHANNEL_HPP_
 #define JOINTOUTPUTCHANNEL_HPP_
 
+//iSpike includes
 #include <iSpike/Channel/OutputChannel/OutputChannel.hpp>
+#include <iSpike/Writer/AngleWriter.hpp>
+#include <iSpike/Log/Log.hpp>
+
+//Other includes
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 #include <queue>
 #include <string>
 #include <vector>
-#include <iSpike/Writer/AngleWriter.hpp>
-#include <iSpike/Log/Log.hpp>
 
 namespace ispike {
 
@@ -17,41 +20,35 @@ namespace ispike {
 	class JointOutputChannel : public OutputChannel {
 		public:
 			JointOutputChannel();
-			~JointOutputChannel();
+			virtual ~JointOutputChannel();
 			void initialise(AngleWriter* writer, map<string,Property>& properties);
-			void setFiring(std::vector<int>& buffer);
+			void setFiring(vector<int>& buffer);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
 
 		protected:
-			void updateProperties(std::map<std::string,Property*> properties, bool updateReadOnly);
+			void updateProperties(map<string,Property*> properties, bool updateReadOnly);
 
 
 		private:
+			/** Outputs angle to YARP, file, etc. */
 			AngleWriter* writer;
+
+			/** The minimum value of the angle */
 			double minAngle;
+
+			/** The maximum value of the angle */
 			double maxAngle;
+
+			/** The rate at which the current variables decay */
 			double rateOfDecay;
-			double currentAngle;
 
 			/** Array holding the current variables */
-			double* variables;
-
-			/*! Number of current variables */
-			int numVariables;
+			double* currentVariables;
 
 			/** The amount by which a current variable is incremented with each spike */
 			double currentIncrement;
-
-			/** Map holding new properties, for updating when thread has finished processing the current time step*/
-			map<string, Property> newPropertyMap;
-
-			/** Flag to indicate that properties should be updated */
-			bool copyProperties;
-
-
-
 	};
 
 }

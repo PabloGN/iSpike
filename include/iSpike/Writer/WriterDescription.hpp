@@ -30,13 +30,13 @@ namespace ispike {
 
 
 		private:
-			///Name of the Writer
+			// Name of the Writer
 			string name;
 
-			///Description of the Writer
+			// Description of the Writer
 			string description;
 
-			/// Type of the Writer
+			// Type of the Writer
 			string type;
 
 	};

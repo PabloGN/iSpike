@@ -15,6 +15,7 @@ namespace ispike {
 	/** Describes a Reader */
 	class ReaderDescription {
 		public:
+			ReaderDescription();
 			ReaderDescription(string readerName, string readerDescription,	std::string readerType);
 			ReaderDescription(const ReaderDescription& desc);
 			ReaderDescription& operator=(const ReaderDescription& rhs);

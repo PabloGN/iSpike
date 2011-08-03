@@ -23,7 +23,7 @@ namespace ispike {
 			/// A list of available readers
 			vector<ReaderDescription> readerList;
 			string ip;
-			string port;
+			unsigned port;
 
 	};
 

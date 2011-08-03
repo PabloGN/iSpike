@@ -16,7 +16,7 @@ namespace ispike {
 		to send spikes to this channel, which are decoded into something else */
 	class OutputChannel : public Channel {
 		public:
-			OutputChannel()  : Channel() {}
+			virtual ~OutputChannel() {}
 			OutputChannelDescription getChannelDescription() { return channelDescription; }
 
 			/*! Initializes the channel with a reader and set of properties */

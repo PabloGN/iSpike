@@ -16,22 +16,19 @@ namespace ispike {
 
 	/** This class represents a Writer, capable of writing analogue information
 		to a file, socket or other destination. */
-	class Writer : public iSpikeThread {
+	class Writer : public PropertyHolder, public iSpikeThread {
 		public:
 			Writer(){ initialized = false; }
+			virtual ~Writer(){}
 			WriterDescription getWriterDescription() const { return writerDescription; }
-			map<string, Property> getProperties() { return propertyMap; }
-			void initialize(map<string, Property>& properties) = 0;
+			virtual void initialize(map<string, Property>& properties) = 0;
 			bool isInitialized() { return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
-			void setProperties(map<string, Property>& properties) = 0;
 
 		protected:
 			/** Description of the Writer */
 			WriterDescription writerDescripton;
 
-			/** Properties of the Writer */
-			map<string, Property> propertyMap;
 
 		private:
 			/** Records whether Writer has been initialized */

@@ -2,6 +2,14 @@
 #include "iSpike/Channel/InputChannel/InputChannelDescription.hpp"
 using namespace ispike;
 
+/** Empty constructor */
+InputChannelDescription::InputChannelDescription(){
+	channelName = "Unnamed";
+	channelDescription = "Undescribed";
+	readerType = "Unknown";
+}
+
+
 /**  Default constructor */
 InputChannelDescription::InputChannelDescription(string channelName, string channelDescription, string readerType){
 	this->channelName = channelName;

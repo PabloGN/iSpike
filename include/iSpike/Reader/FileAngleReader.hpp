@@ -7,24 +7,20 @@
 
 namespace ispike {
 
-	/** Retrieves a vector of joint angles from a given file and makes it available upon request */
+	/** Retrieves a joint angle from a given file and makes it available upon request */
 	class FileAngleReader : public AngleReader {
-
-		private:
-			//==========================  VARIABLES  =========================
-			vector<double> buffer;
-			bool initialised;
-			string fileName;
-
-			//===========================  METHODS  ==========================
-			void FileAngleReader::readAngleFromFile(const char* fileName);
-
-
 		public:
 			FileAngleReader();
-			std::vector<double> getData() { return buffer; }
 			void initialise(map<string, Property>& properties);
-			void start();
+			void setProperties(map<string, Property>& properties);
+			void start() {}
+
+		private:
+			//===========================  METHODS  ==========================
+			void readAngleFromFile(string& fileName);
+			void workerFunction() {}
+
+
 	};
 
 }

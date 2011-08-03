@@ -23,13 +23,7 @@ std::vector<InputChannelDescription> getAllChannels() {
 }
 
 
-/**
-* Creates a particular Input Channel
-* @param channelName Type of Input Channel to create
-* @param reader A reader for the new Input Channel
-* @param channelProperties A map of properties for the new Input Channel
-* @return An initialised Input Channel of a given type
-*/
+/** Creates a particular Input Channel */
 InputChannel* create(string channelName, Reader* reader, map<string, Property> channelProperties) {
 	if(channelName == "Joint Input Channel"){
 		JointInputChannel* channel = new JointInputChannel();
@@ -42,6 +36,6 @@ InputChannel* create(string channelName, Reader* reader, map<string, Property> c
 		return channel;
 	}
 	else {
-		throw iSpikeException("Invalid channel type");
+		throw iSpikeException("Invalid channel name");
 	}
 }

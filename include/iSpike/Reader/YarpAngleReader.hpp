@@ -32,9 +32,6 @@ namespace ispike {
 			/** Map of the ports that are availabe in YARP */
 			map<string, YarpPortDetails> portMap;
 
-			/** Degree of freedom controlling which angle is stored and returned */
-			unsigned degreeOfFreedom;
-
 
 			//============================  METHODS  ===========================
 			void updateProperties(map<string, Property>& properties, bool updateReadOnly);

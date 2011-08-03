@@ -1,12 +1,16 @@
 #ifndef INPUTCHANNELFACTORY_HPP_
 #define INPUTCHANNELFACTORY_HPP_
 
-#include <string>
+//iSpike includes
 #include <iSpike/Reader/Reader.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
 #include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
+
+//Other includes
+#include <string>
+using namespace std;
 
 namespace ispike {
 
@@ -18,12 +22,12 @@ namespace ispike {
 	class InputChannelFactory {
 		private:
 			/** A list of available Input Channels */
-			std::vector<InputChannelDescription> channelList;
+			vector<InputChannelDescription> channelList;
 
 		public:
 			InputChannelFactory();
-			std::vector<InputChannelDescription> getAllChannels();
-			InputChannel* create(std::string channelName, Reader* reader, std::map<std::string,Property*> channelProperties);
+			vector<InputChannelDescription> getAllChannels();
+			InputChannel* create(string channelName, Reader* reader, map<string,Property*> channelProperties);
 	};
 
 }

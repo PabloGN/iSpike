@@ -3,8 +3,7 @@
 
 //iSpike includes
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
-#include <iSpike/Reader/YarpAngleReader.hpp>
-#include <iSpike/Property.hpp>
+#include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include "iSpike/iSpikeThread.hpp"
@@ -21,45 +20,36 @@ namespace ispike {
 	class JointInputChannel : public InputChannel {
 		public:
 			JointInputChannel();
-			~JointInputChannel();
+			virtual ~JointInputChannel();
 			double getCurrentAngle(){ return currentAngle; }
-			std::vector< std::vector<int> >& getFiring() { return buffer; }
-			void initialize(AngleReader* reader, map<string, Property> properties);
+			vector<int>& getFiring() { return neuronSim.getSpikes(); }
+			void initialize(AngleReader* reader, map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
 
 		private:
 			//==========================  VARIABLES  ==========================
-			std::vector< std::vector<int> > buffer;
+			/** Reads angle from data source */
 			AngleReader* reader;
-			int degreeOfFreedom;
+
 			double currentAngle;
 			double sd;
 			double minAngle;
 			double maxAngle;
 
 			/*! Izhikevich neuron simulator */
-			IzhikevichNeuronSim* izhikevichNeuronSim;
+			IzhikevichNeuronSim neuronSim;
 
-			/*! Parameters for Izhikevich neurons */
-			double parameterA;
-			double parameterB;
-			double parameterC;
-			double parameterD;
-
+			/** Factor by which input current to neurons is multiplied */
 			double currentFactor;
+
+			/** Constant current injected into neurons */
 			double constantCurrent;
-
-			/** Map holding new properties, for updating when thread has finished processing the current time step*/
-			map<string, Property> newPropertyMap;
-
-			/** Flag to indicate that properties should be updated */
-			bool copyProperties;
 
 
 			//==============================  METHODS  =========================
-			void updateProperties(map<string, Property>& properties, bool updateReadOnly);
+			void updateProperties(map<string, Property>& properties);
 
 	};
 

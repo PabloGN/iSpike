@@ -22,14 +22,13 @@ JointOutputChannel::JointOutputChannel() : OutputChannel() {
 
 	//Initialize variables
 	writer = NULL;
-	copyProperties = false;
 }
 
 
 /** Destructor */
 JointOutputChannel::~JointOutputChannel(){
 	if(isInitialized()){
-		delete [] variables;
+		delete [] currentVariables;
 	}
 }
 
@@ -42,7 +41,7 @@ JointOutputChannel::~JointOutputChannel(){
 void JointOutputChannel::setFiring(std::vector<int>& buffer){
 	//Work through the neuron ids in the buffer
 	for(vector<int>::iterator iter =buffer.begin(); iter != buffer.end(); ++ iter){
-		variables[*iter] += currentIncrement;
+		currentVariables[*iter] += currentIncrement;
 	}
 }
 
@@ -57,10 +56,9 @@ void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> p
 	updateProperties(properties, false);
 
 	//Set up current variables
-	numVariables = getWidth() * getHeight();
-	variables = new double[numVariables];
-	for(int i=0; i<numVariables; ++i)
-		variables[i] = 0.0;
+	currentVariables = new double[size()];
+	for(int i=0; i<size(); ++i)
+		currentVariables[i] = 0.0;
 
 	setInitialized(true);
 }
@@ -68,38 +66,25 @@ void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> p
 
 //Inherited from Channel
 void JointOutputChannel::step(){
-	isStepping = true;
-
 	//Calculate the angle from the current variables
 	double angleSum = 0;
 	double weightSum = 0;
-	for(unsigned int j = 0; j < variables.size(); j++)     {
-        double currentAngle = (this->maxAngle - this->minAngle) / ((this->width * this->height)-1) * j + this->minAngle;
-        angleSum += variables[j] * currentAngle;
-        weightSum += variables[j];
+	for(unsigned int j = 0; j < size(); ++j)     {
+		double currentAngle = (maxAngle - minAngle) / ((width * height)-1) * j + minAngle;
+		angleSum += currentVariables[j] * currentAngle;
+		weightSum += currentVariables[j];
 	}
-	if(!weightSum == 0) {
-        double angle = angleSum / weightSum;
-        LOG(LOG_DEBUG) << "Angle: " << angle;
-        this->currentAngle = angle;
-        this->writer->addAngle(angle);
+	if(weightSum != 0) {
+		writer->setAngle(angleSum / weightSum);
 	}
 
 	/* Decay the variables according to the following function:
      * N(t+1) = N(t)*e^(-rateOfDecay*t)
      */
-	for(unsigned int i=0; i < numVariables; ++i) {
-		variables[i] = variables[i] * exp(-(this->rateOfDecay) * times[i]);
+	for(unsigned int i=0; i < size(); ++i) {
+		currentVariables[i] = currentVariables[i] * exp(-(rateOfDecay) * times[i]);
 		//FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
 	}
-
-	//Update properties if this has been requested
-	if(copyProperties){
-		updateProperties(newPropertyMap, true);
-		copyProperties = false;
-	}
-
-	isStepping = false;
 }
 
 
@@ -113,42 +98,23 @@ void JointOutputChannel::updateProperties(map<string, Property> properties, bool
 		throw iSpikeException("JointOutputChannel: Current properties do not match new properties.");
 
 	for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter){
-		//Check property exists
-		if(propertyMap.count(iter->first) == 0){
-			LOG(LOG_CRITICAL) << "JointIntputChannel: Property does not exist: " << iter->first<<endl;
-			throw ISpikeException("JointInputChannel: Property not recognized");
-		}
-
-		//Check that property name matches the map name
-		std::string paramName = iter->second.getName();
-		if(paramName != iter->first){
-			LOG(LOG_CRITICAL) << "JointIntputChannel: Property name mismatch: " << iter->first<<", "<<paramName<<endl;
-			throw ISpikeException("JointInputChannel: Property name mismatch");
-		}
-
 		//In updateReadOnly mode, only update properties that are not read only
 		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
 			switch (iter->second->getType()) {
 				case Property::Integer: {
-					int value = ((IntegerProperty*)(iter->second))->getValue();
-					((IntegerProperty)propertyMap[paramName]).setValue(value);
-
 					if (paramName == "Neuron Width")
-						setWidth(value);
+						setWidth(updatePropertyValue(iter->second));
 					else if (paramName == "Neuron Height")
-						setHeight(value);
+						setHeight(updatePropertyValue(iter->second));
 				}
 				break;
 				case Property::Double:{
-					double value = ((DoubleProperty*)(iter->second))->getValue();
-					((DoubleProperty)propertyMap[paramName]).setValue(value);
-
 					if (paramName == "Minimum Angle")
-						this->minAngle = value;
+						minAngle = updatePropertyValue(iter->second);
 					else if (paramName == "Maximum Angle")
-						this->maxAngle = value;
+						maxAngle = updatePropertyValue(iter->second);
 					else if (paramName == "Rate Of Decay")
-						this->rateOfDecay = value;
+						rateOfDecay = updatePropertyValue(iter->second);
 				}
 				break;
 				case Property::Combo: break;

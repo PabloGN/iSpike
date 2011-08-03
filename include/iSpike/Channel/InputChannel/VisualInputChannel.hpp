@@ -22,20 +22,17 @@ namespace ispike {
 		public:
 			VisualInputChannel();
 			virtual ~VisualInputChannel();
-			vector<int>& getFiring() { return spikeBuffer; }
+			vector<int>& getFiring() { return neuronSim->getSpikes(); }
 			void initialize(VisualReader* reader, map<string, Property> properties);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
 
 		protected:
-			void updateProperties(map<string, Property>& properties, bool updateReadOnly);
+			void updateProperties(map<string, Property>& properties);
 
 
 		private:
-			/** Holds the spikes that fired in the last time step */
-			vector<int> spikeBuffer;
-
 			/** Extracts visual data from YARP or file */
 			VisualReader* reader;
 
@@ -46,23 +43,14 @@ namespace ispike {
 			VisualFilter* dogFilter;
 
 			/** Neural simulator to convert currents to spikes. */
-			IzhikevichNeuronSim* neuronSim;
+			IzhikevichNeuronSim neuronSim;
 
-			/*double parameterA;
-			double parameterB;
-			double parameterC;
-			double parameterD;
+			/** Factor by which incoming spikes are multiplied */
 			double currentFactor;
-			double constantCurrent;
-			double positiveSigma;
-			double negativeSigma;
-			double positiveFactor;
-			double negativeFactor;
-			int opponentMapID;
 
-			/ Radius of the central foveated area
-			double foveaRadius;
-*/
+			/** Constant current fed into the neurons */
+			double constantCurrent;
+
 			/** ID of the current image - used to check for changes to the image provided by the reader */
 			unsigned currentImageID;
 

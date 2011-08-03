@@ -1,72 +1,104 @@
-/*
- * IzhikevichNeuronSim.cpp
- *
- *  Created on: 6 Feb 2011
- *      Author: Edgars Lazdins
- */
-
-#include <vector>
-#include <iSpike/Bitmap.hpp>
+//iSpike includes
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
-#include <iostream>
-#include <sstream>
 #include <iSpike/Log/Log.hpp>
+using namespace ispike;
+
+//Other includes
+#include <vector>
+using namespace std;
 
 /** Empty constructors - parameters have to be set separately */
 IzhikevichNeuronSim(){
-
+	this->a = 0.1;
+	this->b = 0.2;
+	this->c = -65;
+	this->d = 2;
+	initialized = false;
 }
 
 
 /** Constructor with parameters */
-IzhikevichNeuronSim(int dimensions, float a, float b, float c, float d, float currentFactor, float constantCurrent){
-	this->v = new float[dimensions];
-	this->u = new float[dimensions];
-	this->a =  a;
+IzhikevichNeuronSim(int numNeurons, float a, float b, float c, float d, float currentFactor, float constantCurrent){
+	this->a = a;
 	this->b = b;
 	this->c = c;
 	this->d = d;
-	this->currentFactor = currentFactor;
-	this->constantCurrent = constantCurrent;
-	for(int n = 0; n < dimensions; n++)
-	{
-		v[n] = 0.0;
-		u[n] = 0.0;
+	initialize(numNeurons);
+}
+
+
+/** Destructor */
+IzhikevichNeuronSim::~IzhikevichNeuronSim(){
+	if(isInitialized()){
+		delete [] vArray;
+		delete [] uArray;
+		delete [] firedArray;
+		delete [] iArray;
 	}
 }
 
 
-/** Advances simulator by one time step */
-std::vector<int>* IzhikevichNeuronSim::step(std::vector<double>* voltages){
-	bool* fired = new bool[voltages->size()];
-	for(unsigned int n = 0; n < voltages->size(); n++){
-		fired[n] = false;
-	}
-	float* I = new float[voltages->size()];
-	//std::ostringstream currentText;
-	//currentText << "Izhikevich Currents: ";
-	for(unsigned int n = 0; n < voltages->size(); n++){
-		I[n] = (float) ( ( ( voltages->at(n) ) * this->currentFactor ) + this->constantCurrent );
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+/** Initializes the simulator, creating arrays and setting parameters */
+void IzhikevichNeuronSim::initialize(int numNeurons){
+	this->numNeurons = numNeurons;
+
+	//Initialize data structures
+	vArray = new float[numNeurons];
+	uArray = new float[numNeurons];
+	firedArray = new bool[numNeurons];
+	iArray = new float[numNeurons];
+	for(int n = 0; n < numNeurons; ++n){
+		vArray[n] = 0.0;
+		uArray[n] = 0.0;
+		iArray[n] = 0.0;
 	}
 
-	std::vector<int>* result = new std::vector<int>();
+	initialized = true;
+}
+
+
+/** Sets the input current to a particular neuron */
+void IzhikevichNeuronSim::setInputCurrent(int index, float current){
+	if(index >= numNeurons)
+		throw ISpikeException("IzhikevichNeuronSim: Index is out of range.");
+	iArray[index] = current;
+}
+
+
+/** Advances simulator by one time step */
+void IzhikevichNeuronSim::step(){
+	if(!isInitialized())
+		throw ISpikeException("Izhikevich simulator cannot be stepped without being initialized.");
+
+	//Clear spikes and fired array
+	spikeVector.clear();
+	for(int n = 0; n < numNeurons; n++)
+		firedArray[n] = false;
+
+	//Calculate state of neurons
 	for(unsigned int n = 0; n < voltages->size(); n++) {
 		for(unsigned int t=0; t<4; ++t) {
-			if(!fired[n]) {
-				this->v[n] += 0.25 * ((0.04* this->v[n] + 5.0) * this->v[n] + 140.0 - this->u[n] + I[n]);
+			if(!firedArray[n]) {
+				this->v[n] += 0.25 * ((0.04* this->v[n] + 5.0) * this->v[n] + 140.0 - this->u[n] + iArray[n]);
 				this->u[n] += 0.25 * (this->a * (this->b * this->v[n] - this->u[n]));
-				fired[n] = v[n] >= 30.0;
+				firedArray[n] = v[n] >= 30.0;
 			}
 		}
 
-		if(fired[n]) {
+		//Neuron has fired -add spike to buffer
+		if(firedArray[n]) {
 			v[n] = this->c;
 			u[n] += this->d;
-			result->push_back(n);
+			spikes.push_back(n);
 		}
 	}
-	delete[] I;
-	delete[] fired;
-	return result;
+
+	//Clear input currents
+	for(int i=0; i<numNeurons; ++i)
+		iArray = 0.0f;
 }
 

@@ -1,27 +1,33 @@
-/*
- * Log.cpp
- *
- *  Created on: 2 Apr 2011
- *      Author: Edgars Lazdins
- */
-
+//iSpike includes
 #include <iSpike/Log/Log.hpp>
+
+//Other includes
 #include <boost/date_time.hpp>
 #include <stdio.h>
 
 int Log::currentId = 0;
 
-TLogLevel& Log::ReportingLevel()
-{
+/** Constructor */
+Log::Log(){
+}
+
+/** Destructor */
+Log::~Log(){
+  os << endl;
+  fprintf(stderr, "%s", os.str().c_str());
+  fflush(stderr);
+}
+
+
+TLogLevel& Log::ReportingLevel(){
   static TLogLevel reportingLevel(LOG_DEBUG);
   return reportingLevel;
 }
 
-std::string Log::logLevelToString(TLogLevel level)
-{
-  std::string result;
-  switch(level)
-  {
+
+string Log::logLevelToString(TLogLevel level){
+  string result;
+  switch(level){
     case LOG_EMERGENCY:
       result =  "Emergency";
       break;
@@ -50,21 +56,13 @@ std::string Log::logLevelToString(TLogLevel level)
   return result;
 }
 
-std::ostringstream& Log::Get(TLogLevel level)
-{
+ostringstream& Log::Get(TLogLevel level){
    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
    os << now;
    os << " " << this->logLevelToString(level) << ": " << currentId << ": ";
    int size = 9 - this->logLevelToString(level).size();
-   os << std::string(size, ' ');
+   os << string(size, ' ');
    currentId++;
    return os;
 }
 
-Log::~Log()
-{
-  os << std::endl;
-  fprintf(stderr, "%s", os.str().c_str());
-  fflush(stderr);
-
-}

@@ -55,16 +55,9 @@ YarpAngleReader::~YarpAngleReader(){
 /*---------                 PUBLIC METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
-// Inherited from AngleReader
-vector<double> YarpAngleReader::getData(){
-	boost::mutex::scoped_lock lock(this->mutex);
-	return buffer;
-}
-
-
 // Inherited from Reader
 void YarpAngleReader::initialize(map<string, Property>& properties){
-	updateProperties(properties, );
+	updateProperties(properties);
 	angle = 0.0;
 	setInitialized(true);
 }
@@ -84,13 +77,9 @@ void YarpAngleReader::start(){
 
 /** Updates the properties */
 void YarpAngleReader::updateProperties(map<string, Property>& properties, bool updateReadOnly){
-	if(properties.count(PORT_NAME_PROP) == 0)
-		throw ISpikeException("Property Port Name cannot be found.");
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
 		setPortName(updatePropertyValue(properties[PORT_NAME_PROP]));
 
-	if(properties.count(DEGREE_OF_FREEDOM_PROP) == 0)
-		throw ISpikeException("Property Degree of Freedom cannot be found.");
 	if((updateReadOnly && !propertyMap[DEGREE_OF_FREEDOM_PROP].isReadOnly()) || !updateReadOnly)
 		degreeOfFreedom = updatePropertyValue(properties[DEGREE_OF_FREEDOM_PROP]);
 }

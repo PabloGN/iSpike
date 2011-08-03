@@ -1,95 +1,41 @@
-/*
- * FileVisualReader.hpp
- *
- *  Created on: 1 Jan 2011
- *      Author: Edgars Lazdins
- */
-
 #ifndef FILEVISUALREADER_HPP_
 #define FILEVISUALREADER_HPP_
 
+//iSpike includes
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
+
+//Other includes
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/gil/gil_all.hpp>
 
-/**
- * @class FileVisualReader
- * @brief FileVisualReader class
- *
- * This class represents a reader capable of retrieving an image from the hard drive
- * and continuously outputting it upon request
- *
- * @author Edgars Lazdins
- *
- */
-class FileVisualReader : public VisualReader {
+namespace ispike {
 
-private:
-  Bitmap* buffer;
-  bool initialised;
+	/** Retrieves an image from the hard drive and outputs it on request */
+	class FileVisualReader : public VisualReader {
+		public:
+			FileVisualReader();
+			virtual ~FileVisualReader();
+			Bitmap& getBitmap();
+			void initialise(map<string, Property>& properties);
+			void setProperties(map<string, Property>& properties);
+			void start() {}//Required by iSpikeThread, but not used by this class
 
-public:
 
-  /*
-   * The default constructor, only initialises the default parameters and the description
-   */
-  FileVisualReader()
-  {
-    /**
-     * First define the properties of this reader
-     */
-	property_map properties;
-    properties["Filename"] =
-		boost::shared_ptr<Property>(new StringProperty(
-          "Filename",
-          "image.ppm",
-          "Path to a PPM format image",
-          true
-        ));
-    /**
-     * Now let's create the description
-     */
-    this->readerDescription.reset(new ReaderDescription(
-          "File Visual Reader",
-          "This is a file visual reader",
-          "Visual Reader",
-          properties
-        ));
-  }
+		private:
+			//====================  VARIABLES  ======================
+			/** Bitmap that holds data from file */
+			Bitmap* bitmap;
 
-  /*~FileVisualReader()
-  {
-    delete this->buffer;
-  }*/
 
-  /**
-   * Retrieves the image
-   */
-  Bitmap getData();
+			//====================  METHODS  ========================
+			void readPPMImage(string& fileName);
+			void workerFunction() {}//Required by iSpikeThread, but not used by this class
 
-  void initialise(property_map properties);
+	};
 
-  /**
-   * Initialises the reader and starts the execution of the main thread
-   */
-  void start();
-
-  /**
-   * Returns true if the reader has been initialised
-   */
-  bool getInitialised() const
-  {
-      return initialised;
-  }
-
-  void setInitialised(bool initialised)
-  {
-      this->initialised = initialised;
-  }
-
-};
+}
 
 #endif /* FILEVISUALREADER_HPP_ */

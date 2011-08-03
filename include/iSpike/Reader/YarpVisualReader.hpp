@@ -14,7 +14,7 @@ namespace ispike{
 class YarpVisualReader : public VisualReader {
 	public:
 		YarpVisualReader(string nameserverIP, unsigned nameserverPort);
-		~YarpVisualReader();
+		virtual ~YarpVisualReader();
 		Bitmap& getBitmap();
 		void initialize(map<string, Property>& properties);
 		void start();

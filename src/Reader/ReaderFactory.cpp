@@ -8,10 +8,8 @@
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include "iSpike/ISpikeException.hpp"
 
-/**
- * Default constructor
- * Initialises the list of readers, if you've made a new reader, add it here!
- */
+/** Default constructor
+ * Initialises the list of readers, if you've made a new reader, add it here! */
 ReaderFactory::ReaderFactory(){
 	this->readerList.push_back(FileAngleReader().getReaderDescription());
 	this->readerList.push_back(FileVisualReader().getReaderDescription());
@@ -19,7 +17,7 @@ ReaderFactory::ReaderFactory(){
 
 
 /** Constructor that creates YARP readers as well */
-ReaderFactory::ReaderFactory(string ip, string port){
+ReaderFactory::ReaderFactory(string ip, unsigned port){
 	this->readerList.push_back(FileAngleReader().getReaderDescription());
 	this->readerList.push_back(FileVisualReader().getReaderDescription());
 
@@ -50,12 +48,7 @@ std::vector<ReaderDescription> ReaderFactory::getReadersOfType(string readerType
 }
 
 
-/**
- * Creates and initialises a particular reader
- * @param readerName Type of a Reader we want to create
- * @param readerProperties Initialisation properties for the new Reader
- * @return A new Reader
- */
+/** Creates and initialises a particular reader */
 Reader* ReaderFactory::create(string readerName, map<string, Property>& readerProperties){
 	Reader* result;
 	if(readerName == "File Angle Reader") {
@@ -65,10 +58,10 @@ Reader* ReaderFactory::create(string readerName, map<string, Property>& readerPr
 		result = new FileVisualReader();
 	}
 	else if(readerName == "Yarp Angle Reader") {
-		result = new YarpAngleReader(this->ip, this->port);
+		result = new YarpAngleReader(ip, port);
 	}
 	else if(readerName == "Yarp Visual Reader"){
-		result = new YarpVisualReader(this->ip, this->port);
+		result = new YarpVisualReader(ip, port);
 	}
 	else {
 		throw std::logic_error("Invalid reader type");

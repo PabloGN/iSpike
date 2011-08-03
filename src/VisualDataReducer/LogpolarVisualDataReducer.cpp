@@ -9,6 +9,7 @@ using namespace ispike;
 #include <iostream>
 #include <sstream>
 #include <boost/math/constants/constants.hpp>
+using namespace std;
 
 
 /** Ouputs debug images to file */

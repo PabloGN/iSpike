@@ -14,28 +14,24 @@ SET (APPLICATION_VENDOR_URL "imperial.ac.uk")
 SET (APPLICATION_ID "${APPLICATION_VENDOR_ID}.${PROJECT_NAME}")
 
 
-#
 # Debugging Options
-#
 SET (CMAKE_VERBOSE_MAKEFILE 1) # Use 1 for debugging, 0 for release
 
-#
+
 # Project Output Paths
-#
 SET (MAINFOLDER "${PROJECT_SOURCE_DIR}")
 
-#
+
 # Project Search Paths
-#
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}")
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}/tools")
 LIST (APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}/thirdparty")
 SET (CMAKE_MODULE_PATH "${MAINFOLDER}/tools/share/cmake")
 INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
+#INCLUDE_DIRECTORIES("C:/Users/Taropeg/Home/Programs/ispike/include")
 
-#
+
 # Configure Files
-#
 FILE (GLOB_RECURSE CONFIGINPUTS1 include/*.in.h.cmake)
 FILE (GLOB_RECURSE CONFIGINPUTS2 include/*.h.in.cmake)
 FILE (GLOB_RECURSE CONFIGINPUTS3 src/*.in.h.cmake)
@@ -58,23 +54,19 @@ FOREACH (CONFIGINPUT ${CONFIGINPUTS})
     CONFIGURE_FILE ("${CONFIGINPUT}" "${CONFIGOUTPUT2}")
 ENDFOREACH (CONFIGINPUT ${CONFIGINPUTS})
 
-#
+
 # Add Build Targets
-#
 ADD_SUBDIRECTORY(src)
 #ADD_SUBDIRECTORY(test)
 #ADD_SUBDIRECTORY(client)
 #ADD_SUBDIRECTORY(command_writer)
 #ADD_SUBDIRECTORY(manual_output_test)
 
-#
+
 # Add Install Targets
-#
 IF (EXISTS "${MAINFOLDER}/include/${PROJECT_NAME}" AND IS_DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}")
     INSTALL(DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}" DESTINATION "include")
 ENDIF (EXISTS "${MAINFOLDER}/include/${PROJECT_NAME}" AND IS_DIRECTORY "${MAINFOLDER}/include/${PROJECT_NAME}")
 
-#
 # Add Documentation Targets
-#
 #INCLUDE (DocumentationTargets)

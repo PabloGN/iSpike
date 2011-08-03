@@ -24,6 +24,7 @@ namespace ispike {
 			unsigned getWidth() const { return width; }
 			bool isEmpty() { if (size() > 0) return true; return false; }
 			void reset(unsigned width, unsigned height, unsigned depth);
+			int size() { return width*height*depth; }
 
 		private:
 			//========================  VARIABLES  ========================
@@ -31,9 +32,6 @@ namespace ispike {
 			unsigned height;
 			unsigned depth;
 			unsigned char* contents;
-
-			//======================  METHODS  ============================
-			int size() { return width*height*depth; }
 
 	};
 

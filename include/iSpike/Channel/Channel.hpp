@@ -2,7 +2,7 @@
 #define CHANNEL_H_
 
 //iSpike includes
-#include <iSpike/Property.hpp>
+#include <iSpike/PropertyHolder.hpp>
 #include <iSpike/Log/Log.hpp>
 
 //Other includes
@@ -13,10 +13,10 @@ using namespace std;
 namespace ispike {
 
 	/** Abstract class holding properties common to all input and output channels */
-	class Channel {
+	class Channel : public PropertyHolder {
 		public:
-			Channel(){ initialized = false; stepping = false; LOG(LOG_DEBUG) << "CHANNEL CONSTRUCTOR";}
-			virtual ~Channel() {}
+			Channel(){ initialized = false; LOG(LOG_DEBUG) << "CHANNEL CONSTRUCTOR";}
+			virtual ~Channel();
 
 			/** Retrieves the Channel Identifier  */
 			int getId()	{ return this->id; }
@@ -36,8 +36,11 @@ namespace ispike {
 			/** Sets the height of the Channel */
 			void setHeight(int height){	this->height = height;	}
 
+			/** Returns the size of the channel */
+			int size() { return width*height; }
+
 			/** Retrieves the description of a Channel  */
-			std::string getDescription(){ return this->description;	}
+			string getDescription(){ return this->description;	}
 
 			/** Sets the description of a Channel */
 			void setDescription(std::string description){ this->description = description; }
@@ -64,16 +67,11 @@ namespace ispike {
 			//=============================  METHODS  ===========================
 			bool isInitialized() {return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
-			bool isStepping() { return stepping; }
-			void setStepping(bool stepping){ this->stepping = stepping; }
 
 
 		private:
 			/** Flag recording whether channel is initialized or not */
 			bool initialized;
-
-			/** Records if we are in the middle of a step */
-			bool stepping;
 
 	};
 

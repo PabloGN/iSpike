@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace std;
 
@@ -33,8 +32,8 @@ namespace ispike {
 			virtual ~Property();
 			virtual string toString() { return ""; }
 			ValueType getType() { return this->type; }
-			std::string getName() {	return this->name; }
-			std::string getDescription() { return this->description; }
+			string getName() {	return this->name; }
+			string getDescription() { return this->description; }
 			bool isReadOnly() { return this->readOnly; }
 
 	};

@@ -1,10 +1,12 @@
 #ifndef ISPIKETHREAD_HPP
 #define ISPIKETHREAD_HPP
 
+//iSpike includes
 #include <iSpike/Log/Log.hpp>
 
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
+//Other includes
+//#include <boost/thread.hpp>
+//#include <boost/smart_ptr.hpp>
 
 namespace ispike {
 
@@ -19,6 +21,9 @@ namespace ispike {
 				stopRequested = false;
 				errorMessage = "";
 			}
+
+			/** Virtual destructor */
+			virtual ~iSpikeThread(){}
 
 			/*! Clears the error in the thread */
 			virtual void clearError(){ errorFlag = false; errorMessage = ""; }
@@ -47,12 +52,19 @@ namespace ispike {
 			/*!  Initialises the channel and starts the conversion thread  */
 			virtual void start() = 0;
 
-			void workerFunction() = 0;
 
-			boost::shared_ptr<boost::thread> getThreadPointer() const { return threadPointer; }
+		protected:
+			/** Thread run method */
+			virtual void workerFunction() = 0;
+
+			/** Returns pointer to thread */
+			shared_ptr<boost::thread> getThreadPointer() const { return threadPointer; }
+
+			/** Sets thread pointer */
 			void setThreadPointer(boost::shared_ptr<boost::thread> threadPointer) {	this->threadPointer = threadPointer; }
-			boost::mutex mutex;
 
+			/** Controls thread access to critical components  */
+			boost::mutex threadMutex;
 
 
 		private:
@@ -68,6 +80,7 @@ namespace ispike {
 			/*! Controls running of thread */
 			bool stopRequested;
 
+			/** Pointer to the running thread */
 			boost::shared_ptr<boost::thread> threadPointer;
 
 	};

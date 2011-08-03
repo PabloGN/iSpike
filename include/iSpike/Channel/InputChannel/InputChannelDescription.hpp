@@ -10,6 +10,7 @@ namespace ispike {
 	/** This class describes an input channel. */
 	class InputChannelDescription {
 		public:
+			InputChannelDescription();
 			InputChannelDescription(string channelName, string channelDescription, string readerType);
 			InputChannelDescription(const InputChannelDescription& copy_from_me);
 			~InputChannelDescription();
