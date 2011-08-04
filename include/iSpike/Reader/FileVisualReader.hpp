@@ -3,13 +3,7 @@
 
 //iSpike includes
 #include <iSpike/Reader/VisualReader.hpp>
-#include <iSpike/YarpConnection.hpp>
 #include <iSpike/Bitmap.hpp>
-
-//Other includes
-#include <boost/smart_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/gil/gil_all.hpp>
 
 namespace ispike {
 
@@ -19,7 +13,7 @@ namespace ispike {
 			FileVisualReader();
 			virtual ~FileVisualReader();
 			Bitmap& getBitmap();
-			void initialise(map<string, Property>& properties);
+			void initialize(map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void start() {}//Required by iSpikeThread, but not used by this class
 

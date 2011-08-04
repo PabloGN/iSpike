@@ -18,10 +18,10 @@ namespace ispike {
 			void initialize(int numNeurons);
 			bool isInitialized() { return initialized; }
 			void setInputCurrent(int index, float current);
-			void setParameterA(float a){ this->a = a; }
-			void setParameterB(float b){ this->b = b; }
-			void setParameterC(float c){ this->c = c; }
-			void setParameterD(float d){ this->d = d; }
+			void setParameterA(float a){ this->aParam = a; }
+			void setParameterB(float b){ this->bParam = b; }
+			void setParameterC(float c){ this->cParam = c; }
+			void setParameterD(float d){ this->dParam = d; }
 
 
 		private:
@@ -32,14 +32,15 @@ namespace ispike {
 			int numNeurons;
 
 			//Izhikevich parameters
-			float a;
-			float b;
-			float c;
-			float d;
+			float aParam;
+			float bParam;
+			float cParam;
+			float dParam;
 
 			//Data structures for simulation
 			float* vArray;
 			float* uArray;
+			float* iArray;
 			bool* firedArray;
 
 			/** Factor by which incoming current is multiplied */

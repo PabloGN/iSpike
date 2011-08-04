@@ -1,5 +1,6 @@
 //iSpike includes
 #include <iSpike/Log/Log.hpp>
+using namespace ispike;
 
 //Other includes
 #include <boost/date_time.hpp>

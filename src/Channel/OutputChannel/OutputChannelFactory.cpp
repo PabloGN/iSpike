@@ -23,5 +23,5 @@ OutputChannel* OutputChannelFactory::create(string channelName, Writer* writer, 
 		channel->initialize((AngleWriter*)writer, channelProperties);
 		return channel;
 	}
-	throw iSpikeException("Invalid channel type");
+	throw ISpikeException("Invalid channel type");
 }

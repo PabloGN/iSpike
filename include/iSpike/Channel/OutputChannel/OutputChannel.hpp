@@ -4,11 +4,11 @@
 //iSpike includes
 #include <iSpike/Channel/Channel.hpp>
 #include <iSpike/Channel/OutputChannel/OutputChannelDescription.hpp>
+#include "iSpike/Writer/Writer.hpp"
 
 //Other includes
-#include <boost/scoped_ptr.hpp>
-#include <string>
 #include <vector>
+using namespace std;
 
 namespace ispike {
 
@@ -20,10 +20,10 @@ namespace ispike {
 			OutputChannelDescription getChannelDescription() { return channelDescription; }
 
 			/*! Initializes the channel with a reader and set of properties */
-			void initialize(AngleWriter* writer, map<string, Property> properties) = 0;
+			virtual void initialize(Writer* writer, map<string, Property>& properties) = 0;
 
 			/**  Sets the current spike pattern  */
-			virtual void setFiring(std::vector<int>& buffer) = 0;
+			virtual void setFiring(vector<int>& buffer) = 0;
 
 
 		protected:

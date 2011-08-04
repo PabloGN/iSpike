@@ -1,7 +1,6 @@
 //iSpike includes
 #include <iSpike/Reader/FileVisualReader.hpp>
 #include <iSpike/Bitmap.hpp>
-#include <iSpike/YarpConnection.hpp>
 #include <iSpike/ISpikeException.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
@@ -9,18 +8,16 @@ using namespace ispike;
 //Other includes
 #include <iostream>
 #include <fstream>
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <boost/mpl/vector.hpp>
+using namespace std;
 
 
 /** Constructor */
-FileVisualReader(){
+FileVisualReader::FileVisualReader(){
 	// Define the properties of this reader
 	addProperty(StringProperty("imageIn.txt", "File Name", "The file where the image will be read from", true));
 
 	//Create description
-	readerDescription = ReaderDescription("File Angle Reader", "This is a file visual reader", "Visual Reader");
+	readerDescription = ReaderDescription("File Visual Reader", "This is a file visual reader", "Visual Reader");
 
 	//Initialize variables
 	bitmap = NULL;
@@ -39,13 +36,13 @@ FileVisualReader::~FileVisualReader(){
 /*--------------------------------------------------------------------*/
 
 /** Returns a reference to the visual data */
-Bitmap& FileVisualReader::getData(){
+Bitmap& FileVisualReader::getBitmap(){
 	return *bitmap;
 }
 
 
 //Inherited from Reader
-void FileVisualReader::initialise(map<string, Property> &properties){
+void FileVisualReader::initialize(map<string, Property>& properties){
 	setProperties(properties);
 	setInitialized(true);
 }
@@ -53,9 +50,9 @@ void FileVisualReader::initialise(map<string, Property> &properties){
 
 //Inherited from PropertyHolder
 void FileVisualReader::setProperties(map<string, Property>& properties){
-	string fileName = getPropertyValue((StringProperty)properties["File Name"]);
+	string fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
 	LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fileName;
-	readPPMImage(string& fileName);
+	readPPMImage(fileName);
 }
 
 
@@ -71,14 +68,14 @@ void FileVisualReader::readPPMImage(string& fname){
 
 	int N, M;
 	char header [100], *ptr;
-	std::ifstream ifp;
+	ifstream ifp;
 
-	ifp.open(fname.c_str(), std::ios::in | std::ios::binary);
+	ifp.open(fname.c_str(), ios::in | ios::binary);
 
 	if (!ifp) {
-		std::ostringstream messageStream;
+		ostringstream messageStream;
 		messageStream << "Can't read image: " << fname;
-		std::string message(messageStream.str());
+		string message(messageStream.str());
 		throw ISpikeException(message);
 	}
 
@@ -87,9 +84,9 @@ void FileVisualReader::readPPMImage(string& fname){
 
 	if ( (header[0]!=80) ||    /* 'P' */
 		 (header[1]!=54) ) {   /* '6' */
-		std::ostringstream messageStream;
+		ostringstream messageStream;
 		messageStream << "Image " << fname << " is not PPM";
-		std::string message(messageStream.str());
+		string message(messageStream.str());
 		throw ISpikeException(message);
 	}
 
@@ -104,21 +101,21 @@ void FileVisualReader::readPPMImage(string& fname){
 
 	ifp.getline(header,100,'\n');
 
-	unsigned char *charImage = new unsigned char [3*M*N];
+	//Create bitmap
+	bitmap = new Bitmap(M, N, 3);
+	unsigned char *charImage = bitmap->getContents();
 
+	//Read image into bitmap's contents
 	ifp.read((char*)charImage, 3*M*N);
-
 	if (ifp.fail()) {
-		std::ostringstream messageStream;
+		ostringstream messageStream;
 		messageStream << "Image " << fname << " has wrong size";
-		std::string message(messageStream.str());
+		string message(messageStream.str());
 		throw ISpikeException(message);
 	}
 
+	//Clean up
 	ifp.close();
-
-	//Create bitmap
-	bitmap = new Bitmap(M, N, 3, charImage);
 
 	//Increment image id
 	++imageID;

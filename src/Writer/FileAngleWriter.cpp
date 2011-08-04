@@ -17,10 +17,14 @@ using namespace ispike;
 /** Constructor */
 FileAngleWriter::FileAngleWriter() {
 	// Define the properties of this writer
+	fileName = "anglesOut.txt";
 	addProperty(StringProperty("anglesOut.txt", "File Name", "The file where the angles will be written to", true));
 
 	//Create description
 	writerDescription = WriterDescription("File Angle Writer", "This is a file angle writer", "Angle Writer");
+
+	//Initialize variables
+	currentAngle = -1000000000.0;
 }
 
 
@@ -29,17 +33,23 @@ FileAngleWriter::FileAngleWriter() {
 /*--------------------------------------------------------------------*/
 
 //Inherited from Writer
-void FileAngleWriter::initialise(map<string, Property> &properties){
+void FileAngleWriter::initialize(map<string, Property> &properties){
 	setProperties(properties);
 	setInitialized(true);
+}
+
+//Inherited from AngleWriter
+void FileAngleWriter::setAngle(double angle){
+	if(angle != currentAngle){
+		writeAngleToFile();
+		currentAngle = angle;
+	}
 }
 
 
 //Inherited from PropertyHolder
 void FileAngleWriter::setProperties(map<string, Property>& properties){
-	string fileName = getPropertyValue((StringProperty)properties["File Name"]);
-	LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
-	writeAngleToFile(string& fileName);
+	fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
 }
 
 
@@ -48,21 +58,19 @@ void FileAngleWriter::setProperties(map<string, Property>& properties){
 /*--------------------------------------------------------------------*/
 
 /** Writes the angle held in this class to the specified file */
-void FileAngleWriter::writeAngleToFile(const char* fileName){
-	std::ofstream fileStream;
-
-	fileStream.open(fileName, std::fstream::out);
-
+void FileAngleWriter::writeAngleToFile(){
+	ofstream fileStream;
+	fileStream.open(fileName.c_str(), fstream::out);
 	if (!fileStream) {
-		std::ostringstream errorStream;
+		ostringstream errorStream;
 		errorStream << "FileAngleWriter: Could not write angles to " << fileName;
 		throw ISpikeException(errorStream.str());
 	}
 
-	fileStream << boost::lexical_cast<std::string>(getAngle()) << std::endl;
+	fileStream << boost::lexical_cast<string>(getAngle()) << endl;
 
 	if (fileStream.fail()) {
-		std::ostringstream errorStream;
+		ostringstream errorStream;
 		errorStream << "FileAngleWriter: Could not write angles to " << fileName;
 		throw ISpikeException(errorStream.str());
 	}

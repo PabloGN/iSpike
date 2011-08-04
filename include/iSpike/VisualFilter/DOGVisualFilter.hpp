@@ -2,8 +2,7 @@
 #define DOGVISUALFILTER_HPP_
 
 //iSpike includes
-#include <iSpike/VisualFilter/VisualFilter.hpp>
-#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
+#include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
 #include "iSpike/iSpikeThread.hpp"
 
@@ -14,9 +13,9 @@
 namespace ispike {
 
 	/** This class represents a Difference Of Gaussians filter */
-	class DOGVisualFilter : public VisualFilter, public PropertyHolder {
+	class DOGVisualFilter {
 		public:
-			DOGVisualFilter(VisualDataReducer* reducer);
+			DOGVisualFilter(LogPolarVisualDataReducer* reducer);
 			~DOGVisualFilter();
 			Bitmap& getOpponencyBitmap();
 			bool isInitialized(){ return initialized; }
@@ -29,7 +28,7 @@ namespace ispike {
 
 		private:
 			//==========================  VARIABLES  =======================
-			VisualDataReducer* reducer;
+			LogPolarVisualDataReducer* reducer;
 
 			/** Sigma for Gaussian blurring of positive images */
 			double positiveSigma;
@@ -71,15 +70,15 @@ namespace ispike {
 			Bitmap* positiveBlurredBitmap;
 
 			/** Negative blurred bitmap */
-			Bitmap negativeBlurredBitmap;
+			Bitmap* negativeBlurredBitmap;
 
 
 			//==========================  METHODS  =========================
 			void calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2);
-			unsigned char* extractRedChannel(Bitmap& inputImage);
-			unsigned char* extractGreenChannel(Bitmap& inputImage);
-			unsigned char* extractBlueChannel(Bitmap& inputImage);
-			unsigned char* extractYellowChannel();
+			void extractRedChannel(Bitmap& inputImage);
+			void extractGreenChannel(Bitmap& inputImage);
+			void extractBlueChannel(Bitmap& inputImage);
+			void extractYellowChannel();
 			void gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma);
 			void initialize(int width, int height);
 			void normalizeImage(Bitmap& image);

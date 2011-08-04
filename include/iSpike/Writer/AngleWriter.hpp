@@ -9,7 +9,7 @@ namespace ispike {
 	class AngleWriter : public Writer{
 		public:
 			AngleWriter(){ angle = 0.0; }
-			virtual AngleWriter(){}
+			virtual ~AngleWriter(){}
 
 			/** Sets the angle to be output */
 			virtual void setAngle(double angle) = 0;

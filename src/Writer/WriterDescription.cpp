@@ -1,6 +1,14 @@
 #include "iSpike/Writer/WriterDescription.hpp"
 using namespace ispike;
 
+/** Empty constructor */
+WriterDescription::WriterDescription(){
+	name = "Unnamed";
+	description = "Undescribed";
+	type = "Undefined";
+}
+
+
 /** Constructor */
 WriterDescription::WriterDescription(string name, string description, string type) {
 	this->name = name;

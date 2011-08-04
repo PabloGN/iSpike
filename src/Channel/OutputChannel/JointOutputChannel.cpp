@@ -4,18 +4,15 @@
 #include <iSpike/ISpikeException.hpp>
 using namespace ispike;
 
-//Other includes
-#include <iostream>
-using namespace std;
 
 /** Constructor */
 JointOutputChannel::JointOutputChannel() : OutputChannel() {
 	//First define the properties of this channel
-	properties["Minimum Angle"] = new DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true);
-	properties["Maximum Angle"] = new DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true);
-	properties["Rate Of Decay"] = new DoubleProperty(0.005,"Rate Of Decay",  "The rate of decay of the angle variables", false);
-	properties["Neuron Width"] = new IntegerProperty(10, "Neuron Width", "Width of the neuron network", true);
-	properties["Neuron Height"] = new IntegerProperty(1, "Neuron Height", "Height of the neuron network", true);
+	addProperty(DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true));
+	addProperty(DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true));
+	addProperty(DoubleProperty(0.005,"Rate Of Decay",  "The rate of decay of the angle variables", false));
+	addProperty(IntegerProperty(10, "Neuron Width", "Width of the neuron network", true));
+	addProperty(IntegerProperty(1, "Neuron Height", "Height of the neuron network", true));
 
 	//Create the description
 	channelDescription = OutputChannelDescription("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
@@ -46,14 +43,24 @@ void JointOutputChannel::setFiring(std::vector<int>& buffer){
 }
 
 
-//Inherited from OutputChannel
-void JointOutputChannel::initialise(AngleWriter* writer, map<string, Property> properties){
-	if(reader == NULL)
-		throw iSpikeException("Cannot initialize JointOutputChannel with a null reader.");
-	this->writer = writer;
-	this->writer->start();
+//Inherited from PropertyHolder
+void JointOutputChannel::setProperties(map<string, Property>& properties){
+	updateProperties(properties);
+}
 
-	updateProperties(properties, false);
+
+//Inherited from OutputChannel
+void JointOutputChannel::initialize(Writer* writer, map<string, Property>& properties){
+	//This class requires an angle writer, so cast and check
+	this->writer = dynamic_cast<AngleWriter*>(writer);
+	if(this->writer == NULL)
+		throw ISpikeException("Cannot initialize JointOutputChannel with a null reader.");
+
+	//Update properties in this and dependent classes
+	updateProperties(properties);
+
+	//Start the writer thread running
+	this->writer->start();
 
 	//Set up current variables
 	currentVariables = new double[size()];
@@ -81,10 +88,10 @@ void JointOutputChannel::step(){
 	/* Decay the variables according to the following function:
      * N(t+1) = N(t)*e^(-rateOfDecay*t)
      */
-	for(unsigned int i=0; i < size(); ++i) {
-		currentVariables[i] = currentVariables[i] * exp(-(rateOfDecay) * times[i]);
-		//FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
-	}
+//	for(unsigned int i=0; i < size(); ++i) {
+//		currentVariables[i] = currentVariables[i] * exp(-(rateOfDecay) * times[i]);
+//		//FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
+//	}
 }
 
 
@@ -93,34 +100,36 @@ void JointOutputChannel::step(){
 /*--------------------------------------------------------------------*/
 
 /** Updates the properties by first checking if any are read-only  */
-void JointOutputChannel::updateProperties(map<string, Property> properties, bool updateReadOnly) {
+void JointOutputChannel::updateProperties(map<string, Property>& properties) {
 	if(propertyMap.size() != properties.size())
-		throw iSpikeException("JointOutputChannel: Current properties do not match new properties.");
+		throw ISpikeException("JointOutputChannel: Current properties do not match new properties.");
 
-	for(std::map<std::string,Property*>::const_iterator iter = properties.begin(); iter != properties.end(); ++iter){
+	bool updateReadOnly = !isInitialized();
+	for(map<string,Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter){
 		//In updateReadOnly mode, only update properties that are not read only
 		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
-			switch (iter->second->getType()) {
+			string paramName = iter->second.getName();
+			switch (iter->second.getType()) {
 				case Property::Integer: {
 					if (paramName == "Neuron Width")
-						setWidth(updatePropertyValue(iter->second));
+						setWidth(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
 					else if (paramName == "Neuron Height")
-						setHeight(updatePropertyValue(iter->second));
+						setHeight(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
 				}
 				break;
 				case Property::Double:{
 					if (paramName == "Minimum Angle")
-						minAngle = updatePropertyValue(iter->second);
+						minAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if (paramName == "Maximum Angle")
-						maxAngle = updatePropertyValue(iter->second);
+						maxAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if (paramName == "Rate Of Decay")
-						rateOfDecay = updatePropertyValue(iter->second);
+						rateOfDecay = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 				}
 				break;
 				case Property::Combo: break;
 				case Property::String: break;
 				default:
-					throw iSpikeException("Property type not recognized.");
+					throw ISpikeException("Property type not recognized.");
 			}
 		}
 	}

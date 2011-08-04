@@ -1,6 +1,6 @@
 //iSpike includes
-#include <iSpike/Writer/WriterFactory.hpp>
 #include "iSpike/ISpikeException.hpp"
+#include <iSpike/Writer/WriterFactory.hpp>
 #include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/Writer/FileAngleWriter.hpp>
@@ -22,8 +22,8 @@ WriterFactory::WriterFactory(string ip, unsigned port){
 	writerList.push_back(yarpAngleWriter.getWriterDescription());
 
 	//Store variables
-	this->ip = ip;
-	this->port = port;
+	ip = ip;
+	port = port;
 }
 
 
@@ -35,7 +35,7 @@ WriterFactory::WriterFactory(string ip, unsigned port){
 vector<WriterDescription> WriterFactory::getWritersOfType(string writerType){
 	vector<WriterDescription> result;
 	for(int i = 0; i < writerList.size(); i++){
-		if(writerList[i].getWriterType() == writerType)
+		if(writerList[i].getType() == writerType)
 			result.push_back(writerList[i]);
 	}
 	return result;
@@ -43,7 +43,7 @@ vector<WriterDescription> WriterFactory::getWritersOfType(string writerType){
 
 
 /** Creates a particular writer   */
-Writer* WriterFactory::create(string writerName, map<string, Property> writerProperties	){
+Writer* WriterFactory::create(string writerName, map<string, Property>& writerProperties	){
 	Writer* result;
 	if(writerName == "File Angle Writer") {
 		result = new FileAngleWriter();
@@ -54,6 +54,6 @@ Writer* WriterFactory::create(string writerName, map<string, Property> writerPro
 	else {
 		throw ISpikeException("Invalid writer name");
 	}
-	result->initialise(writerProperties);
+	result->initialize(writerProperties);
 	return result;
 }

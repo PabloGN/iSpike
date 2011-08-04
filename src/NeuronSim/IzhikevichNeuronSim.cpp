@@ -1,5 +1,6 @@
 //iSpike includes
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
+#include "iSpike/ISpikeException.hpp"
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
 
@@ -8,21 +9,21 @@ using namespace ispike;
 using namespace std;
 
 /** Empty constructors - parameters have to be set separately */
-IzhikevichNeuronSim(){
-	this->a = 0.1;
-	this->b = 0.2;
-	this->c = -65;
-	this->d = 2;
+IzhikevichNeuronSim::IzhikevichNeuronSim(){
+	aParam = 0.1;
+	bParam = 0.2;
+	cParam = -65;
+	dParam  = 2;
 	initialized = false;
 }
 
 
 /** Constructor with parameters */
-IzhikevichNeuronSim(int numNeurons, float a, float b, float c, float d, float currentFactor, float constantCurrent){
-	this->a = a;
-	this->b = b;
-	this->c = c;
-	this->d = d;
+IzhikevichNeuronSim::IzhikevichNeuronSim(int numNeurons, float a, float b, float c, float d){
+	this->aParam = a;
+	this->bParam = b;
+	this->cParam = c;
+	this->dParam = d;
 	initialize(numNeurons);
 }
 
@@ -52,7 +53,7 @@ void IzhikevichNeuronSim::initialize(int numNeurons){
 	firedArray = new bool[numNeurons];
 	iArray = new float[numNeurons];
 	for(int n = 0; n < numNeurons; ++n){
-		vArray[n] = 0.0;
+		vArray[n] = cParam;
 		uArray[n] = 0.0;
 		iArray[n] = 0.0;
 	}
@@ -80,25 +81,25 @@ void IzhikevichNeuronSim::step(){
 		firedArray[n] = false;
 
 	//Calculate state of neurons
-	for(unsigned int n = 0; n < voltages->size(); n++) {
+	for(unsigned int n = 0; n < numNeurons; ++n) {
 		for(unsigned int t=0; t<4; ++t) {
 			if(!firedArray[n]) {
-				this->v[n] += 0.25 * ((0.04* this->v[n] + 5.0) * this->v[n] + 140.0 - this->u[n] + iArray[n]);
-				this->u[n] += 0.25 * (this->a * (this->b * this->v[n] - this->u[n]));
-				firedArray[n] = v[n] >= 30.0;
+				vArray[n] += 0.25 * ((0.04* vArray[n] + 5.0) * vArray[n] + 140.0 - uArray[n] + iArray[n]);
+				uArray[n] += 0.25 * (aParam * (bParam * vArray[n] - uArray[n]));
+				firedArray[n] = vArray[n] >= 30.0;
 			}
 		}
 
 		//Neuron has fired -add spike to buffer
 		if(firedArray[n]) {
-			v[n] = this->c;
-			u[n] += this->d;
-			spikes.push_back(n);
+			vArray[n] = cParam;
+			uArray[n] += dParam;
+			spikeVector.push_back(n);
 		}
 	}
 
 	//Clear input currents
 	for(int i=0; i<numNeurons; ++i)
-		iArray = 0.0f;
+		iArray[i] = 0.0f;
 }
 

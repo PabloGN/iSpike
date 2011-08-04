@@ -4,11 +4,10 @@
 //iSpike includes
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
-#include <iSpike/VisualDataReducer/VisualDataReducer.hpp>
-#include <iSpike/VisualFilter/VisualFilter.hpp>
+#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
+#include <iSpike/VisualFilter/DOGVisualFilter.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iSpike/Property.hpp>
-#include <iSpike/VisualFilter/MovementFilter.hpp>
 
 //Other includes
 #include <string>
@@ -22,8 +21,8 @@ namespace ispike {
 		public:
 			VisualInputChannel();
 			virtual ~VisualInputChannel();
-			vector<int>& getFiring() { return neuronSim->getSpikes(); }
-			void initialize(VisualReader* reader, map<string, Property> properties);
+			vector<int>& getFiring() { return neuronSim.getSpikes(); }
+			void initialize(Reader* reader, map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
@@ -37,10 +36,10 @@ namespace ispike {
 			VisualReader* reader;
 
 			/** Foveates the image using log polar */
-			VisualDataReducer* dataReducer;
+			LogPolarVisualDataReducer* dataReducer;
 
 			/** Uses difference of Gaussians to model colour opponency */
-			VisualFilter* dogFilter;
+			DOGVisualFilter* dogFilter;
 
 			/** Neural simulator to convert currents to spikes. */
 			IzhikevichNeuronSim neuronSim;

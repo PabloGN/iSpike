@@ -1,9 +1,7 @@
 #ifndef FILEANGLEWRITER_HPP_
 #define FILEANGLEWRITER_HPP_
 
-#include <iSpike/Reader/AngleWriter.hpp>
-#include <string>
-#include <vector>
+#include <iSpike/Writer/AngleWriter.hpp>
 
 namespace ispike {
 
@@ -11,16 +9,23 @@ namespace ispike {
 	class FileAngleWriter : public AngleWriter {
 		public:
 			FileAngleWriter();
-			virtual FileAngleWriter(){}
-			void initialise(map<string, Property>& properties);
+			virtual ~FileAngleWriter(){}
+			void initialize(map<string, Property>& properties);
+			void setAngle(double angle);
 			void setProperties(map<string, Property>& properties);
 			void start() {}
 
 		private:
-			//===========================  METHODS  ==========================
-			void writeAngleToFile(string& fileName);
-			void workerFunction() {}
+			//==========================  VARIABLES  =========================
+			/** Used to establish if angle has changed */
+			double currentAngle;
 
+			/** Name of the file to write the angle */
+			string fileName;
+
+			//===========================  METHODS  ==========================
+			void writeAngleToFile();
+			void workerFunction() {}
 
 	};
 

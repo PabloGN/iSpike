@@ -13,6 +13,7 @@ namespace ispike {
 		image, depending on the width and height settings. */
 	class Bitmap {
 		public:
+			Bitmap();
 			Bitmap(unsigned width, unsigned height, unsigned depth) ;
 			Bitmap (const Bitmap& copy_from_me);
 			~Bitmap();

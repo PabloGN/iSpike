@@ -6,10 +6,8 @@
 using namespace ispike;
 
 //Other includes
-#include <boost/asio.hpp>
+#include <boost/regex.hpp>
 #include <vector>
-#include <map>
-#include <string>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -30,7 +28,7 @@ FileAngleReader::FileAngleReader() {
 /*--------------------------------------------------------------------*/
 
 //Inherited from Reader
-void FileAngleReader::initialise(map<string, Property> &properties){
+void FileAngleReader::initialize(map<string, Property>& properties){
 	setProperties(properties);
 	setInitialized(true);
 }
@@ -38,9 +36,9 @@ void FileAngleReader::initialise(map<string, Property> &properties){
 
 //Inherited from PropertyHolder
 void FileAngleReader::setProperties(map<string, Property>& properties){
-	string fileName = updatePropertyValue((StringProperty)properties["File Name"]);
+	string fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
 	LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
-	readAngleFromFile(string& fileName);
+	readAngleFromFile(fileName);
 }
 
 
@@ -75,7 +73,7 @@ void FileAngleReader::readAngleFromFile(string& fileName) {
 
 	vector<double> buffer;
 	boost::regex split_string(" ");
-	std::list<std::string> lines;
+	list<string> lines;
 	boost::regex_split(std::back_inserter(lines), contents, split_string);
 	while(lines.size() > 0)	{
 		std::string current_string = *(lines.begin());
@@ -84,8 +82,8 @@ void FileAngleReader::readAngleFromFile(string& fileName) {
 		buffer.push_back(angle);
 	}
 
-	if(!vector.empty())
+	if(!buffer.empty())
 		setAngle(buffer[0]);
 	else
-		throw iSpikeException("FileAngleReader: No angles found in file.");
+		throw ISpikeException("FileAngleReader: No angles found in file.");
 }

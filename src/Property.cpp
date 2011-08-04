@@ -1,7 +1,15 @@
 #include "iSpike/Property.hpp"
 using namespace ispike;
 
-/** Property constructor */
+/** Empty constructor */
+Property::Property(){
+	type = Property::Undefined;
+	name = "Unnamed";
+	description = "Undescribed";
+	readOnly = false;
+}
+
+/** Standar property constructor */
 Property::Property(ValueType type, string name, string description, bool readOnly){
 	this->type = type;
 	this->name = name;
@@ -17,8 +25,9 @@ Property::Property(const Property& prop){
 	this->readOnly = prop.readOnly;
 }
 
+
 /** Property assignment operator */
-Property::Property& Property::operator=(const Property& rhs){
+Property& Property::operator=(const Property& rhs){
 	//Check for self assignment
 	if(this == &rhs)
 		return *this;
@@ -31,6 +40,11 @@ Property::Property& Property::operator=(const Property& rhs){
 }
 
 
+/** Property destructor */
+Property::~Property(){
+}
+
+
 /** IntegerProperty constructor */
 IntegerProperty::IntegerProperty(int paramValue, string name, string description, bool readOnly) : Property(Property::Integer, name, description, readOnly) {
 	this->value = paramValue;
@@ -38,7 +52,7 @@ IntegerProperty::IntegerProperty(int paramValue, string name, string description
 
 /** IntegerProperty copy constructor */
 IntegerProperty::IntegerProperty(const IntegerProperty& intProp) : Property(*((Property*)this)){
-	this->value = intProp.getValue();
+	this->value = intProp.value;
 }
 
 /*! IntegerProperty assignment operator */
@@ -63,7 +77,7 @@ DoubleProperty::DoubleProperty(double paramValue, string name, string descriptio
 
 /** DoubleProperty copy constructor */
 DoubleProperty::DoubleProperty(const DoubleProperty& doubProp) : Property(*((Property*)this)){
-	this->value = doubProp.getValue();
+	this->value = doubProp.value;
 }
 
 /*! DoubleProperty assignment operator */
@@ -88,7 +102,7 @@ StringProperty::StringProperty(string paramValue, string name, string descriptio
 
 /** StringProperty copy constructor */
 StringProperty::StringProperty(const StringProperty& strProp) : Property(*((Property*)this)){
-	this->value = strProp.getValue();
+	this->value = strProp.value;
 }
 
 /*! StringProperty assignment operator */

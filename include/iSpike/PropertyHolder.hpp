@@ -27,10 +27,10 @@ namespace ispike {
 			double getDoublePropertyValue(string propertyName);
 			int getIntegerPropertyValue(string propertyName);
 			string getStringPropertyValue(string propertyName);
-			string getPropertyValue(ComboProperty& property);
-			double getPropertyValue(DoubleProperty& property);
-			int getPropertyValue(IntegerProperty& property);
-			string getPropertyValue(StringProperty& property);
+			string getValue(ComboProperty& property);
+			double getValue(DoubleProperty& property);
+			int getValue(IntegerProperty& property);
+			string getValue(StringProperty& property);
 			string updatePropertyValue(ComboProperty& property);
 			double updatePropertyValue(DoubleProperty& property);
 			int updatePropertyValue(IntegerProperty& property);

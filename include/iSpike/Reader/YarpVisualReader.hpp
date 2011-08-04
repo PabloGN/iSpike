@@ -1,12 +1,14 @@
 #ifndef YARPVISUALREADER_HPP_
 #define YARPVISUALREADER_HPP_
 
+//iSpike includes
+#include <iSpike/Bitmap.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/YarpConnection.hpp>
-#include <iSpike/Bitmap.hpp>
-#include <boost/thread.hpp>
-#include <map>
 #include <iSpike/YarpPortDetails.hpp>
+
+//Other includes
+#include <map>
 
 namespace ispike{
 
@@ -17,6 +19,7 @@ class YarpVisualReader : public VisualReader {
 		virtual ~YarpVisualReader();
 		Bitmap& getBitmap();
 		void initialize(map<string, Property>& properties);
+		void setProperties(map<string, Property>& properties);
 		void start();
 
 	private:
@@ -30,13 +33,16 @@ class YarpVisualReader : public VisualReader {
 		/** Controls which bitmap is returned to the user */
 		bool returnBitmap1;
 
+		/** Handles connection to YARP  */
 		YarpConnection* yarpConnection;
 
-		map<string, YarpPortDetails> portMap;
+		/** Name of the port details that we connect to */
+		string portName;
 
 
 		//=============================  METHODS  ============================
 		void swapBitmap();
+		void updateProperties(map<string, Property>& properties);
 		void workerFunction();
 
 	};

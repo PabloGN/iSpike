@@ -1,5 +1,6 @@
 //iSpike includes
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
+#include "iSpike/ISpikeException.hpp"
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
 using namespace ispike;
@@ -16,7 +17,7 @@ using namespace ispike;
 
 
 /** Constructor */
-DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double positiveSigma, double negativeSigma, double positiveFactor, double negativeFactor, int opponencyTypeID, bool normalize){
+DOGVisualFilter::DOGVisualFilter(LogPolarVisualDataReducer* reducer){
 	//Store variables
 	this->reducer = reducer;
 
@@ -32,7 +33,7 @@ DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double positiveSigm
 
 
 /** Destructor */
-~DOGVisualFilter(){
+DOGVisualFilter::~DOGVisualFilter(){
 	if(isInitialized()){
 		delete redBitmap;
 		delete greenBitmap;
@@ -51,7 +52,7 @@ DOGVisualFilter::DOGVisualFilter(VisualDataReducer* reducer, double positiveSigm
 
 /** Returns a reference to the opponency bitmap */
 Bitmap& DOGVisualFilter::getOpponencyBitmap(){
-	return opponencyBitmap;
+	return *opponencyBitmap;
 }
 
 
@@ -90,15 +91,15 @@ void DOGVisualFilter::update(){
 
 	//Calculate opponency map
 	if(opponencyTypeID == Common::redVsGreen){
-		calculateOpponency(redBitmap, greenBitmap);
+		calculateOpponency(*redBitmap, *greenBitmap);
 	}
 	else if(opponencyTypeID == Common::greenVsRed){
-		calculateOpponency(greenBitmap, redBitmap);
+		calculateOpponency(*greenBitmap, *redBitmap);
 	}
 	else if(opponencyTypeID == Common::blueVsYellow){
 		extractBlueChannel(reducedImage);
 		extractYellowChannel();
-		calculateOpponency(blueBitmap, yellowBitmap);
+		calculateOpponency(*blueBitmap, *yellowBitmap);
 	}
 }
 
@@ -110,23 +111,23 @@ void DOGVisualFilter::update(){
 /** Calculate opponency image */
 void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
 	//Blur the positive image
-	gaussianBlur(bitmap1, positiveBlurredBitmap, positiveSigma);
+	gaussianBlur(bitmap1, *positiveBlurredBitmap, positiveSigma);
 	#ifdef DEBUG_IMAGES
 		Common::savePPMImage("positiveBlur.ppm", positiveBlurredBitmap);
 	#endif//DEBUG_IMAGES
 
 	//Blur the negative image
-	gaussianBlur(bitmap2, negativeBlurredBitmap, negativeSigma);
+	gaussianBlur(bitmap2, *negativeBlurredBitmap, negativeSigma);
 	#ifdef DEBUG_IMAGES
 		Common::savePPMImage("negativeBlur.ppm", negativeBlurredBitmap);
 	#endif//DEBUG_IMAGES
 
 	//Subtract the negative from the positive image to get the opponency map
-	subtractImages(positiveBlurredBitmap, positiveBlurredBitmap, opponencyBitmap);
+	subtractImages(*positiveBlurredBitmap, *positiveBlurredBitmap, *opponencyBitmap);
 
 	//Normalize opponency map if required
 	if(normalize)
-		normalizeImage(opponencyBitmap);
+		normalizeImage(*opponencyBitmap);
 
 	//Output debug image if required
 	#ifdef DEBUG_IMAGES
@@ -353,6 +354,6 @@ void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bi
 	unsigned char* resultContents = result.getContents();
 
 	for(int i=0; i<imageSize; ++i){
-		resultContents[i] = (unsigned char)rint(firstImageContents[i]*plusFactor-secondImageContents[i]*minusFactor);
+		resultContents[i] = (unsigned char)rint(firstImageContents[i]*positiveFactor - secondImageContents[i]*negativeFactor);
 	}
 }

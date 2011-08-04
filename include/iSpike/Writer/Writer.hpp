@@ -2,10 +2,10 @@
 #define WRITER_HPP_
 
 //iSpike includes
-#include "iSpike/Property.hpp"
+#include "iSpike/PropertyHolder.hpp"
 #include <iSpike/Writer/WriterDescription.hpp>
 #include <iSpike/Log/Log.hpp>
-#include "iSpike/iSpikeThread.hpp"
+#include "iSpike/ISpikeThread.hpp"
 
 //Other includes
 #include <map>
@@ -16,7 +16,7 @@ namespace ispike {
 
 	/** This class represents a Writer, capable of writing analogue information
 		to a file, socket or other destination. */
-	class Writer : public PropertyHolder, public iSpikeThread {
+	class Writer : public PropertyHolder, public ISpikeThread {
 		public:
 			Writer(){ initialized = false; }
 			virtual ~Writer(){}
@@ -27,7 +27,7 @@ namespace ispike {
 
 		protected:
 			/** Description of the Writer */
-			WriterDescription writerDescripton;
+			WriterDescription writerDescription;
 
 
 		private:

@@ -6,7 +6,7 @@ using namespace ispike;
 /**
 * Default constructor
 * Initialises the list of Input Channels, if you've made a new Input Channel, add it here!  */
-InputChannelFactory(){
+InputChannelFactory::InputChannelFactory(){
 	LOG(LOG_DEBUG) << "InputChannelFactory: Adding channel descriptions to list.";
 	this->channelList.push_back(JointInputChannel().getChannelDescription());
 	this->channelList.push_back(VisualInputChannel().getChannelDescription());
@@ -18,13 +18,13 @@ InputChannelFactory(){
 * Returns all Input Channels in the system
 * @return All available Input Channels
 */
-std::vector<InputChannelDescription> getAllChannels() {
+std::vector<InputChannelDescription> InputChannelFactory::getAllChannels() {
 	return channelList;
 }
 
 
 /** Creates a particular Input Channel */
-InputChannel* create(string channelName, Reader* reader, map<string, Property> channelProperties) {
+InputChannel* InputChannelFactory::create(string channelName, Reader* reader, map<string, Property>& channelProperties) {
 	if(channelName == "Joint Input Channel"){
 		JointInputChannel* channel = new JointInputChannel();
 		channel->initialize((AngleReader*)reader, channelProperties);
@@ -36,6 +36,6 @@ InputChannel* create(string channelName, Reader* reader, map<string, Property> c
 		return channel;
 	}
 	else {
-		throw iSpikeException("Invalid channel name");
+		throw ISpikeException("Invalid channel name");
 	}
 }

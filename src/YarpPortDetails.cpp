@@ -1,8 +1,16 @@
 #include <iSpike/YarpPortDetails.hpp>
 using namespace ispike;
 
+/** Empty constructor */
+YarpPortDetails::YarpPortDetails(){
+	setIp("Undefined");
+	setPort(0);
+	setType("Untyped");
+}
+
+
 /** Constructor */
-YarpPortDetails(string ip, int port, string type)  {
+YarpPortDetails::YarpPortDetails(string ip, unsigned port, string type)  {
   setIp(ip);
   setPort(port);
   setType(type);
@@ -10,7 +18,7 @@ YarpPortDetails(string ip, int port, string type)  {
 
 
 /** Copy constructor */
-YarpPortDetails(const YarpPortDetails& ypd){
+YarpPortDetails::YarpPortDetails(const YarpPortDetails& ypd){
 	ip= ypd.ip;
 	port = ypd.port;
 	type = ypd.type;
@@ -18,7 +26,7 @@ YarpPortDetails(const YarpPortDetails& ypd){
 
 
 /** Assignment operator */
-YarpPortDetails& operator=(const YarpPortDetails& rhs){
+YarpPortDetails& YarpPortDetails::operator=(const YarpPortDetails& rhs){
 	if(this == &rhs)
 		return *this;
 

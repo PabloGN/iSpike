@@ -2,10 +2,9 @@
 #define READER_HPP_
 
 //iSpike includes
-#include "iSpike/iSpikeThread.hpp"
-#include "iSpike/Property.hpp"
+#include "iSpike/ISpikeThread.hpp"
+#include "iSpike/PropertyHolder.hpp"
 #include <iSpike/Reader/ReaderDescription.hpp>
-#include <iSpike/Log/Log.hpp>
 
 //Other includes
 #include <map>
@@ -16,11 +15,11 @@ namespace ispike {
 
 	/** This class represents a Reader, capable of retrieving analogue information
 	  * from a predefined source and serving it upon request */
-	class Reader : public PropertyHolder, public iSpikeThread {
+	class Reader : public PropertyHolder, public ISpikeThread {
 		public:
 			Reader(){ initialized = false; }
 			virtual ~Reader(){}
-			ReaderDescription getReaderDescription() const { return readerDescripton; }
+			ReaderDescription getReaderDescription() const { return readerDescription; }
 			virtual void initialize(map<string, Property>& properties) = 0;
 			bool isInitialized() { return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
@@ -28,7 +27,7 @@ namespace ispike {
 		protected:
 			//=======================  VARIABLES  =========================
 			/** Description of the reader */
-			ReaderDescription readerDescripton;
+			ReaderDescription readerDescription;
 
 
 		private:

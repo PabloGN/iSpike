@@ -58,16 +58,17 @@ YarpConnection::YarpConnection(string ip, unsigned port){
 		if (boost::regex_match(current_string.c_str(), matches, expression)) {
 			string portName(matches[1].first, matches[1].second);
 			string ip(matches[2].first, matches[2].second);
-			string port(matches[3].first, matches[3].second);
+			string portStr(matches[3].first, matches[3].second);
 			string type(matches[4].first, matches[4].second);
-			YarpPortDetails details(ip,port,type);
-			portMap[portName = details;
+			unsigned port = boost::lexical_cast<unsigned>(portStr.c_str());
+			YarpPortDetails details(ip, port, type);
+			portMap[portName] = details;
 		}
 	}
 
 	LOG(LOG_DEBUG) << "YarpConnection: Received the following Yarp portmap:";
-	for (map<tring, YarpPortDetails>::iterator it=portMap.begin() ; it != portMap.end(); ++it )   {
-		LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second->getIp() << ":" << (*it).second->getPort();
+	for (map<string, YarpPortDetails>::iterator it=portMap.begin() ; it != portMap.end(); ++it )   {
+		LOG(LOG_DEBUG) << (*it).first << " => " << (*it).second.getIp() << ":" << (*it).second.getPort();
 	}
 }
 
@@ -81,6 +82,9 @@ YarpConnection::~YarpConnection(){
 /*---------               PUBLIC METHODS                     -------*/
 /*------------------------------------------------------------------*/
 
+/** Write text contents to a previously opened socket
+* @param message The message to be written
+* @return something */
 int YarpConnection::write_text(string message){
 	boost::system::error_code connection_error;
 	boost::asio::write( *this->connectionSocket, boost::asio::buffer(message),
@@ -114,6 +118,9 @@ string YarpConnection::getSocketString(){
 }
 
 
+/** Read text until a given string is received
+* @param until The string where we stop
+* @return The text that has been read including the stop characters */
 string YarpConnection::read_until(string until){
 	boost::asio::streambuf response;
 	boost::asio::read_until(*this->connectionSocket, response, until);
@@ -123,8 +130,10 @@ string YarpConnection::read_until(string until){
 }
 
 
-
-
+/** Connect to a given YARP port
+* @param ip The IP address of the Yarp server
+* @param port The port number to connect to
+* @return true if connected, false otherwise  */
 int YarpConnection::connect_to_port(string ip, unsigned port){
 	boost::asio::io_service io_service;
 	boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(ip.c_str()), port);
@@ -141,6 +150,9 @@ int YarpConnection::connect_to_port(string ip, unsigned port){
 }
 
 
+/** Reverses the connection to enable text to be read
+* It will no longer be possible to write to this
+* port  */
 void YarpConnection::prepare_to_read_text(){
 	write_text("CONNECT foo\n");
 	boost::asio::streambuf response;
@@ -149,6 +161,9 @@ void YarpConnection::prepare_to_read_text(){
 }
 
 
+/** Reverses the connection to enable binary contents to be
+* read. It will no longer be possible to write to this
+* port  */
 void YarpConnection::prepare_to_read_binary(){
 	// Send header to select connection type.
 	// this header is for fast_tcp, so we don't have to deal with flow control

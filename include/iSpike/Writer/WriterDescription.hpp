@@ -15,6 +15,7 @@ namespace ispike {
 	/** Describes a Writer */
 	class WriterDescription {
 		public:
+			WriterDescription();
 			WriterDescription(string name, string description, string type);
 			WriterDescription(const WriterDescription& desc);
 			WriterDescription& operator=(const WriterDescription& rhs);

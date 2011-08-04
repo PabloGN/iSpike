@@ -12,10 +12,7 @@ using namespace std;
 
 namespace ispike {
 
-	/**
-	  * @class OutputChannelFactory
-	  * @brief A Factory of Output Channels
-	  * The Output Channel Factory can list all Output Channels available in the system and can produce a particular type of an Output Channel 	  */
+	/** The Output Channel Factory can list all Output Channels available in the system and can produce a particular type of an Output Channel 	  */
 	class OutputChannelFactory {
 		private:
 			/** A list of available Output Channels */
@@ -24,7 +21,7 @@ namespace ispike {
 		public:
 			OutputChannelFactory();
 			vector<OutputChannelDescription> getAllChannels();
-			OutputChannel* create(string channelName, Writer* writer, map<string,Property*> channelProperties);
+			OutputChannel* create(string channelName, Writer* writer, map<string, Property>& channelProperties);
 		};
 
 }

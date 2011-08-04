@@ -1,6 +1,15 @@
 //iSpike includes
-#include "iSpike/Channel/InputChannel/InputChannelDescription.hpp"
+#include "iSpike/Channel/OutputChannel/OutputChannelDescription.hpp"
 using namespace ispike;
+
+
+/** Empty constructor */
+OutputChannelDescription::OutputChannelDescription(){
+	channelName = "Unnamed";
+	channelDescription = "Undescribed";
+	writerType = "Undefined";
+}
+
 
 /** Constructor */
 OutputChannelDescription::OutputChannelDescription(string channelName, string channelDescription, string writerType){
@@ -18,8 +27,13 @@ OutputChannelDescription::OutputChannelDescription(const OutputChannelDescriptio
 }
 
 
+/** Destructor */
+OutputChannelDescription::~OutputChannelDescription(){
+}
+
+
 /** Assignment operator */
-OutputChannelDescription::OutputChannelDescription & operator= (const OutputChannelDescription & copy_from_me){
+OutputChannelDescription & OutputChannelDescription::operator= (const OutputChannelDescription & copy_from_me){
 	if (this != &copy_from_me){ // protect against invalid self-assignment
 		this->channelName = copy_from_me.channelName;
 		this->channelDescription = copy_from_me.channelDescription;
@@ -30,7 +44,3 @@ OutputChannelDescription::OutputChannelDescription & operator= (const OutputChan
 	return *this;
 }
 
-
-/** Destructor */
-OutputChannelDescription::~OutputChannelDescription(){
-}

@@ -7,6 +7,7 @@
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include "iSpike/ISpikeException.hpp"
+using namespace ispike;
 
 /** Default constructor
  * Initialises the list of readers, if you've made a new reader, add it here! */
@@ -37,11 +38,10 @@ ReaderFactory::ReaderFactory(string ip, unsigned port){
 /*--------------------------------------------------------------------*/
 
 /** Returns readers of a particular type */
-std::vector<ReaderDescription> ReaderFactory::getReadersOfType(string readerType){
+vector<ReaderDescription> ReaderFactory::getReadersOfType(string readerType){
 	vector<ReaderDescription> result;
 	for(int i = 0; i < readerList.size(); i++) {
-		LOG(LOG_DEBUG) << readerList[i].getReaderProperties().begin()->second->getName();
-		if(readerList[i].getReaderType() == readerType)
+		if(readerList[i].getType() == readerType)
 			result.push_back(readerList[i]);
 	}
 	return result;
@@ -66,7 +66,7 @@ Reader* ReaderFactory::create(string readerName, map<string, Property>& readerPr
 	else {
 		throw std::logic_error("Invalid reader type");
 	}
-	result->initialise(readerProperties);
+	result->initialize(readerProperties);
 	return result;
 }
 

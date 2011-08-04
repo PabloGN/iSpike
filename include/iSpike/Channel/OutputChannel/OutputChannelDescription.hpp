@@ -5,9 +5,11 @@
 using namespace std;
 
 namespace ispike {
+
 	/** Describes an output channel. */
 	class OutputChannelDescription {
 		public:
+			OutputChannelDescription();
 			OutputChannelDescription(string channelName, string channelDescription, string writerType);
 			OutputChannelDescription & operator= (const OutputChannelDescription & copy_from_me);
 			OutputChannelDescription(const OutputChannelDescription& copy_from_me);

@@ -40,5 +40,7 @@ namespace ispike {
 			string logLevelToString(TLogLevel level);
 	};
 
+}
+
 
 #endif /* LOG_HPP_ */

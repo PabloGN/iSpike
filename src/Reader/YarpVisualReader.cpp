@@ -8,7 +8,6 @@ using namespace ispike;
 
 //Other includes
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 #include <iostream>
 using namespace std;
 
@@ -16,15 +15,15 @@ using namespace std;
 #define PORT_NAME_PROP "Port Name"
 
 /** Constructor */
-YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
+YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
 	// Connect to YARP and get list of ports
-	yarpConnection == NULL;
+	yarpConnection == NULL;//Initialize to null so that it is deleted correctly if an exception is thrown
 	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-	portMap = yarpConnection->getPortMap();
 
 	//Store port names as properties of this reader
 	vector<string> yarpPortNames;
-	for (map<string, YarpPortDetails*>::iterator iter = this->portMap->begin(); iter != this->portMap->end(); iter++){
+	map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
+	for (map<string, YarpPortDetails>::iterator iter = portMap.begin(); iter != portMap.end(); ++iter){
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
@@ -34,15 +33,17 @@ YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
 
 	//Create the description
 	readerDescription = ReaderDescription("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
+
+	//Initialize variables
+	portName = "Undefined";
 }
 
 
 /** Destructor */
-~YarpVisualReader() {
+YarpVisualReader::~YarpVisualReader() {
 	if(isInitialized())	{
-		threadPointer->interrupt();
-		threadPointer->join();
-		delete threadPointer.get();
+		requestStop();
+		getThreadPointer()->join();
 		delete bitmap1;
 		delete bitmap2;
 	}
@@ -57,27 +58,16 @@ YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
 
 //Inherited from VisualReader
 Bitmap& YarpVisualReader::getBitmap(){
-	boost::mutex::scoped_lock lock(this->mutex);
+	boost::mutex::scoped_lock lock(threadMutex);
 	if(returnBitmap1)
 		return *bitmap1;
 	return *bitmap2;
 }
 
 
-//Inherited from iSpikeThread
-void YarpVisualReader::start() {
-	if(!isInitialized())
-		throw ISpikeException("YarpVisualReader cannot be started because it has not been initialized.");
-	this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpVisualReader::workerFunction, this))));
-}
-
-
 //Inherited from Reader
 void YarpVisualReader::initialize(map<string, Property>& properties){
-	if(properties.count(PORT_NAME_PROP) == 0)
-		throw ISpikeException("Property Port Name cannot be found.");
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		setPortName(updatePropertyValue(properties[PORT_NAME_PROP]));
+	updateProperties(properties);
 
 	bitmap1 = new Bitmap(0,0,0);
 	bitmap2 = new Bitmap(0,0,0);
@@ -87,13 +77,29 @@ void YarpVisualReader::initialize(map<string, Property>& properties){
 }
 
 
+//Inherited from PropertyHolder
+void YarpVisualReader::setProperties(map<string, Property> &properties){
+	updateProperties(properties);
+}
+
+
+//Inherited from iSpikeThread
+void YarpVisualReader::start() {
+	if(!isInitialized())
+		throw ISpikeException("YarpVisualReader cannot be started because it has not been initialized.");
+	if(isRunning())
+		throw ISpikeException("Cannot start YarpVisualReader - it is already running.");
+
+	this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpVisualReader::workerFunction, this))));
+}
+
 /*--------------------------------------------------------------------*/
 /*---------                PRIVATE METHODS                     -------*/
 /*--------------------------------------------------------------------*/
 
 /** Swaps the returned bitmaps in a thread safe way */
 void YarpVisualReader::swapBitmap(){
-	boost::mutex::scoped_lock lock(this->mutex);
+	boost::mutex::scoped_lock lock(threadMutex);
 	if(returnBitmap1)
 		returnBitmap1 = false;
 	else
@@ -101,6 +107,13 @@ void YarpVisualReader::swapBitmap(){
 
 	//Image has changed so increment the image ID
 	++imageID;
+}
+
+/** Updates the properties */
+void YarpVisualReader::updateProperties(map<string, Property>& properties){
+	bool updateReadOnly = !isInitialized();
+	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
 }
 
 
@@ -111,17 +124,15 @@ void YarpVisualReader::workerFunction(){
 
 	try{
 		//Connect to port
-		map<string, YarpPortDetails>::iterator iter = portMap->find(getComboPropertyValue(PORT_NAME_PROP));
-		string ip;
-		unsigned port;
-		if (iter != portMap->end() ) 	{
-			ip = iter->second->getIp();
-			port = iter->second->getPort();
-			LOG(LOG_INFO) << "YarpVisualReader: Yarp Port IP: " << ip << " Port: " << port;
-		}
-		else {
+		map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
+		map<string, YarpPortDetails>::iterator iter = portMap.find(getComboPropertyValue(PORT_NAME_PROP));
+		if (iter == portMap.end() )
 			throw ISpikeException("YarpVisualReader: Yarp IP/Port map is empty!");
-		}
+
+		string ip = iter->second.getIp();
+		unsigned port = iter->second.getPort();
+		LOG(LOG_INFO) << "YarpVisualReader: Yarp Port IP: " << ip << " Port: " << port;
+
 		yarpConnection->connect_to_port(ip, port);
 		yarpConnection->prepare_to_read_binary();
 
@@ -129,11 +140,11 @@ void YarpVisualReader::workerFunction(){
 		while(!isStopRequested()) {
 			//Load new version of image into new buffer
 			if(returnBitmap1){
-				yarpConnection->read_image(bitmap2);
+				yarpConnection->read_image(*bitmap2);
 				swapBitmap();
 			}
 			else{
-				yarpConnection->read_image(bitmap1);
+				yarpConnection->read_image(*bitmap1);
 				swapBitmap();
 			}
 		}

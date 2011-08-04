@@ -27,7 +27,7 @@ namespace ispike {
 		public:
 			InputChannelFactory();
 			vector<InputChannelDescription> getAllChannels();
-			InputChannel* create(string channelName, Reader* reader, map<string,Property*> channelProperties);
+			InputChannel* create(string channelName, Reader* reader, map<string, Property>& channelProperties);
 	};
 
 }

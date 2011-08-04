@@ -16,7 +16,7 @@ namespace ispike {
 	class Channel : public PropertyHolder {
 		public:
 			Channel(){ initialized = false; LOG(LOG_DEBUG) << "CHANNEL CONSTRUCTOR";}
-			virtual ~Channel();
+			virtual ~Channel(){}
 
 			/** Retrieves the Channel Identifier  */
 			int getId()	{ return this->id; }

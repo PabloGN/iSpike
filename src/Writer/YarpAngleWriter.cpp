@@ -12,6 +12,7 @@ using namespace ispike;
 using namespace std;
 
 //Names of properties used
+#define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 #define PORT_NAME_PROP "Port Name"
 #define SLEEP_DURATION_PROP "Sleep Duration ms"
 
@@ -20,7 +21,7 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 	// Connect to YARP and get list of ports
 	yarpConnection == NULL;
 	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
-	portMap = yarpConnection->getPortMap();
+	map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
 
 	//Store port names as properties of this reader
 	vector<string> yarpPortNames;
@@ -33,6 +34,7 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
 
 	//Other properties
+	addProperty(IntegerProperty(20, DEGREE_OF_FREEDOM_PROP, "Degree of freedom of joint to write.", false));
 	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
 
 	//Create the description
@@ -40,6 +42,7 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 
 	//Initialize variables
 	angleChanged = false;
+	degreeOfFreedom = -1;
 }
 
 
@@ -63,16 +66,26 @@ void YarpAngleWriter::initialize(map<string,Property>& properties){
 
 // Inherited from AngleWriter
 void YarpAngleWriter::setAngle(double newAngle){
-	if(this->angle != newAngle)
+	if(this->angle != newAngle){
 		angleChanged = true;
-	this->angle = newAngle;
+		this->angle = newAngle;
+	}
+}
+
+
+//Inherited from PropertyHolder
+void YarpAngleWriter::setProperties(map<string, Property> &properties){
+	updateProperties(properties);
 }
 
 
 // Inherited from iSpikeThread
 void YarpAngleWriter::start(){
 	if(!isInitialized())
-		throw iSpikeException("Cannot start YarpAngleWriter thread - it has not been initialized.");
+		throw ISpikeException("Cannot start YarpAngleWriter thread - it has not been initialized.");
+	if(isRunning())
+		throw ISpikeException("Cannot start YarpAngleWriter thread - it is already running.");
+
 	this->setThreadPointer(boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&YarpAngleWriter::workerFunction, this))));
 }
 
@@ -83,16 +96,17 @@ void YarpAngleWriter::start(){
 
 /** Updates the properties with values from the map */
 void YarpAngleWriter::updateProperties(map<string, Property>& properties){
-	if(properties.count(PORT_NAME_PROP) == 0)
-		throw ISpikeException("Property Port Name cannot be found.");
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		portName = updatePropertyValue(properties[PORT_NAME_PROP]);
+	bool updateReadOnly = !isInitialized();
+	if((updateReadOnly && !propertyMap[DEGREE_OF_FREEDOM_PROP].isReadOnly()) || !updateReadOnly)
+		degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
 
-	if(properties.count(SLEEP_DURATION_PROP) == 0)
-		throw ISpikeException("Property Sleep Duration cannot be found.");
+	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
+
 	if((updateReadOnly && !propertyMap[SLEEP_DURATION_PROP].isReadOnly()) || !updateReadOnly)
-		sleepDuration_ms = updatePropertyValue(properties[SLEEP_DURATION_PROP]);
+		sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
 }
+
 
 //Inherited from iSpikeThread
 void YarpAngleWriter::workerFunction(){
@@ -101,17 +115,13 @@ void YarpAngleWriter::workerFunction(){
 
 	try{
 		//Connect to YARP
-		map<string, YarpPortDetails>::iterator iter = this->portMap->find(this->getPortName());
-		string ip;
-		unsigned port;
-		if (iter != this->portMap->end() ){
-			ip = iter->second->getIp();
-			port = iter->second->getPort();
-			LOG(LOG_INFO) << "YarpAngleWriter: Yarp Port IP: " << ip << " Port: " << port;
-		}
-		else {
-			throw ISpikeException("YarpAngleWriter: Yarp IP/Port map is empty!");
-		}
+		map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
+		map<string, YarpPortDetails>::iterator iter = portMap.find(portName);
+		if(iter == portMap.end())
+			throw ISpikeException("YarpAngleWriter: Cannot find port name in port map");
+		string ip = iter->second.getIp();
+		unsigned port = iter->second.getPort();
+
 		yarpConnection->connect_to_port(ip, port);
 		yarpConnection->write_text("CONNECT foo\n");
 
@@ -119,9 +129,9 @@ void YarpAngleWriter::workerFunction(){
 		while(!isStopRequested()){
 			if(angleChanged){
 				//Send new angle
-				this->yarpConnection->write_text("d\n");
+				yarpConnection->write_text("d\n");
 				ostringstream commandStream;
-				commandStream << "set pos " << this->degreeOfFreedom << " " << angle << "\n";
+				commandStream << "set pos " << degreeOfFreedom << " " << angle << "\n";
 				string command = commandStream.str();
 				LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
 				this->yarpConnection->write_text(command);

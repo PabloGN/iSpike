@@ -54,13 +54,17 @@ JointInputChannel::~JointInputChannel(){
 /*--------------------------------------------------------------------*/
 
 //Inherited from InputChannel
-void JointInputChannel::initialize(AngleReader* reader, map<string, Property>& properties){
-	if(reader == NULL)
+void JointInputChannel::initialize(Reader* reader, map<string, Property>& properties){
+	//This class requires an angle reader, so cast it and check
+	this->reader = dynamic_cast<AngleReader*>(reader);
+	if(this->reader == NULL)
 		throw ISpikeException("Cannot initialize JointInputChannel with a null reader.");
-	this->reader = reader;
-	this->reader->start();
 
+	//Update and store properties
 	updateProperties(properties);
+
+	//Start the reader thread running
+	this->reader->start();
 
 	//Set up Izhikevich simulation
 	neuronSim.initialize(size());
@@ -126,32 +130,32 @@ void JointInputChannel::updateProperties(map<string, Property>& properties){
 			switch (iter->second.getType()) {
 				case Property::Integer: {
 					if(paramName == "Degree Of Freedom")
-						reader->setDegreeOfFreedom(updatePropertyValue((IntegerProperty)iter->second));
+						reader->setDegreeOfFreedom(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
 					else if (paramName == "Neuron Width")
-						setWidth(updatePropertyValue((IntegerProperty)iter->second));
+						setWidth(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
 					else if (paramName == "Neuron Height")
-						setHeight(updatePropertyValue((IntegerProperty)iter->second));
+						setHeight(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
 				}
 				break;
 				case Property::Double:  {
 					if (paramName == "Parameter A")
-						neuronSim.setParameterA(updatePropertyValue((DoubleProperty)iter->second));
+						neuronSim.setParameterA(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
 					else if (paramName == "Parameter B")
-						neuronSim.setParameterB(updatePropertyValue((DoubleProperty)iter->second));
+						neuronSim.setParameterB(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
 					else if (paramName == "Parameter C")
-						neuronSim.setParameterC(updatePropertyValue((DoubleProperty)iter->second));
+						neuronSim.setParameterC(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
 					else if (paramName == "Parameter D")
-						neuronSim.setParameterD(updatePropertyValue((DoubleProperty)iter->second));
+						neuronSim.setParameterD(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
 					else if (paramName == "Current Factor")
-						currentFactor = updatePropertyValue((DoubleProperty)iter->second);
+						currentFactor = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if (paramName == "Constant Current")
-						constantCurrent = updatePropertyValue((DoubleProperty)iter->second);
+						constantCurrent = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if(paramName == "Standard Deviation")
-						sd = updatePropertyValue((DoubleProperty)iter->second);
+						sd = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if (paramName == "Minimum Angle")
-						minAngle = updatePropertyValue((DoubleProperty)iter->second);
+						minAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 					else if (paramName == "Maximum Angle")
-						maxAngle = updatePropertyValue((DoubleProperty)iter->second);
+						maxAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
 				}
 				break;
 				case Property::Combo: break;

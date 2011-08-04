@@ -7,12 +7,9 @@
 #include <iSpike/Log/Log.hpp>
 
 //Other includes
-#include <boost/thread/condition.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread.hpp>
-#include <queue>
 #include <string>
 #include <vector>
+using namespace std;
 
 namespace ispike {
 
@@ -21,14 +18,14 @@ namespace ispike {
 		public:
 			JointOutputChannel();
 			virtual ~JointOutputChannel();
-			void initialise(AngleWriter* writer, map<string,Property>& properties);
+			void initialize(Writer* writer, map<string,Property>& properties);
 			void setFiring(vector<int>& buffer);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
 
 		protected:
-			void updateProperties(map<string,Property*> properties, bool updateReadOnly);
+			void updateProperties(map<string, Property>& properties);
 
 
 		private:

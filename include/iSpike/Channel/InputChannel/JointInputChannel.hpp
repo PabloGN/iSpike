@@ -23,7 +23,7 @@ namespace ispike {
 			virtual ~JointInputChannel();
 			double getCurrentAngle(){ return currentAngle; }
 			vector<int>& getFiring() { return neuronSim.getSpikes(); }
-			void initialize(AngleReader* reader, map<string, Property>& properties);
+			void initialize(Reader* reader, map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void step();
 

@@ -21,24 +21,25 @@ Bitmap::Bitmap(unsigned width, unsigned height, unsigned depth) {
 
 
 /** Copy constructor */
-Bitmap::Bitmap (const Bitmap& copy_from_me){
+Bitmap::Bitmap (const Bitmap& bmp){
 	//Clean up old bitmap
 	if(!isEmpty()){
 		delete [] contents;
 	}
 
 	//Store new values
-	width = copy_from_me.width;
-	height = copy_from_me.height;
-	depth = copy_from_me.depth;
+	width = bmp.width;
+	height = bmp.height;
+	depth = bmp.depth;
 
 	//Create new bitmap
 	int tmpSize = size();//Avoid repeated calls to size
 	contents = new unsigned char[tmpSize];
+	unsigned char* bmpContents = bmp.getContents();
 
 	//Copy contents across into this bitmap
-	for(int i=; i<size(); ++i)
-		contents[i] = copy_from_me[i];
+	for(int i=0; i<size(); ++i)
+		contents[i] = bmpContents[i];
 }
 
 
@@ -71,17 +72,18 @@ Bitmap& Bitmap::operator=(const Bitmap& rhs){
 	//Create new bitmap
 	int tmpSize = size();//Avoid repeated calls to size
 	contents = new unsigned char[tmpSize];
+	unsigned char* rhsContents = rhs.getContents();
 
 	//Copy contents across into this bitmap
-	for(int i=; i<size(); ++i)
-		contents[i] = rhs[i];
+	for(int i=0; i<size(); ++i)
+		contents[i] = rhsContents[i];
 
 	return *this;
 }
 
 
 /** Returns value of corresponding pixel in the image */
-unsigned char getPixel(unsigned x, unsigned y, unsigned d) {
+unsigned char Bitmap::getPixel(unsigned x, unsigned y, unsigned d) {
 	if( (x >= 0 && x < width) && (y >= 0 && y < height) && (d >=0 && d < depth)){
 		if(depth ==0)
 			return *(contents + (width * y) + x);

@@ -1,8 +1,9 @@
 //iSpike includes
-#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
+#include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/Common.hpp>
+#include "iSpike/ISpikeException.hpp"
 using namespace ispike;
 
 //Other includes
@@ -19,13 +20,13 @@ using namespace std;
 LogPolarVisualDataReducer::LogPolarVisualDataReducer(){
 	//Initialize variables
 	reducedImage = NULL;
-	mapsInitialized = false;
+	setInitialized(false);
 }
 
 
 /** Destructor */
 LogPolarVisualDataReducer::~LogPolarVisualDataReducer(){
-	if(mapsInitialized)
+	if(isInitialized())
 		delete reducedImage;
 }
 
@@ -106,12 +107,18 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	}
 
 	//Copy the pixels across from the input to the output maps
-	for(CoordMapType::iterator iter = polarToCartesianMap.begin(); iter != polarToCartesianMap.end(); ++iter){
+	for(vector<PolarCartCoords>::iterator iter = coordinatesVector.begin(); iter != coordinatesVector.end(); ++iter){
 		for(int d=0; d<tmpDepth; ++d){
 			//Copy pixel data into reduced image array
 			//First coordinate is the polar(r, theta) in the output bitmap; second coordinate is the Cartesian(x,y) in the input bitmap
-			reducedImageArray[outputWidth*iter->first.second*tmpDepth + iter->first.first*tmpDepth + d] =
-					inputImageArray[inputWidth*iter->second.second*tmpDepth + iter->second.first*tmpDepth + d];
+			if(tmpDepth == 0){
+				reducedImageArray[ outputWidth * (iter->theta) + (iter->radius)] =
+					inputImageArray[ inputWidth * (iter->y) + (iter->x) ];
+			}
+			else{
+				reducedImageArray[ outputWidth * (iter->theta) * tmpDepth + (iter->radius) * tmpDepth + d ] =
+					inputImageArray[ inputWidth * (iter->y) * tmpDepth + (iter->x) * tmpDepth + d ];
+			}
 		}
 	}
 
@@ -135,17 +142,17 @@ void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
 
 	inputWidth = bitmap.getWidth();
 	inputHeight = bitmap.getHeight();
-	initialiseCartesianToPolarMap();
+	initialisePolarToCartesianVector();
 	reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
-	mapsInitialized = true;
+	setInitialized(true);
 }
 
 
 /** Initialises a pixel map from polar to Cartesian coordinates.
 	This will enable us to move through points in the output image and take samples
 	at appropriate points in the input image. */
-void LogPolarVisualDataReducer::initialisePolarToCartesianMap(){
-	polarToCartesianMap.clear();
+void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
+	coordinatesVector.clear();
 
 	//Map between a location on the log polar map and an angle on input map
 	double angleResolution = 360.0 / outputHeight;
@@ -164,10 +171,14 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianMap(){
 
 	for(int r=0; r<outputWidth; ++r){
 		for(int theta=0; theta<outputHeight; ++theta){
-			if(r <= foveaRadius)
-				polarToCartesianMap->insert(make_pair(r, theta), getInputCartesianCoordinate(r, theta*angleResolution));
-			else
-				polarToCartesianMap->insert(make_pair(r, theta), getInputCartesianCoordinate(foveaRadius + pow(logBase, r-foveaRadius), theta*angleResolution));
+			if(r <= foveaRadius){
+				pair<int, int> tmpPair = getInputCartesianCoordinate(r, theta*angleResolution);
+				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
+			}
+			else{
+				pair<int, int> tmpPair = getInputCartesianCoordinate(foveaRadius + pow(logBase, r-foveaRadius), theta*angleResolution);
+				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
+			}
 		}
 	}
 }

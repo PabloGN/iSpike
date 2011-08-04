@@ -17,7 +17,8 @@ namespace ispike {
 				Integer,
 				Double,
 				String,
-				Combo
+				Combo,
+				Undefined
 			};
 
 		protected:
@@ -27,9 +28,11 @@ namespace ispike {
 			bool readOnly;
 
 		public:
+			Property();
 			Property(ValueType type, string name, string description, bool readOnly);
 			Property(const Property& prop);
 			virtual ~Property();
+			Property& operator=(const Property& rhs);
 			virtual string toString() { return ""; }
 			ValueType getType() { return this->type; }
 			string getName() {	return this->name; }
