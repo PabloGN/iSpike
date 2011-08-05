@@ -7,7 +7,6 @@
 using namespace ispike;
 
 //Other includes
-#include <boost/asio.hpp>
 #include <iostream>
 using namespace std;
 
@@ -32,7 +31,7 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
 
 	//Create the description
-	readerDescription = ReaderDescription("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
+	readerDescription = Description("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
 
 	//Initialize variables
 	portName = "Undefined";

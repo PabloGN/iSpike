@@ -38,7 +38,7 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
 
 	//Create the description
-	writerDescription = WriterDescription("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
+	writerDescription = Description("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
 
 	//Initialize variables
 	angleChanged = false;

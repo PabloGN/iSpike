@@ -32,8 +32,8 @@ WriterFactory::WriterFactory(string ip, unsigned port){
 /*--------------------------------------------------------------------*/
 
 /** Returns all writers of a particular type */
-vector<WriterDescription> WriterFactory::getWritersOfType(string writerType){
-	vector<WriterDescription> result;
+vector<Description> WriterFactory::getWritersOfType(string writerType){
+	vector<Description> result;
 	for(int i = 0; i < writerList.size(); i++){
 		if(writerList[i].getType() == writerType)
 			result.push_back(writerList[i]);

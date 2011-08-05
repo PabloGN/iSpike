@@ -3,10 +3,7 @@
 
 //iSpike includes
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
-#include <iSpike/Reader/AngleReader.hpp>
-#include <iSpike/Channel/InputChannel/InputChannelDescription.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
-#include "iSpike/iSpikeThread.hpp"
 
 //Other includes
 #include <string>

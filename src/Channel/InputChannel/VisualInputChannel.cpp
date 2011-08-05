@@ -1,8 +1,5 @@
 //iSpike includes
 #include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
-#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
-#include <iSpike/VisualFilter/DOGVisualFilter.hpp>
-#include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 #include <iSpike/ISpikeException.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
@@ -31,7 +28,7 @@ VisualInputChannel::VisualInputChannel() {
 	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
 
 	//Create the description
-	channelDescription = InputChannelDescription("Visual Input Channel", "This is a visual input channel", "Visual Reader");
+	channelDescription = Description("Visual Input Channel", "This is a visual input channel", "Visual Reader");
 
 	//Set up visual processing classes and neural simulator
 	dataReducer = new LogPolarVisualDataReducer();

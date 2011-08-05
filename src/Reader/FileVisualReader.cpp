@@ -17,7 +17,7 @@ FileVisualReader::FileVisualReader(){
 	addProperty(StringProperty("imageIn.txt", "File Name", "The file where the image will be read from", true));
 
 	//Create description
-	readerDescription = ReaderDescription("File Visual Reader", "This is a file visual reader", "Visual Reader");
+	readerDescription = Description("File Visual Reader", "This is a file visual reader", "Visual Reader");
 
 	//Initialize variables
 	bitmap = NULL;

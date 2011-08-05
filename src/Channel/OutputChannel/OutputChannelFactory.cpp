@@ -1,4 +1,6 @@
 #include "iSpike/Channel/OutputChannel/OutputChannelFactory.hpp"
+#include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
+#include <iSpike/Writer/AngleWriter.hpp>
 #include "iSpike/ISpikeException.hpp"
 using namespace ispike;
 
@@ -11,7 +13,7 @@ OutputChannelFactory::OutputChannelFactory()  {
 
 
 /** Returns all Output Channels in the system */
-vector<OutputChannelDescription> OutputChannelFactory::getAllChannels() {
+vector<Description> OutputChannelFactory::getAllChannels() {
 	return channelList;
 }
 

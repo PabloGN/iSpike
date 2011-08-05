@@ -3,7 +3,7 @@
 
 //iSpike includes
 #include "iSpike/PropertyHolder.hpp"
-#include <iSpike/Writer/WriterDescription.hpp>
+#include <iSpike/Description.hpp>
 #include <iSpike/Log/Log.hpp>
 #include "iSpike/ISpikeThread.hpp"
 
@@ -20,14 +20,14 @@ namespace ispike {
 		public:
 			Writer(){ initialized = false; }
 			virtual ~Writer(){}
-			WriterDescription getWriterDescription() const { return writerDescription; }
+			Description getWriterDescription() const { return writerDescription; }
 			virtual void initialize(map<string, Property>& properties) = 0;
 			bool isInitialized() { return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
 
 		protected:
 			/** Description of the Writer */
-			WriterDescription writerDescription;
+			Description writerDescription;
 
 
 		private:

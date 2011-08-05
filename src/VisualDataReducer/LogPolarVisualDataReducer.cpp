@@ -9,7 +9,6 @@ using namespace ispike;
 //Other includes
 #include <iostream>
 #include <sstream>
-#include <boost/math/constants/constants.hpp>
 using namespace std;
 
 

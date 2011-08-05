@@ -1,6 +1,5 @@
 //iSpike includes
 #include <iSpike/Reader/FileAngleReader.hpp>
-#include <iSpike/Property.hpp>
 #include <iSpike/ISpikeException.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
@@ -19,7 +18,7 @@ FileAngleReader::FileAngleReader() {
 	addProperty(StringProperty("anglesIn.txt", "File Name", "The file where the angles will be read from", true));
 
 	//Create description
-	readerDescription = ReaderDescription("File Angle Reader", "This is a file angle reader", "Angle Reader");
+	readerDescription = Description("File Angle Reader", "This is a file angle reader", "Angle Reader");
 }
 
 

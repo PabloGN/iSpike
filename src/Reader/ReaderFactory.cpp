@@ -1,6 +1,5 @@
 //iSpike includes
 #include <iSpike/Reader/ReaderFactory.hpp>
-#include <iSpike/Reader/Reader.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
 #include <iSpike/Reader/FileVisualReader.hpp>
@@ -38,8 +37,8 @@ ReaderFactory::ReaderFactory(string ip, unsigned port){
 /*--------------------------------------------------------------------*/
 
 /** Returns readers of a particular type */
-vector<ReaderDescription> ReaderFactory::getReadersOfType(string readerType){
-	vector<ReaderDescription> result;
+vector<Description> ReaderFactory::getReadersOfType(string readerType){
+	vector<Description> result;
 	for(int i = 0; i < readerList.size(); i++) {
 		if(readerList[i].getType() == readerType)
 			result.push_back(readerList[i]);

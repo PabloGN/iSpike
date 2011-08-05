@@ -4,8 +4,6 @@
 //iSpike includes
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/YarpConnection.hpp>
-#include <iSpike/YarpPortDetails.hpp>
-#include "iSpike/ISpikeThread.hpp"
 
 //Other includes
 #include <vector>

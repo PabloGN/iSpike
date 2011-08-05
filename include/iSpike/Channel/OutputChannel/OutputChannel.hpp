@@ -3,7 +3,7 @@
 
 //iSpike includes
 #include <iSpike/Channel/Channel.hpp>
-#include <iSpike/Channel/OutputChannel/OutputChannelDescription.hpp>
+#include <iSpike/Description.hpp>
 #include "iSpike/Writer/Writer.hpp"
 
 //Other includes
@@ -17,7 +17,7 @@ namespace ispike {
 	class OutputChannel : public Channel {
 		public:
 			virtual ~OutputChannel() {}
-			OutputChannelDescription getChannelDescription() { return channelDescription; }
+			Description getChannelDescription() { return channelDescription; }
 
 			/*! Initializes the channel with a reader and set of properties */
 			virtual void initialize(Writer* writer, map<string, Property>& properties) = 0;
@@ -28,7 +28,7 @@ namespace ispike {
 
 		protected:
 			/** Description of the channel */
-			OutputChannelDescription channelDescription;
+			Description channelDescription;
 
 	};
 }

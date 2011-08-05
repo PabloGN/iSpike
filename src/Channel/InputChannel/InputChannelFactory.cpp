@@ -1,4 +1,8 @@
+//iSpike includes
 #include "iSpike/Channel/InputChannel/InputChannelFactory.hpp"
+#include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
+#include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
+#include <iSpike/Reader/AngleReader.hpp>
 #include "iSpike/ISpikeException.hpp"
 using namespace ispike;
 
@@ -18,7 +22,7 @@ InputChannelFactory::InputChannelFactory(){
 * Returns all Input Channels in the system
 * @return All available Input Channels
 */
-std::vector<InputChannelDescription> InputChannelFactory::getAllChannels() {
+std::vector<Description> InputChannelFactory::getAllChannels() {
 	return channelList;
 }
 

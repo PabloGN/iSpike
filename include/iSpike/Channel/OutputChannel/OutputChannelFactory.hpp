@@ -2,9 +2,8 @@
 #define OUTPUTCHANNELFACTORY_HPP_
 
 //iSpike includes
+#include "iSpike/Channel/OutputChannel/OutputChannel.hpp"
 #include <iSpike/Writer/Writer.hpp>
-#include <iSpike/Writer/AngleWriter.hpp>
-#include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 
 //Other includes
 #include <string>
@@ -16,11 +15,11 @@ namespace ispike {
 	class OutputChannelFactory {
 		private:
 			/** A list of available Output Channels */
-			vector<OutputChannelDescription> channelList;
+			vector<Description> channelList;
 
 		public:
 			OutputChannelFactory();
-			vector<OutputChannelDescription> getAllChannels();
+			vector<Description> getAllChannels();
 			OutputChannel* create(string channelName, Writer* writer, map<string, Property>& channelProperties);
 		};
 

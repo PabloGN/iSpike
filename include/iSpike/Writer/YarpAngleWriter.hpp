@@ -1,17 +1,13 @@
 #ifndef YARPANGLEWRITER_HPP_
 #define YARPANGLEWRITER_HPP_
 
-#include <queue>
-#include <string>
-#include <vector>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread.hpp>
+//iSpike includes
 #include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/YarpConnection.hpp>
-#include <iSpike/Property.hpp>
-#include <iSpike/Writer/WriterDescription.hpp>
+
+//Other includes
+#include <string>
 #include <map>
-#include <iSpike/YarpPortDetails.hpp>
 
 namespace ispike {
 

@@ -7,7 +7,6 @@
 
 //Other includes
 #include <string>
-#include <map>
 using namespace std;
 
 namespace ispike {
@@ -61,7 +60,7 @@ namespace ispike {
 			int height;
 
 			/** Channel Description */
-			std::string description;
+			string description;
 
 
 			//=============================  METHODS  ===========================

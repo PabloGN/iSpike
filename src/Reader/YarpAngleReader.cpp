@@ -7,7 +7,6 @@
 using namespace ispike;
 
 //Other includes
-#include <boost/thread.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -36,7 +35,7 @@ YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 	addProperty(IntegerProperty(0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
 
 	//Create the description
-	readerDescription = ReaderDescription("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
+	readerDescription = Description("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
 
 	//Initialize variables
 	portName = "Undefined";

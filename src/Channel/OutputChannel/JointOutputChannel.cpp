@@ -15,7 +15,7 @@ JointOutputChannel::JointOutputChannel() : OutputChannel() {
 	addProperty(IntegerProperty(1, "Neuron Height", "Height of the neuron network", true));
 
 	//Create the description
-	channelDescription = OutputChannelDescription("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
+	channelDescription = Description("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
 
 	//Initialize variables
 	writer = NULL;

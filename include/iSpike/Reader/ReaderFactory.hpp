@@ -3,7 +3,7 @@
 
 //iSpike includes
 #include "iSpike/Reader/Reader.hpp"
-#include <iSpike/Reader/ReaderDescription.hpp>
+#include <iSpike/Description.hpp>
 
 //Other includes
 #include <string>
@@ -17,13 +17,13 @@ namespace ispike {
 		public:
 			ReaderFactory();
 			ReaderFactory(string ip, unsigned port);
-			vector<ReaderDescription> getReadersOfType(string readerType);
+			vector<Description> getReadersOfType(string readerType);
 			Reader* create(string readerName, map<string, Property>& readerProperties);
 
 
 		private:
 			/// A list of available readers
-			vector<ReaderDescription> readerList;
+			vector<Description> readerList;
 			string ip;
 			unsigned port;
 

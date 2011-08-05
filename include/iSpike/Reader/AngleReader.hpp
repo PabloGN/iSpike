@@ -1,10 +1,8 @@
 #ifndef ANGLEREADER_HPP_
 #define ANGLEREADER_HPP_
 
+//iSpike includes
 #include <iSpike/Reader/Reader.hpp>
-#include <vector>
-#include <string>
-using namespace std;
 
 namespace ispike {
 	/** AngleReader continuously fetches and retrieves joint angles upon request */

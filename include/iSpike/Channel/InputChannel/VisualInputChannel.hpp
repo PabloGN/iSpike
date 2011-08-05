@@ -7,7 +7,6 @@
 #include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
-#include <iSpike/Property.hpp>
 
 //Other includes
 #include <string>

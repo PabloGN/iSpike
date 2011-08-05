@@ -4,11 +4,6 @@
 //iSpike includes
 #include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
-#include "iSpike/iSpikeThread.hpp"
-
-//Other includes
-#include <boost/thread.hpp>
-#include <boost/smart_ptr.hpp>
 
 namespace ispike {
 

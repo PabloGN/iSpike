@@ -1,7 +1,6 @@
 #ifndef PROPERTY_HPP_
 #define PROPERTY_HPP_
 
-#include <map>
 #include <string>
 #include <vector>
 #include <boost/lexical_cast.hpp>

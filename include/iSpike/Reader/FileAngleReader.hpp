@@ -3,7 +3,6 @@
 
 #include <iSpike/Reader/AngleReader.hpp>
 #include <string>
-#include <map>
 using namespace std;
 
 namespace ispike {

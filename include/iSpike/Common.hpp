@@ -3,7 +3,6 @@
 
 //iSpike includes
 #include <iSpike/Bitmap.hpp>
-#include <iSpike/Property.hpp>
 
 //Other includes
 #include <vector>

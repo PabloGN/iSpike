@@ -4,7 +4,7 @@
 //iSpike includes
 #include "iSpike/ISpikeThread.hpp"
 #include "iSpike/PropertyHolder.hpp"
-#include <iSpike/Reader/ReaderDescription.hpp>
+#include <iSpike/Description.hpp>
 
 //Other includes
 #include <map>
@@ -19,7 +19,7 @@ namespace ispike {
 		public:
 			Reader(){ initialized = false; }
 			virtual ~Reader(){}
-			ReaderDescription getReaderDescription() const { return readerDescription; }
+			Description getReaderDescription() const { return readerDescription; }
 			virtual void initialize(map<string, Property>& properties) = 0;
 			bool isInitialized() { return initialized; }
 			void setInitialized(bool initialized) { this->initialized = initialized; }
@@ -27,7 +27,7 @@ namespace ispike {
 		protected:
 			//=======================  VARIABLES  =========================
 			/** Description of the reader */
-			ReaderDescription readerDescription;
+			Description readerDescription;
 
 
 		private:

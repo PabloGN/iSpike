@@ -3,6 +3,7 @@
 #include "iSpike/ISpikeException.hpp"
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
+#include "iSpike/Log/Log.hpp"
 using namespace ispike;
 
 //Other includes

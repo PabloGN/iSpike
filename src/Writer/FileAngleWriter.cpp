@@ -5,13 +5,11 @@
 using namespace ispike;
 
 //Other includes
-#include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
-#include <sstream>
+using namespace std;
 
 
 /** Constructor */
@@ -21,7 +19,7 @@ FileAngleWriter::FileAngleWriter() {
 	addProperty(StringProperty("anglesOut.txt", "File Name", "The file where the angles will be written to", true));
 
 	//Create description
-	writerDescription = WriterDescription("File Angle Writer", "This is a file angle writer", "Angle Writer");
+	writerDescription = Description("File Angle Writer", "This is a file angle writer", "Angle Writer");
 
 	//Initialize variables
 	currentAngle = -1000000000.0;

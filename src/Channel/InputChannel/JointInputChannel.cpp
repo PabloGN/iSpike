@@ -1,17 +1,9 @@
 //iSpike includes
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
-#include <iSpike/Property.hpp>
 #include <iSpike/ISpikeException.hpp>
+#include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
-
-//Other includes
-//#include <map>
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
-//#include <ios>
-//using namespace std;
 
 //Local debugging information
 //#define DEBUG
@@ -35,7 +27,7 @@ JointInputChannel::JointInputChannel() {
 	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
 
 	//Create the description
-	channelDescription = InputChannelDescription("Joint Input Channel", "This is a joint input channel", "Angle Reader");
+	channelDescription = Description("Joint Input Channel", "This is a joint input channel", "Angle Reader");
 
 	//Initialize variables
 	reader = NULL;

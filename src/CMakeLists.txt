@@ -9,11 +9,9 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 SET(Boost_USE_MULTITHREADED ON)
 
 SET(project_SRCS
-		Channel/InputChannel/InputChannelDescription.cpp
 		Channel/InputChannel/JointInputChannel.cpp
 		Channel/InputChannel/VisualInputChannel.cpp
 		Channel/InputChannel/InputChannelFactory.cpp
-		Channel/OutputChannel/OutputChannelDescription.cpp 
 		Channel/OutputChannel/JointOutputChannel.cpp
 		Channel/OutputChannel/OutputChannelFactory.cpp
 		Common.cpp
@@ -24,13 +22,12 @@ SET(project_SRCS
 		Reader/ReaderFactory.cpp
 		Reader/YarpAngleReader.cpp
 		Reader/YarpVisualReader.cpp
-		Reader/ReaderDescription.cpp
 		VisualDataReducer/LogpolarVisualDataReducer.cpp
 		VisualFilter/DOGVisualFilter.cpp
 		Writer/FileAngleWriter.cpp
 		Writer/WriterFactory.cpp
 		Writer/YarpAngleWriter.cpp
-		Writer/WriterDescription.cpp
+		Description.cpp
 		Bitmap.cpp 
 		Property.cpp
 		PropertyHolder.cpp

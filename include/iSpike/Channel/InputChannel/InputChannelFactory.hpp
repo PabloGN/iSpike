@@ -3,10 +3,7 @@
 
 //iSpike includes
 #include <iSpike/Reader/Reader.hpp>
-#include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
-#include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
-#include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
 
 //Other includes
 #include <string>
@@ -22,11 +19,11 @@ namespace ispike {
 	class InputChannelFactory {
 		private:
 			/** A list of available Input Channels */
-			vector<InputChannelDescription> channelList;
+			vector<Description> channelList;
 
 		public:
 			InputChannelFactory();
-			vector<InputChannelDescription> getAllChannels();
+			vector<Description> getAllChannels();
 			InputChannel* create(string channelName, Reader* reader, map<string, Property>& channelProperties);
 	};
 
