@@ -21,10 +21,15 @@ namespace ispike {
 			/** A list of available Input Channels */
 			vector<Description> channelList;
 
+			//============================  METHODS  =======================
+			void printInputChannels();
+
+
 		public:
 			InputChannelFactory();
 			vector<Description> getAllChannels();
-			InputChannel* create(string channelName, Reader* reader, map<string, Property>& channelProperties);
+			InputChannel* create(Description& desc, Reader* reader, map<string, Property>& channelProperties);
+			map<string, Property> getDefaultProperties(Description& desc);
 	};
 
 }

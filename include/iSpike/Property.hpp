@@ -9,7 +9,8 @@ using namespace std;
 
 namespace ispike {
 
-	/** Describes a general Channel, Reader or Writer Property */
+	/** Describes a general Channel, Reader or Writer Property
+		Information that is stored depends on the type. */
 	class Property {
 		public:
 			enum ValueType {
@@ -20,11 +21,16 @@ namespace ispike {
 				Undefined
 			};
 
-		protected:
+		private:
 			ValueType type;
 			string name;
 			string description;
 			bool readOnly;
+
+			int intVal;
+			double doubleVal;
+			string stringVal;
+			vector<string> options;
 
 		public:
 			Property();
@@ -38,68 +44,15 @@ namespace ispike {
 			string getDescription() { return this->description; }
 			bool isReadOnly() { return this->readOnly; }
 
-	};
+			int getInt() { return intVal; }
+			void setInt(int newInt) { this->intVal = newInt; }
+			double getDouble() { return doubleVal; }
+			void setDouble(double newDouble) { this->doubleVal = newDouble; }
+			string getString() { return stringVal; }
+			void setString(string newString) { this->stringVal = newString; }
+			vector<string> getOptions() { return options; }
+			void setOptions(vector<string> options){ this->options = options; }
 
-
-	/** Describer an Integer Property */
-	class IntegerProperty : public Property{
-		private:
-			int value;
-
-		public:
-			IntegerProperty(int paramValue, string paramName, string paramDescription, bool readOnly);
-			IntegerProperty(const IntegerProperty& intProp);
-			string toString() { return boost::lexical_cast<string>(this->value); }
-			int getValue() { return this->value; }
-			void setValue(int value) { this->value = value;	}
-			IntegerProperty& operator=(const IntegerProperty& rhs);
-	};
-
-
-	/** Describes a Double Property */
-	class DoubleProperty : public Property {
-		private:
-			double value;
-
-		public:
-			DoubleProperty(double paramValue, string paramName, string paramDescription, bool readOnly);
-			DoubleProperty(const DoubleProperty& doubProp);
-			string toString() { return boost::lexical_cast<string>(this->value); }
-			double getValue() { return this->value; }
-			void setValue(double value) { this->value = value;	}
-			DoubleProperty& operator=(const DoubleProperty& rhs);
-	};
-
-
-
-	/** Describes a String Property */
-	class StringProperty : public Property {
-		private:
-			string value;
-
-		public:
-			StringProperty(string paramValue, string paramName, string paramDescription, bool readOnly);
-			StringProperty(const StringProperty& doubProp);
-			std::string toString() { return value; }
-			string getValue() { return value; }
-			void setValue(string value) { this->value = value;	}
-			StringProperty& operator=(const StringProperty& rhs);
-	};
-
-
-	/** Describes a Combo Property */
-	class ComboProperty : public Property {
-		private:
-			string value;
-			vector<string> options;
-
-		public:
-			ComboProperty(vector<string> paramOptions, string paramValue, string paramName, string paramDescription, bool readOnly);
-			ComboProperty(const ComboProperty& doubProp);
-			std::string toString() { return boost::lexical_cast<std::string>(this->value); }
-			string getValue() { return this->value; }
-			void setValue(string value) { this->value = value;	}
-			ComboProperty& operator=(const ComboProperty& rhs);
 	};
 
 }

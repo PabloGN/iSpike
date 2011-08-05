@@ -17,15 +17,20 @@ namespace ispike {
 		public:
 			ReaderFactory();
 			ReaderFactory(string ip, unsigned port);
+			Reader* create(Description& desc, map<string, Property>& readerProperties);
+			map<string, Property> getDefaultProperties(Description& desc);
 			vector<Description> getReadersOfType(string readerType);
-			Reader* create(string readerName, map<string, Property>& readerProperties);
 
 
 		private:
+			//==============================  VARIABLES  =============================
 			/// A list of available readers
 			vector<Description> readerList;
 			string ip;
 			unsigned port;
+
+			//=============================  METHODS  ================================
+			void printReaders();
 
 	};
 

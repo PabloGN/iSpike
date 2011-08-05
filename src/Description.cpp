@@ -26,6 +26,11 @@ Description::Description(const Description& desc){
 }
 
 
+/** Destructor */
+Description::~Description() {
+}
+
+
 /** Assignment operator */
 Description & Description::operator= (const Description & rhs) {
 	if (this != &rhs) {// protect against invalid self-assignment
@@ -36,10 +41,5 @@ Description & Description::operator= (const Description & rhs) {
 
 	// by convention, always return *this
 	return *this;
-}
-
-
-/** Destructor */
-Description::~Description() {
 }
 

@@ -39,6 +39,9 @@ class YarpVisualReader : public VisualReader {
 		/** Name of the port details that we connect to */
 		string portName;
 
+		/** Sleep duration in between reads */
+		int sleepDuration_ms;
+
 
 		//=============================  METHODS  ============================
 		void swapBitmap();

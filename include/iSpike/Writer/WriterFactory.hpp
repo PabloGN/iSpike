@@ -20,11 +20,15 @@ namespace ispike {
 			string ip;
 			unsigned port;
 
+			//=========================  METHODS  ===========================
+			void printWriters();
+
 		public:
 			WriterFactory();
 			WriterFactory(std::string ip, unsigned port);
+			Writer* create(Description& desc, map<string, Property>& writerProperties );
+			map<string, Property> getDefaultProperties(Description& desc);
 			vector<Description> getWritersOfType(string writerType);
-			Writer* create(string writerName, map<string, Property>& writerProperties );
 
 	};
 }

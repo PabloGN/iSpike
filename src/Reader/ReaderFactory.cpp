@@ -8,11 +8,16 @@
 #include "iSpike/ISpikeException.hpp"
 using namespace ispike;
 
+//Other includes
+#include <iostream>
+using namespace std;
+
 /** Default constructor
  * Initialises the list of readers, if you've made a new reader, add it here! */
 ReaderFactory::ReaderFactory(){
 	this->readerList.push_back(FileAngleReader().getReaderDescription());
 	this->readerList.push_back(FileVisualReader().getReaderDescription());
+	printReaders();
 }
 
 
@@ -20,12 +25,9 @@ ReaderFactory::ReaderFactory(){
 ReaderFactory::ReaderFactory(string ip, unsigned port){
 	this->readerList.push_back(FileAngleReader().getReaderDescription());
 	this->readerList.push_back(FileVisualReader().getReaderDescription());
-
-	YarpAngleReader yarpAngleReader(ip, port);
-	this->readerList.push_back(yarpAngleReader.getReaderDescription());
-
-	YarpVisualReader yarpVisualReader(ip, port);
-	this->readerList.push_back(yarpVisualReader.getReaderDescription());
+	this->readerList.push_back(YarpAngleReader(ip, port).getReaderDescription());
+	this->readerList.push_back(YarpVisualReader(ip, port).getReaderDescription());
+	printReaders();
 
 	this->ip = ip;
 	this->port = port;
@@ -47,25 +49,54 @@ vector<Description> ReaderFactory::getReadersOfType(string readerType){
 }
 
 
+/*! Returns the default properties of a particular reader */
+map<string, Property> ReaderFactory::getDefaultProperties(Description& desc){
+	if(desc.getName() == "File Angle Reader") {
+		return FileAngleReader().getProperties();
+	}
+	else if(desc.getName() == "File Visual Reader"){
+		return FileVisualReader().getProperties();
+	}
+	else if(desc.getName() == "Yarp Angle Reader") {
+		return YarpAngleReader(ip, port).getProperties();
+	}
+	else if(desc.getName() == "Yarp Visual Reader"){
+		return YarpVisualReader(ip, port).getProperties();
+	}
+	throw ISpikeException("Invalid writer");
+}
+
+
 /** Creates and initialises a particular reader */
-Reader* ReaderFactory::create(string readerName, map<string, Property>& readerProperties){
+Reader* ReaderFactory::create(Description& desc, map<string, Property>& readerProperties){
 	Reader* result;
-	if(readerName == "File Angle Reader") {
+	if(desc.getName() == "File Angle Reader") {
 		result = new FileAngleReader();
 	}
-	else if(readerName == "File Visual Reader"){
+	else if(desc.getName() == "File Visual Reader"){
 		result = new FileVisualReader();
 	}
-	else if(readerName == "Yarp Angle Reader") {
+	else if(desc.getName() == "Yarp Angle Reader") {
 		result = new YarpAngleReader(ip, port);
 	}
-	else if(readerName == "Yarp Visual Reader"){
+	else if(desc.getName() == "Yarp Visual Reader"){
 		result = new YarpVisualReader(ip, port);
 	}
 	else {
-		throw std::logic_error("Invalid reader type");
+		throw ISpikeException("Invalid reader type");
 	}
 	result->initialize(readerProperties);
 	return result;
+}
+
+
+/*--------------------------------------------------------------------*/
+/*---------                 PUBLIC METHODS                     -------*/
+/*--------------------------------------------------------------------*/
+
+/** Prints out the available readers */
+void ReaderFactory::printReaders(){
+	for(size_t i=0; i<readerList.size(); ++i)
+		cout<<"Reader: "<<readerList[i].getName()<<", "<<readerList[i].getDescription()<<endl;
 }
 

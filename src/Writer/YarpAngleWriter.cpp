@@ -97,14 +97,11 @@ void YarpAngleWriter::start(){
 /** Updates the properties with values from the map */
 void YarpAngleWriter::updateProperties(map<string, Property>& properties){
 	bool updateReadOnly = !isInitialized();
-	if((updateReadOnly && !propertyMap[DEGREE_OF_FREEDOM_PROP].isReadOnly()) || !updateReadOnly)
-		degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
-
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
 		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
 
-	if((updateReadOnly && !propertyMap[SLEEP_DURATION_PROP].isReadOnly()) || !updateReadOnly)
-		sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
+	degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
+	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
 }
 
 
@@ -142,7 +139,8 @@ void YarpAngleWriter::workerFunction(){
 			}
 
 			//Sleep for the specified amount
-			boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
+			if(sleepDuration_ms > 0)
+				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
 		}
 	}
 	catch(ISpikeException& ex){

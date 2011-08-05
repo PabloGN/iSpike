@@ -15,7 +15,7 @@ namespace ispike {
 			double getAngle() { return angle; }
 
 			/** Sets the degree of freedom */
-			int setDegreeOfFreedom(int dof){ degreeOfFreedom = dof; }
+			void setDegreeOfFreedom(int dof){ degreeOfFreedom = dof; }
 
 			/** Sets the angle */
 			void setAngle(double angle) { this->angle = angle; }

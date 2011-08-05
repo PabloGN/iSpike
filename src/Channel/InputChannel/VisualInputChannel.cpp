@@ -42,13 +42,11 @@ VisualInputChannel::VisualInputChannel() {
 
 /** Destructor */
 VisualInputChannel::~VisualInputChannel() {
-	LOG(LOG_DEBUG) << "Entering VisualInputChannel destructor";
 	if(isInitialized()) {
 		delete reader;
 		delete dogFilter;
 		delete dataReducer;
 	}
-	LOG(LOG_DEBUG) << "Exiting VisualInputChannel destructor";
 }
 
 

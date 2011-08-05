@@ -14,7 +14,7 @@ using namespace ispike;
 //Property names
 #define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 #define PORT_NAME_PROP "Port Name"
-
+#define SLEEP_DURATION_PROP "Sleep Duration ms"
 
 /** Constructor */
 YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
@@ -33,6 +33,7 @@ YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 	else
 		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
 	addProperty(IntegerProperty(0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
+	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between refreshing angle.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
@@ -93,8 +94,8 @@ void YarpAngleReader::updateProperties(map<string, Property>& properties){
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
 		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
 
-	if((updateReadOnly && !propertyMap[DEGREE_OF_FREEDOM_PROP].isReadOnly()) || !updateReadOnly)
-		degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
+	degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
+	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
 }
 
 
@@ -152,6 +153,10 @@ void YarpAngleReader::workerFunction(){
 			if(degreeOfFreedom >= buffer.size())
 				throw ISpikeException("Degree of freedom is greater than the buffer size.");
 			setAngle(buffer[degreeOfFreedom]);
+
+			//Sleep for a period before refreshing the angle
+			if(sleepDuration_ms > 0)
+				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
 		}
 	}
 	catch(ISpikeException& ex){

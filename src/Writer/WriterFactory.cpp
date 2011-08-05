@@ -11,6 +11,7 @@ using namespace ispike;
 WriterFactory::WriterFactory(){
 	//Store list of available writers
 	writerList.push_back(FileAngleWriter().getWriterDescription());
+	printWriters();
 }
 
 
@@ -18,8 +19,8 @@ WriterFactory::WriterFactory(){
 WriterFactory::WriterFactory(string ip, unsigned port){
 	//Store list of available writers
 	writerList.push_back(FileAngleWriter().getWriterDescription());
-	YarpAngleWriter yarpAngleWriter(ip, port);
-	writerList.push_back(yarpAngleWriter.getWriterDescription());
+	writerList.push_back(YarpAngleWriter(ip, port).getWriterDescription());
+	printWriters();
 
 	//Store variables
 	ip = ip;
@@ -42,18 +43,41 @@ vector<Description> WriterFactory::getWritersOfType(string writerType){
 }
 
 
+/*! Returns the default properties of a particular writer */
+map<string, Property> WriterFactory::getDefaultProperties(Description& desc){
+	if(desc.getName() == "File Angle Writer") {
+		return FileAngleWriter().getProperties();
+	}
+	else if(desc.getName() == "Yarp Angle Writer") {
+		return YarpAngleWriter(this->ip, this->port).getProperties();
+	}
+	throw ISpikeException("Invalid writer");
+}
+
+
 /** Creates a particular writer   */
-Writer* WriterFactory::create(string writerName, map<string, Property>& writerProperties	){
+Writer* WriterFactory::create(Description& desc, map<string, Property>& writerProperties){
 	Writer* result;
-	if(writerName == "File Angle Writer") {
+	if(desc.getName() == "File Angle Writer") {
 		result = new FileAngleWriter();
 	}
-	else if(writerName == "Yarp Angle Writer") {
+	else if(desc.getName() == "Yarp Angle Writer") {
 		result = new YarpAngleWriter(this->ip, this->port);
 	}
 	else {
-		throw ISpikeException("Invalid writer name");
+		throw ISpikeException("Invalid writer");
 	}
 	result->initialize(writerProperties);
 	return result;
+}
+
+
+/*--------------------------------------------------------------------*/
+/*---------                 PRIVATE METHODS                    -------*/
+/*--------------------------------------------------------------------*/
+
+/** Prints out the available writers */
+void WriterFactory::printWriters(){
+	for(size_t i=0; i<writerList.size(); ++i)
+		cout<<"Writer: "<<writerList[i].getName()<<", "<<writerList[i].getDescription()<<endl;
 }

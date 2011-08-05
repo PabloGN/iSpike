@@ -17,10 +17,16 @@ namespace ispike {
 			/** A list of available Output Channels */
 			vector<Description> channelList;
 
+			//============================  METHODS  =======================
+			void printOutputChannels();
+
+
 		public:
 			OutputChannelFactory();
 			vector<Description> getAllChannels();
-			OutputChannel* create(string channelName, Writer* writer, map<string, Property>& channelProperties);
+			OutputChannel* create(Description& desc, Writer* writer, map<string, Property>& channelProperties);
+			map<string, Property> getDefaultProperties(Description& desc);
+
 		};
 
 }

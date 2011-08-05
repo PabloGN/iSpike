@@ -14,7 +14,7 @@ namespace ispike {
 	/** Abstract class holding properties common to all input and output channels */
 	class Channel : public PropertyHolder {
 		public:
-			Channel(){ initialized = false; LOG(LOG_DEBUG) << "CHANNEL CONSTRUCTOR";}
+			Channel(){ initialized = false; }
 			virtual ~Channel(){}
 
 			/** Retrieves the Channel Identifier  */

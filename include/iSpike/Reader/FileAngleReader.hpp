@@ -11,6 +11,7 @@ namespace ispike {
 	class FileAngleReader : public AngleReader {
 		public:
 			FileAngleReader();
+			~FileAngleReader();
 			void initialize(map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void start() {}//No need for thread since file only needs to be read once

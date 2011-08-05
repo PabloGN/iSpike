@@ -11,7 +11,7 @@ namespace ispike {
 	class FileVisualReader : public VisualReader {
 		public:
 			FileVisualReader();
-			virtual ~FileVisualReader();
+			~FileVisualReader();
 			Bitmap& getBitmap();
 			void initialize(map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);

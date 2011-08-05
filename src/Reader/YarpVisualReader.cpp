@@ -12,6 +12,7 @@ using namespace std;
 
 //Property names
 #define PORT_NAME_PROP "Port Name"
+#define SLEEP_DURATION_PROP "Sleep Duration ms"
 
 /** Constructor */
 YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
@@ -29,6 +30,8 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
 	else
 		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
+
+	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
@@ -108,11 +111,14 @@ void YarpVisualReader::swapBitmap(){
 	++imageID;
 }
 
+
 /** Updates the properties */
 void YarpVisualReader::updateProperties(map<string, Property>& properties){
 	bool updateReadOnly = !isInitialized();
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
 		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
+
+	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
 }
 
 
@@ -146,6 +152,10 @@ void YarpVisualReader::workerFunction(){
 				yarpConnection->read_image(*bitmap1);
 				swapBitmap();
 			}
+
+			//Sleep for the specified amount
+			if(sleepDuration_ms > 0)
+				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
 		}
 	}
 	catch(ISpikeException& ex){

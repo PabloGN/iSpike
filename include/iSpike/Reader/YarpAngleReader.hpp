@@ -32,6 +32,9 @@ namespace ispike {
 			/** Name of port that we connect to */
 			string portName;
 
+			/** Sleep duration in between reads */
+			int sleepDuration_ms;
+
 
 			//============================  METHODS  ===========================
 			void updateProperties(map<string, Property>& properties);
