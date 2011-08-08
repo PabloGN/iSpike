@@ -16,7 +16,7 @@ using namespace std;
 FileAngleWriter::FileAngleWriter() {
 	// Define the properties of this writer
 	fileName = "anglesOut.txt";
-	addProperty(StringProperty("anglesOut.txt", "File Name", "The file where the angles will be written to", true));
+	addProperty(Property("anglesOut.txt", "File Name", "The file where the angles will be written to", true));
 
 	//Create description
 	writerDescription = Description("File Angle Writer", "This is a file angle writer", "Angle Writer");
@@ -36,18 +36,19 @@ void FileAngleWriter::initialize(map<string, Property> &properties){
 	setInitialized(true);
 }
 
+
 //Inherited from AngleWriter
-void FileAngleWriter::setAngle(double angle){
-	if(angle != currentAngle){
+void FileAngleWriter::setAngle(double newAngle){
+	if(this->angle != newAngle){
+		this->angle = newAngle;
 		writeAngleToFile();
-		currentAngle = angle;
 	}
 }
 
 
 //Inherited from PropertyHolder
 void FileAngleWriter::setProperties(map<string, Property>& properties){
-	fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
+	fileName = updateStringProperty(properties["File Name"]);
 }
 
 

@@ -27,11 +27,11 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
-		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
+		addProperty(Property("undefined", yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 	else
-		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
+		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 
-	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
+	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
@@ -116,9 +116,9 @@ void YarpVisualReader::swapBitmap(){
 void YarpVisualReader::updateProperties(map<string, Property>& properties){
 	bool updateReadOnly = !isInitialized();
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
+		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
-	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
+	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
 }
 
 
@@ -130,7 +130,7 @@ void YarpVisualReader::workerFunction(){
 	try{
 		//Connect to port
 		map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
-		map<string, YarpPortDetails>::iterator iter = portMap.find(getComboPropertyValue(PORT_NAME_PROP));
+		map<string, YarpPortDetails>::iterator iter = portMap.find(portName);
 		if (iter == portMap.end() )
 			throw ISpikeException("YarpVisualReader: Yarp IP/Port map is empty!");
 

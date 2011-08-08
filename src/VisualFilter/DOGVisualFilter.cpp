@@ -75,20 +75,25 @@ void DOGVisualFilter::setOpponencyTypeID(int opponencyTypeID){
  */
 void DOGVisualFilter::update(){
 	//Get log polar bitmap and check it is ok
+	LOG(LOG_DEBUG)<<"Probe 1";
 	Bitmap& reducedImage = reducer->getReducedImage();
+	LOG(LOG_DEBUG)<<"Probe 2";
 	if(reducedImage.isEmpty())	{
 		LOG(LOG_DEBUG)<<"DOGVisualFilter: Empty bitmap";
 		return;
 	}
 
+	LOG(LOG_DEBUG)<<"Probe 3";
 	//Create bitmaps if they have not been created already
 	if(!isInitialized()){
 		initialize(reducedImage.getWidth(), reducedImage.getHeight());
 	}
+	LOG(LOG_DEBUG)<<"Probe 4";
 
 	//Generate red and green images, which are needed for all maps
 	extractRedChannel(reducedImage);
 	extractGreenChannel(reducedImage);
+	LOG(LOG_DEBUG)<<"Probe 5";
 
 	//Calculate opponency map
 	if(opponencyTypeID == Common::redVsGreen){
@@ -102,6 +107,7 @@ void DOGVisualFilter::update(){
 		extractYellowChannel();
 		calculateOpponency(*blueBitmap, *yellowBitmap);
 	}
+	LOG(LOG_DEBUG)<<"Probe 6";
 }
 
 

@@ -15,7 +15,7 @@ using namespace std;
 /** Constructor */
 FileAngleReader::FileAngleReader() {
 	// Define the properties of this reader
-	addProperty(StringProperty("anglesIn.txt", "File Name", "The file where the angles will be read from", true));
+	addProperty(Property("anglesIn.txt", "File Name", "The file where the angles will be read from", true));
 
 	//Create description
 	readerDescription = Description("File Angle Reader", "This is a file angle reader", "Angle Reader");
@@ -40,7 +40,7 @@ void FileAngleReader::initialize(map<string, Property>& properties){
 
 //Inherited from PropertyHolder
 void FileAngleReader::setProperties(map<string, Property>& properties){
-	string fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
+	string fileName = updateStringProperty(properties["File Name"]);
 	LOG(LOG_INFO) << "FileAngleReader: Reading angles from: " << fileName;
 	readAngleFromFile(fileName);
 }

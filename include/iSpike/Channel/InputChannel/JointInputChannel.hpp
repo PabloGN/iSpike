@@ -6,6 +6,7 @@
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 
 //Other includes
+#include <boost/math/distributions/normal.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -18,7 +19,6 @@ namespace ispike {
 		public:
 			JointInputChannel();
 			virtual ~JointInputChannel();
-			double getCurrentAngle(){ return currentAngle; }
 			vector<int>& getFiring() { return neuronSim.getSpikes(); }
 			void initialize(Reader* reader, map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
@@ -30,10 +30,20 @@ namespace ispike {
 			/** Reads angle from data source */
 			AngleReader* reader;
 
-			double currentAngle;
-			double sd;
+			/** Minimum angle of joint */
 			double minAngle;
+
+			/** Maximum angle of joint */
 			double maxAngle;
+
+			/** Standard deviation */
+			double standardDeviation;
+
+			/** Angle at centre of each neuron's perceptual field */
+			vector<double> neuronAngles;
+
+			/** Normal distribution */
+			boost::math::normal_distribution<double> normalDistribution;
 
 			/*! Izhikevich neuron simulator */
 			IzhikevichNeuronSim neuronSim;
@@ -44,6 +54,8 @@ namespace ispike {
 			/** Constant current injected into neurons */
 			double constantCurrent;
 
+			/** Peak current - sets maximum current into neurons. */
+			double peakCurrent;
 
 			//==============================  METHODS  =========================
 			void updateProperties(map<string, Property>& properties);

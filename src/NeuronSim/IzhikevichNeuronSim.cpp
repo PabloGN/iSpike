@@ -45,6 +45,7 @@ IzhikevichNeuronSim::~IzhikevichNeuronSim(){
 
 /** Initializes the simulator, creating arrays and setting parameters */
 void IzhikevichNeuronSim::initialize(int numNeurons){
+	LOG(LOG_DEBUG)<<"Initializing neuron simulator with "<<numNeurons<<" neurons.";
 	this->numNeurons = numNeurons;
 
 	//Initialize data structures

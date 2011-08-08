@@ -41,8 +41,11 @@ namespace ispike {
 			/** The rate at which the current variables decay */
 			double rateOfDecay;
 
-			/** Array holding the current variables */
-			double* currentVariables;
+			/** Vector holding the current variables */
+			vector<double> currentVariables;
+
+			/** Angle associated with each current variable */
+			vector<double> currentVariableAngles;
 
 			/** The amount by which a current variable is incremented with each spike */
 			double currentIncrement;

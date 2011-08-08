@@ -14,7 +14,7 @@ using namespace std;
 /** Constructor */
 FileVisualReader::FileVisualReader(){
 	// Define the properties of this reader
-	addProperty(StringProperty("imageIn.txt", "File Name", "The file where the image will be read from", true));
+	addProperty(Property("imageIn.ppm", "File Name", "The file where the image will be read from", true));
 
 	//Create description
 	readerDescription = Description("File Visual Reader", "This is a file visual reader", "Visual Reader");
@@ -50,8 +50,7 @@ void FileVisualReader::initialize(map<string, Property>& properties){
 
 //Inherited from PropertyHolder
 void FileVisualReader::setProperties(map<string, Property>& properties){
-	string fileName = updatePropertyValue(dynamic_cast<StringProperty&>(properties["File Name"]));
-	LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fileName;
+	string fileName = updateStringProperty(properties["File Name"]);
 	readPPMImage(fileName);
 }
 
@@ -62,6 +61,8 @@ void FileVisualReader::setProperties(map<string, Property>& properties){
 
 /** Reads a PPM image from the specified file */
 void FileVisualReader::readPPMImage(string& fname){
+	LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fname;
+
 	//Clean up old bitmap
 	if(bitmap != NULL)
 		delete bitmap;
@@ -116,6 +117,8 @@ void FileVisualReader::readPPMImage(string& fname){
 
 	//Clean up
 	ifp.close();
+
+	LOG(LOG_DEBUG)<<"File visual reader bitmap size: "<<bitmap->size();
 
 	//Increment image id
 	++imageID;

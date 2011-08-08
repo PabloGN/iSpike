@@ -7,13 +7,17 @@
 using namespace ispike;
 
 //Other includes
+#include <fstream>
 #include <iostream>
 #include <sstream>
 using namespace std;
 
+//Pi
+#define PI 3.141592653589793238
 
 /** Ouputs debug images to file */
 #define DEBUG_IMAGES
+#define DEBUG_COORDINATES
 
 /** Constructor */
 LogPolarVisualDataReducer::LogPolarVisualDataReducer(){
@@ -99,6 +103,8 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	unsigned char* inputImageArray = bitmap.getContents();
 	unsigned char* reducedImageArray = reducedImage->getContents();
 
+	LOG(LOG_DEBUG)<<"Input image size: "<<bitmap.size()<<"; reduced image size: "<<reducedImage->size();
+
 	//Work through coordinates in log polar output map
 	for(int r=0; r<outputWidth; ++r){
 		for(int theta=0; theta<outputHeight; ++theta){
@@ -115,6 +121,7 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 					inputImageArray[ inputWidth * (iter->y) + (iter->x) ];
 			}
 			else{
+				//LOG(LOG_DEBUG)<<"Input image index: "<<(inputWidth * (iter->y) * tmpDepth + (iter->x) * tmpDepth + d)<<"; reducedImageIndex: "<<( outputWidth * (iter->theta) * tmpDepth + (iter->radius) * tmpDepth + d );
 				reducedImageArray[ outputWidth * (iter->theta) * tmpDepth + (iter->radius) * tmpDepth + d ] =
 					inputImageArray[ inputWidth * (iter->y) * tmpDepth + (iter->x) * tmpDepth + d ];
 			}
@@ -141,7 +148,9 @@ void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
 
 	inputWidth = bitmap.getWidth();
 	inputHeight = bitmap.getHeight();
+	LOG(LOG_DEBUG)<<"Probe 1A";
 	initialisePolarToCartesianVector();
+	LOG(LOG_DEBUG)<<"Probe 1b";
 	reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
 	setInitialized(true);
 }
@@ -152,6 +161,10 @@ void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
 	at appropriate points in the input image. */
 void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 	coordinatesVector.clear();
+	#ifdef DEBUG_COORDINATES
+		ofstream fileStream;
+		fileStream.open("LogPolarVisualDataReducer.log", fstream::out);
+	#endif//DEBUG_COORDINATES
 
 	//Map between a location on the log polar map and an angle on input map
 	double angleResolution = 360.0 / outputHeight;
@@ -166,31 +179,45 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 	double inputLogRadius = inputRadius - foveaRadius;
 
 	//Find the base such that the maximum value will lie inside the inputRadius
-	double logBase = pow(inputLogRadius, outputLogRadius);
+	double expBase = pow(10.0, log10(inputLogRadius) / outputLogRadius );
+
+	LOG(LOG_DEBUG)<<"OutputLogRadius: "<<outputLogRadius<<"; InputLogRadius: "<<inputLogRadius<<"; ExpBase: "<<expBase;
 
 	for(int r=0; r<outputWidth; ++r){
 		for(int theta=0; theta<outputHeight; ++theta){
 			if(r <= foveaRadius){
 				pair<int, int> tmpPair = getInputCartesianCoordinate(r, theta*angleResolution);
 				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
+				#ifdef DEBUG_COORDINATES
+					fileStream<<"Polar("<<r<<", "<<theta<<") -> Cart("<<tmpPair.first<<", "<<tmpPair.second<<")"<<endl;
+				#endif//DEBUG_COORDINATES
 			}
 			else{
-				pair<int, int> tmpPair = getInputCartesianCoordinate(foveaRadius + pow(logBase, r-foveaRadius), theta*angleResolution);
+				pair<int, int> tmpPair = getInputCartesianCoordinate(foveaRadius + pow(expBase, r-foveaRadius), theta*angleResolution);
 				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
+				#ifdef DEBUG_COORDINATES
+					fileStream<<"Polar("<<r<<", "<<theta<<") -> Cart("<<tmpPair.first<<", "<<tmpPair.second<<")"<<endl;
+				#endif//DEBUG_COORDINATES
 			}
 		}
 	}
+	#ifdef DEBUG_COORDINATES
+		fileStream.close();
+	#endif//DEBUG_COORDINATES
 }
 
 
-/** Gets the nearest Cartesian coordinate in the input image */
-pair<int, int> LogPolarVisualDataReducer::getInputCartesianCoordinate(double radius, double theta){
-	int tmpY = nearbyint(radius * sin(theta));
+/** Gets the nearest Cartesian coordinate in the input image.
+	X and Y coordinates range from 0 to 2*radius
+	theta is in degrees */
+pair<int, int> LogPolarVisualDataReducer::getInputCartesianCoordinate(double radius, double theta_deg){
+	double theta_rads = (theta_deg / 360.0) * 2.0 * PI;
+	int tmpY = nearbyint(inputHeight/2 + radius * sin(theta_rads));
 	if(tmpY >= inputHeight)
-		throw ISpikeException("LogPolarVisualDataReducer: Y out of range.");
-	int tmpX = nearbyint(radius * cos(theta));
+		throw ISpikeException("LogPolarVisualDataReducer: Y out of range: ", tmpY);
+	int tmpX = nearbyint(inputWidth/2 + radius * cos(theta_rads));
 	if(tmpX >= inputWidth)
-		throw ISpikeException("LogPolarVisualDataReducer: X out of range.");
+		throw ISpikeException("LogPolarVisualDataReducer: X out of range: ", tmpX);
 	return make_pair(tmpX, tmpY);
 }
 

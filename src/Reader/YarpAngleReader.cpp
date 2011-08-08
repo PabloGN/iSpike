@@ -29,11 +29,11 @@ YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
-		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
+		addProperty(Property("undefined", yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 	else
-		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
-	addProperty(IntegerProperty(0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
-	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between refreshing angle.", false));
+		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
+	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
+	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between refreshing angle.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
@@ -92,10 +92,11 @@ void YarpAngleReader::start(){
 void YarpAngleReader::updateProperties(map<string, Property>& properties){
 	bool updateReadOnly = !isInitialized();
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
+		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
-	degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
-	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
+	degreeOfFreedom = updateIntegerProperty(properties[DEGREE_OF_FREEDOM_PROP]);
+	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
+
 }
 
 

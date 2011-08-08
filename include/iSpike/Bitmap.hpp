@@ -23,7 +23,7 @@ namespace ispike {
 			unsigned getDepth() const { return depth; }
 			unsigned getHeight() const { return height; }
 			unsigned getWidth() const { return width; }
-			bool isEmpty() { if (size() > 0) return true; return false; }
+			bool isEmpty() { if (size() > 0) return false; return true; }
 			void reset(unsigned width, unsigned height, unsigned depth);
 			int size() { return width*height*depth; }
 

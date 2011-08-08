@@ -29,13 +29,13 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 		yarpPortNames.push_back(iter->first);
 	}
 	if(yarpPortNames.empty())
-		addProperty(ComboProperty(yarpPortNames, "undefined", PORT_NAME_PROP, "The Yarp Port name", true));
+		addProperty(Property("undefined", yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 	else
-		addProperty(ComboProperty(yarpPortNames, yarpPortNames[0], PORT_NAME_PROP, "The Yarp Port name", true));
+		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 
 	//Other properties
-	addProperty(IntegerProperty(20, DEGREE_OF_FREEDOM_PROP, "Degree of freedom of joint to write.", false));
-	addProperty(IntegerProperty(20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
+	addProperty(Property(Property::Integer, 20, DEGREE_OF_FREEDOM_PROP, "Degree of freedom of joint to write.", false));
+	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
 
 	//Create the description
 	writerDescription = Description("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
@@ -67,8 +67,8 @@ void YarpAngleWriter::initialize(map<string,Property>& properties){
 // Inherited from AngleWriter
 void YarpAngleWriter::setAngle(double newAngle){
 	if(this->angle != newAngle){
-		angleChanged = true;
 		this->angle = newAngle;
+		angleChanged = true;
 	}
 }
 
@@ -98,10 +98,10 @@ void YarpAngleWriter::start(){
 void YarpAngleWriter::updateProperties(map<string, Property>& properties){
 	bool updateReadOnly = !isInitialized();
 	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
-		portName = updatePropertyValue(dynamic_cast<ComboProperty&>(properties[PORT_NAME_PROP]));
+		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
-	degreeOfFreedom = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[DEGREE_OF_FREEDOM_PROP]));
-	sleepDuration_ms = updatePropertyValue(dynamic_cast<IntegerProperty&>(properties[SLEEP_DURATION_PROP]));
+	degreeOfFreedom = updateIntegerProperty(properties[DEGREE_OF_FREEDOM_PROP]);
+	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
 }
 
 

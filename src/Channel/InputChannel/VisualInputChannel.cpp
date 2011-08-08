@@ -5,27 +5,44 @@
 using namespace ispike;
 
 
+//Names of properties
+#define NEURON_WIDTH_NAME "Neuron Width"
+#define NEURON_HEIGHT_NAME "Neuron Height"
+#define FOVEA_RADIUS_NAME "Fovea Radius"
+#define POSITIVE_SIGMA_NAME "Positive Sigma"
+#define NEGATIVE_SIGMA_NAME "Negative Sigma"
+#define POSITIVE_FACTOR_NAME "Positive Factor"
+#define NEGATIVE_FACTOR_NAME "Negative Factor"
+#define OPPONENCY_MAP_NAME "Opponency Map"
+#define PARAM_A_NAME "Parameter A"
+#define PARAM_B_NAME "Parameter B"
+#define PARAM_C_NAME "Parameter C"
+#define PARAM_D_NAME "Parameter D"
+#define CURRENT_FACTOR_NAME "Current Factor"
+#define CONSTANT_CURRENT_NAME "Constant Current"
+
+
 /** Constructor */
 VisualInputChannel::VisualInputChannel() {
 	// Properties of log polar foveation
-	addProperty(IntegerProperty(100, "Neuron Width", "Width of the neuron network", true));
-	addProperty(IntegerProperty(100, "Neuron Height", "Height of the neuron network", true));
-	addProperty(DoubleProperty(20, "Fovea Radius", "Radius of the central foveated area", true));
+	addProperty(Property(Property::Integer, 50, NEURON_WIDTH_NAME, "Width of the neuron network", true));
+	addProperty(Property(Property::Integer, 50, NEURON_HEIGHT_NAME, "Height of the neuron network", true));
+	addProperty(Property(Property::Double, 20.0, FOVEA_RADIUS_NAME, "Radius of the central foveated area", true));
 
 	//Properties of the difference of gaussians filter
-	addProperty(DoubleProperty(2, "Positive Sigma", "Positive Gaussian Sigma", false));
-	addProperty(DoubleProperty(4, "Negative Sigma", "Negative Gaussian Sigma", false));
-	addProperty(DoubleProperty(4, "Positive Factor", "Multiplication ratio for positive image during subtraction", false));
-	addProperty(DoubleProperty(2, "Negative Factor", "Multiplication ratio for negative image during subtraction", false));
-	addProperty(IntegerProperty(0, "Opponency Map", "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true));
+	addProperty(Property(Property::Double, 2.0, POSITIVE_SIGMA_NAME, "Positive Gaussian Sigma", false));
+	addProperty(Property(Property::Double, 4.0, NEGATIVE_SIGMA_NAME, "Negative Gaussian Sigma", false));
+	addProperty(Property(Property::Double, 4.0, POSITIVE_FACTOR_NAME, "Multiplication ratio for positive image during subtraction", false));
+	addProperty(Property(Property::Double, 2.0, NEGATIVE_FACTOR_NAME, "Multiplication ratio for negative image during subtraction", false));
+	addProperty(Property(Property::Integer, 0, OPPONENCY_MAP_NAME, "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true));
 
 	//Properties of the neural simulator
-	addProperty(DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false));
-	addProperty(DoubleProperty(0.2, "Parameter B","Parameter B of the Izhikevich Neuron Model",false));
-	addProperty(DoubleProperty(-65, "Parameter C","Parameter C of the Izhikevich Neuron Model",false));
-	addProperty(DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model",false));
-	addProperty(DoubleProperty(20, "Current Factor", "Incoming current is multiplied by this value",false));
-	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
+	addProperty(Property(Property::Double, 0.1, PARAM_A_NAME, "Parameter A of the Izhikevich Neuron Model", false));
+	addProperty(Property(Property::Double, 0.2, PARAM_B_NAME,"Parameter B of the Izhikevich Neuron Model",false));
+	addProperty(Property(Property::Double, -65, PARAM_C_NAME,"Parameter C of the Izhikevich Neuron Model",false));
+	addProperty(Property(Property::Double, 2.0, PARAM_D_NAME, "Parameter D of the Izhikevich Neuron Model",false));
+	addProperty(Property(Property::Double, 20.0, CURRENT_FACTOR_NAME, "Incoming current is multiplied by this value",false));
+	addProperty(Property(Property::Double, 0.0, CONSTANT_CURRENT_NAME, "This value is added to the incoming current", false));
 
 	//Create the description
 	channelDescription = Description("Visual Input Channel", "This is a visual input channel", "Visual Reader");
@@ -91,11 +108,9 @@ void VisualInputChannel::step() {
 	//Update visual maps if necessary
 	if(reader->getImageID() != currentImageID){
 		currentImageID = reader->getImageID();
-		Bitmap tmpBitmap(reader->getBitmap());//Get a copy to avoid threading issues
-		dataReducer->setBitmap(tmpBitmap);
+		dataReducer->setBitmap(reader->getBitmap());
 		dogFilter->update();
 	}
-
 
 	//Load opponency data into neural simulator
 	Bitmap& opponencyMap = dogFilter->getOpponencyBitmap();
@@ -129,44 +144,48 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties) {
 		throw ISpikeException("VisualInputChannel: Current properties do not match new properties.");
 
 	//Update properties in the property map and the appropriate class
-	bool updateReadOnly = !isInitialized();
+	updatePropertyCount = 0;
 	for(map<string,Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter) {
-		//In updateReadOnly mode, only update properties that are not read only
-		if( (updateReadOnly && !iter->second.isReadOnly()) || !updateReadOnly) {
+		//When initialized, only update properties that are not read only
+		if( (isInitialized() && !iter->second.isReadOnly()) || !isInitialized()) {
 			string paramName = iter->second.getName();
 			switch (iter->second.getType()){
 				case Property::Integer: {
-					if(paramName == "Opponency Map")
-						dogFilter->setOpponencyTypeID(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
-					else if (paramName == "Neuron Width")
-						dataReducer->setOutputWidth(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
-					else if (paramName == "Neuron Height")
-						dataReducer->setOutputHeight(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
+					if(paramName == OPPONENCY_MAP_NAME)
+						dogFilter->setOpponencyTypeID(updateIntegerProperty(iter->second));
+					else if (paramName == NEURON_WIDTH_NAME){
+						setWidth(updateIntegerProperty(iter->second));
+						dataReducer->setOutputWidth(getWidth());
+					}
+					else if (paramName == NEURON_HEIGHT_NAME){
+						setHeight(updateIntegerProperty(iter->second));
+						dataReducer->setOutputHeight(getHeight());
+					}
 					break;
 				}
 				case Property::Double: {
-					if (paramName == "Parameter A")
-						neuronSim.setParameterA(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter B")
-						neuronSim.setParameterB(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter C")
-						neuronSim.setParameterC(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter D")
-						neuronSim.setParameterD(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Current Factor")
-						currentFactor = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Constant Current")
-						constantCurrent = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Positive Sigma")
-						dogFilter->setPositiveSigma(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Negative Sigma")
-						dogFilter->setNegativeSigma(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Positive Factor")
-						dogFilter->setPositiveFactor(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Negative Factor")
-						dogFilter->setNegativeFactor(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Fovea Radius")
-						dataReducer->setFoveaRadius(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
+					if (paramName == PARAM_A_NAME)
+						neuronSim.setParameterA(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_B_NAME)
+						neuronSim.setParameterB(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_C_NAME)
+						neuronSim.setParameterC(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_D_NAME)
+						neuronSim.setParameterD(updateDoubleProperty(iter->second));
+					else if (paramName == CURRENT_FACTOR_NAME)
+						currentFactor = updateDoubleProperty(iter->second);
+					else if (paramName == CONSTANT_CURRENT_NAME)
+						constantCurrent = updateDoubleProperty(iter->second);
+					else if (paramName == POSITIVE_SIGMA_NAME)
+						dogFilter->setPositiveSigma(updateDoubleProperty(iter->second));
+					else if (paramName == NEGATIVE_SIGMA_NAME)
+						dogFilter->setNegativeSigma(updateDoubleProperty(iter->second));
+					else if (paramName == POSITIVE_FACTOR_NAME)
+						dogFilter->setPositiveFactor(updateDoubleProperty(iter->second));
+					else if (paramName == NEGATIVE_FACTOR_NAME)
+						dogFilter->setNegativeFactor(updateDoubleProperty(iter->second));
+					else if (paramName == FOVEA_RADIUS_NAME)
+						dataReducer->setFoveaRadius(updateDoubleProperty(iter->second));
 					break;
 				}
 				case Property::Combo:
@@ -178,5 +197,9 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties) {
 			}
 		}
 	}
+
+	//Check all properties were updated
+	if(!isInitialized() && updatePropertyCount != propertyMap.size())
+		throw ISpikeException("Some or all of the properties were not updated: ", updatePropertyCount);
 }
 

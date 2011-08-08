@@ -9,22 +9,37 @@ using namespace ispike;
 //#define DEBUG
 //#define RECORD_TIMING
 
+//Names of properties
+#define DEGREE_OF_FREEDOM_NAME "Degree Of Freedom"
+#define STANDARD_DEVIATION_NAME "Standard Deviation"
+#define MIN_ANGLE_NAME "Minimum Angle"
+#define MAX_ANGLE_NAME "Maximum Angle"
+#define NEURON_WIDTH_NAME "Neuron Width"
+#define NEURON_HEIGHT_NAME "Neuron Height"
+#define PARAM_A_NAME "Parameter A"
+#define PARAM_B_NAME "Parameter B"
+#define PARAM_C_NAME "Parameter C"
+#define PARAM_D_NAME "Parameter D"
+#define PEAK_CURRENT_NAME "Peak Current"
+#define CONSTANT_CURRENT_NAME "Constant Current"
+
+
 
 /** Default constructor, initialises the default channel properties */
 JointInputChannel::JointInputChannel() {
 	// First define the properties of this channel
-	addProperty(IntegerProperty(0, "Degree Of Freedom", "The degree of freedom to read from this joint", true));
-	addProperty(DoubleProperty(0.5, "Standard Deviation", "The standard deviation as a percentage of neurons covered", true));
-	addProperty(DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true));
-	addProperty(DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true));
-	addProperty(IntegerProperty(10, "Neuron Width", "Width of the neuron network", true));
-	addProperty(IntegerProperty(1, "Neuron Height", "Height of the neuron network", true));
-	addProperty(DoubleProperty(0.1, "Parameter A", "Parameter A of the Izhikevich Neuron Model", false));
-	addProperty(DoubleProperty(0.2, "Parameter B", "Parameter B of the Izhikevich Neuron Model", false));
-	addProperty(DoubleProperty(-65, "Parameter C", "Parameter C of the Izhikevich Neuron Model", false));
-	addProperty(DoubleProperty(2, "Parameter D", "Parameter D of the Izhikevich Neuron Model", false));
-	addProperty(DoubleProperty(400, "Current Factor", "Incoming current is multiplied by this value", false));
-	addProperty(DoubleProperty(0, "Constant Current", "This value is added to the incoming current", false));
+	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_NAME, "The degree of freedom to read from this joint", true));
+	addProperty(Property(Property::Double, 0.5, STANDARD_DEVIATION_NAME, "The standard deviation as a percentage of neurons covered", true));
+	addProperty(Property(Property::Double, -90.0, MIN_ANGLE_NAME, "The minimum angle to read", true));
+	addProperty(Property(Property::Double, 90.0, MAX_ANGLE_NAME, "The maximum angle to read", true));
+	addProperty(Property(Property::Integer, 10, NEURON_WIDTH_NAME, "Width of the neuron network", true));
+	addProperty(Property(Property::Integer, 1, NEURON_HEIGHT_NAME, "Height of the neuron network", true));
+	addProperty(Property(Property::Double, 0.1, PARAM_A_NAME, "Parameter A of the Izhikevich Neuron Model", false));
+	addProperty(Property(Property::Double, 0.2, PARAM_B_NAME, "Parameter B of the Izhikevich Neuron Model", false));
+	addProperty(Property(Property::Double, -65.0, PARAM_C_NAME, "Parameter C of the Izhikevich Neuron Model", false));
+	addProperty(Property(Property::Double, 2.0, PARAM_D_NAME, "Parameter D of the Izhikevich Neuron Model", false));
+	addProperty(Property(Property::Double, 40.0, PEAK_CURRENT_NAME, "Maximum current that will be injected into neuron", true));
+	addProperty(Property(Property::Double, 0.0, CONSTANT_CURRENT_NAME, "This value is added to the incoming current", false));
 
 	//Create the description
 	channelDescription = Description("Joint Input Channel", "This is a joint input channel", "Angle Reader");
@@ -58,6 +73,21 @@ void JointInputChannel::initialize(Reader* reader, map<string, Property>& proper
 	//Start the reader thread running
 	this->reader->start();
 
+	/* Angle covered by each neuron */
+	double angleDist = (maxAngle - minAngle) / double(size()-1);
+
+	//Standard deviation expressed in angle
+	double sdAngle = standardDeviation * angleDist;
+
+	//Create normal distribution and calculate current factor
+	normalDistribution = boost::math::normal_distribution<double>(0.0, sdAngle);
+	currentFactor = peakCurrent / pdf(normalDistribution, 0.0);
+
+	/* populate the angles */
+	for(unsigned n=0; n < size(); ++n) {
+		neuronAngles.push_back(minAngle + n * angleDist);
+	}
+
 	//Set up Izhikevich simulation
 	neuronSim.initialize(size());
 
@@ -79,28 +109,24 @@ void JointInputChannel::step(){
 		throw ISpikeException("Error in AngleReader");
 	}
 
-	///Calculate the standard deviation as a percentage of the image 3 standard deviations in each direction cover almost all of the range
-	int totalNeurons = this->width * this->height;
-	int angleDist = (this->maxAngle - this->minAngle) / totalNeurons;
-	double standardDeviation = ((totalNeurons * this->sd) / 6) * angleDist;
-
+	//Get angle and check it is in range
 	double tmpAngle = reader->getAngle();
-//	///Iterate over the each neuron
-//	for(int i = 0; i < this->width * this->height; i++)	{
-//		double currentAngle;
-//		if (i == 0)
-//			currentAngle = this->minAngle;
-//		///Generate the current angle by interpolating the angle range over the neuron count
-//		else
-//			currentAngle = (this->maxAngle - this->minAngle) / (this->width * this->height-1) * i + this->minAngle;
+	if(tmpAngle > maxAngle){
+		LOG(LOG_WARNING)<<"JointInputChannel: New angle ("<<tmpAngle<<") exceeds the maximum ("<<maxAngle<<"). Has been limited to the maximum";
+		tmpAngle = maxAngle;
+	}
+	else if(tmpAngle < minAngle){
+		LOG(LOG_WARNING)<<"JointInputChannel: New angle ("<<tmpAngle<<") is less than the minimum ("<<minAngle<<"). Has been limited to the minimum";
+		tmpAngle = minAngle;
+	}
 
-//		///Put a normal distribution at the centre of the observed angle with sd as defined earlier
-//		double main = 1 / sqrt(2 * boost::math::constants::pi<double>() * pow(standardDeviation,2));
-//		double exponent = pow((currentAngle - angles[this->degreeOfFreedom]),2) / (2 * pow(standardDeviation,2));
+	//Set input currents to neurons
+	for(int index = 0; index < size(); ++index)	{
+		neuronSim.setInputCurrent( index, constantCurrent + currentFactor * pdf(normalDistribution, neuronAngles[index]-tmpAngle) );
+	}
 
-//		///Update the current map with the value for this angle
-//		neuronSim->setInputCurrent(currentFactor * main * exp(-exponent));
-//	}
+	//Step the simulator
+	neuronSim.step();
 }
 
 
@@ -114,40 +140,40 @@ void JointInputChannel::updateProperties(map<string, Property>& properties){
 	if(propertyMap.size() != properties.size())
 		throw ISpikeException("JointInputChannel: Current properties do not match new properties.");
 
-	bool updateReadOnly = !isInitialized();
+	updatePropertyCount = 0;
 	for(map<string, Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter)  {
 		//In updateReadOnly mode, only update properties that are not read only
-		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
+		if( ( isInitialized() && !propertyMap[iter->first].isReadOnly() ) || !isInitialized()) {
 			string paramName = iter->second.getName();
 			switch (iter->second.getType()) {
 				case Property::Integer: {
-					if(paramName == "Degree Of Freedom")
-						reader->setDegreeOfFreedom(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
-					else if (paramName == "Neuron Width")
-						setWidth(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
-					else if (paramName == "Neuron Height")
-						setHeight(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
+					if(paramName == DEGREE_OF_FREEDOM_NAME)
+						reader->setDegreeOfFreedom(updateIntegerProperty(iter->second));
+					else if (paramName == NEURON_WIDTH_NAME)
+						setWidth(updateIntegerProperty(iter->second));
+					else if (paramName == NEURON_HEIGHT_NAME)
+						setHeight(updateIntegerProperty(iter->second));
 				}
 				break;
 				case Property::Double:  {
-					if (paramName == "Parameter A")
-						neuronSim.setParameterA(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter B")
-						neuronSim.setParameterB(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter C")
-						neuronSim.setParameterC(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Parameter D")
-						neuronSim.setParameterD(updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second)));
-					else if (paramName == "Current Factor")
-						currentFactor = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Constant Current")
-						constantCurrent = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if(paramName == "Standard Deviation")
-						sd = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Minimum Angle")
-						minAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Maximum Angle")
-						maxAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
+					if (paramName == PARAM_A_NAME)
+						neuronSim.setParameterA(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_B_NAME)
+						neuronSim.setParameterB(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_C_NAME)
+						neuronSim.setParameterC(updateDoubleProperty(iter->second));
+					else if (paramName == PARAM_D_NAME)
+						neuronSim.setParameterD(updateDoubleProperty(iter->second));
+					else if (paramName == PEAK_CURRENT_NAME)
+						peakCurrent = updateDoubleProperty(iter->second);
+					else if (paramName == CONSTANT_CURRENT_NAME)
+						constantCurrent = updateDoubleProperty(iter->second);
+					else if(paramName == STANDARD_DEVIATION_NAME)
+						standardDeviation = updateDoubleProperty(iter->second);
+					else if (paramName == MIN_ANGLE_NAME)
+						minAngle = updateDoubleProperty(iter->second);
+					else if (paramName == MAX_ANGLE_NAME)
+						maxAngle = updateDoubleProperty(iter->second);
 				}
 				break;
 				case Property::Combo: break;
@@ -157,6 +183,15 @@ void JointInputChannel::updateProperties(map<string, Property>& properties){
 			}
 		}
 	}
+
+	//Check angles are sensible
+	if(maxAngle <= minAngle) {
+		throw ISpikeException("Maximum angle must be greater than minimum angle");
+	}
+
+	//Check all properties were updated
+	if(!isInitialized() && updatePropertyCount != propertyMap.size())
+		throw ISpikeException("Some or all of the properties were not updated: ", updatePropertyCount);
 }
 
 

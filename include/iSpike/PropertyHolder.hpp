@@ -20,33 +20,22 @@ namespace ispike {
 
 		protected:
 			//=======================  VARIABLES  ========================
-			void addProperty(Property property);
-
-			//=======================  METHODS  ===========================
-			string getComboPropertyValue(string propertyName);
-			double getDoublePropertyValue(string propertyName);
-			int getIntegerPropertyValue(string propertyName);
-			string getStringPropertyValue(string propertyName);
-			string getValue(ComboProperty& property);
-			double getValue(DoubleProperty& property);
-			int getValue(IntegerProperty& property);
-			string getValue(StringProperty& property);
-			string updatePropertyValue(ComboProperty& property);
-			double updatePropertyValue(DoubleProperty& property);
-			int updatePropertyValue(IntegerProperty& property);
-			string updatePropertyValue(StringProperty& property);
-
-		protected:
-			//=======================  VARIABLES  ========================
 			/** Properties */
 			map<string, Property> propertyMap;
 
-			//======================  METHODS  ===========================
-			void checkName(string& propertyName);
+			/** Allows subclasses to track the number of properties that have been updated */
+			unsigned updatePropertyCount;
+
+			//=======================  METHODS  ===========================
+			void addProperty(Property property);
 			void checkProperty(Property& property);
+			void printProperties();
+			int updateIntegerProperty(Property& property);
+			double updateDoubleProperty(Property& property);
+			string updateStringProperty(Property& property);
+			string updateComboProperty(Property& property);
 
 	};
-
 
 }
 

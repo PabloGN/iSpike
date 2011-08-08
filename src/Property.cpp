@@ -1,5 +1,10 @@
 #include "iSpike/Property.hpp"
+#include "iSpike/ISpikeException.hpp"
 using namespace ispike;
+
+//Other includes
+#include <iostream>
+using namespace std;
 
 /** Empty constructor */
 Property::Property(){
@@ -14,28 +19,42 @@ Property::Property(){
 }
 
 
-/** Integer property constructor */
-Property::Property(int value, string name, string description, bool readOnly){
-	this->type = Property::Integer;
-	this->intVal = value;
+/** Integer property constructor - avoids confusion between double and integer. */
+Property::Property(ValueType type, int value, string name, string description, bool readOnly){
+	if(type == Property::Integer){
+		this->type = Property::Integer;
+		this->intVal = value;
+		this->doubleVal = 0;
+	}
+	else if(type == Property::Double){
+		this->type = Property::Double;
+		this->doubleVal = value;
+		this->intVal = 0;
+	}
 	this->name = name;
 	this->description = description;
 	this->readOnly = readOnly;
 
-	doubleVal = 0.0;
 	stringVal = "Undefined";
 }
 
 
-/** Double property constructor */
-Property::Property(double value, string name, string description, bool readOnly){
-	this->type = Property::Double;
-	this->doubleVal = value;
+/** Double property constructor - avoids confusion between double and integer.  */
+Property::Property(ValueType type, double value, string name, string description, bool readOnly){
+	if(type == Property::Integer){
+		this->type = Property::Integer;
+		this->intVal = (int)value;
+		this->doubleVal = 0;
+	}
+	else if(type == Property::Double){
+		this->type = Property::Double;
+		this->doubleVal = value;
+		this->intVal = 0;
+	}
 	this->name = name;
 	this->description = description;
 	this->readOnly = readOnly;
 
-	this->intVal = 0;
 	this->stringVal = "Undefined";
 }
 
@@ -85,6 +104,10 @@ Property::~Property(){
 }
 
 
+/*----------------------------------------------------------*/
+/*------                PUBLIC METHODS                ------*/
+/*----------------------------------------------------------*/
+
 /** Property assignment operator */
 Property& Property::operator=(const Property& rhs){
 	//Check for self assignment
@@ -101,6 +124,55 @@ Property& Property::operator=(const Property& rhs){
 	this->options = rhs.options;
 
 	return *this;
+}
+
+
+int Property::getInt(){
+	if(this->type == Property::Integer)
+		return intVal;
+	throw ISpikeException("getInt() should not be called on a non-integer property: " + getName());
+}
+
+void Property::setInt(int newInt){
+	if(this->type != Property::Integer)
+		throw ISpikeException("setInt() should not be called on a non-integer property: " + getName());
+	this->intVal = newInt;
+}
+
+double Property::getDouble(){
+	if(this->type == Property::Double)
+		return doubleVal;
+	throw ISpikeException("getDouble() should not be called on a non-double property: " + getName());
+}
+
+void Property::setDouble(double newDouble){
+	if(this->type != Property::Double)
+		throw ISpikeException("setDouble() should not be called on a non-double property: " + getName());
+	this->doubleVal = newDouble;
+}
+
+string Property::getString(){
+	if(this->type == Property::String || this->type == Property::Combo)
+		return stringVal;
+	throw ISpikeException("getString() should not be called on a non-string or non-combo property: " + getName());
+}
+
+void Property::setString(string newString){
+	if(this->type != Property::String && this->type != Property::Combo)
+		throw ISpikeException("setString() should not be called on a non-string or non-combo property: " + getName());
+	this->stringVal = newString;
+}
+
+vector<string> Property::getOptions(){
+	if(this->type == Property::Combo)
+		return options;
+	throw ISpikeException("getOptions() should not be called on a non-combo property: " + getName());
+}
+
+void Property::setOptions(vector<string> options){
+	if(this->type != Property::Combo)
+		throw ISpikeException("setOptions() should not be called on a non-combo property: " + getName());
+	this->options = options;
 }
 
 

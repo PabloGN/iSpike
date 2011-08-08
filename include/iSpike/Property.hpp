@@ -34,7 +34,10 @@ namespace ispike {
 
 		public:
 			Property();
-			Property(ValueType type, string name, string description, bool readOnly);
+			Property(ValueType type, int value, string name, string description, bool readOnly);
+			Property(ValueType type, double value, string name, string description, bool readOnly);
+			Property(string value, string name, string description, bool readOnly);
+			Property(string value, vector<string> options, string name, string description, bool readOnly);
 			Property(const Property& prop);
 			virtual ~Property();
 			Property& operator=(const Property& rhs);
@@ -44,14 +47,14 @@ namespace ispike {
 			string getDescription() { return this->description; }
 			bool isReadOnly() { return this->readOnly; }
 
-			int getInt() { return intVal; }
-			void setInt(int newInt) { this->intVal = newInt; }
-			double getDouble() { return doubleVal; }
-			void setDouble(double newDouble) { this->doubleVal = newDouble; }
-			string getString() { return stringVal; }
-			void setString(string newString) { this->stringVal = newString; }
-			vector<string> getOptions() { return options; }
-			void setOptions(vector<string> options){ this->options = options; }
+			int getInt();
+			void setInt(int newInt);
+			double getDouble();
+			void setDouble(double newDouble);
+			string getString();
+			void setString(string newString);
+			vector<string> getOptions();
+			void setOptions(vector<string> options);
 
 	};
 

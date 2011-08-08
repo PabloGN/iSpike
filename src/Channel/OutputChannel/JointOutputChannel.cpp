@@ -4,15 +4,22 @@
 #include <iSpike/ISpikeException.hpp>
 using namespace ispike;
 
+//Property names
+#define MIN_ANGLE_NAME "Minimum Angle"
+#define MAX_ANGLE_NAME "Maximum Angle"
+#define RATE_OF_DECAY_NAME "Rate of Decay"
+#define NEURON_WIDTH_NAME "Neuron Width"
+#define NEURON_HEIGHT_NAME "Neuron Height"
+
 
 /** Constructor */
 JointOutputChannel::JointOutputChannel() : OutputChannel() {
 	//First define the properties of this channel
-	addProperty(DoubleProperty(-90, "Minimum Angle", "The minimum angle to read", true));
-	addProperty(DoubleProperty(90, "Maximum Angle", "The maximum angle to read", true));
-	addProperty(DoubleProperty(0.005,"Rate Of Decay",  "The rate of decay of the angle variables", false));
-	addProperty(IntegerProperty(10, "Neuron Width", "Width of the neuron network", true));
-	addProperty(IntegerProperty(1, "Neuron Height", "Height of the neuron network", true));
+	addProperty(Property(Property::Double, -90.0,  MIN_ANGLE_NAME, "The minimum angle to read", true));
+	addProperty(Property(Property::Double, 90.0, MAX_ANGLE_NAME, "The maximum angle to read", true));
+	addProperty(Property(Property::Double, 0.25, RATE_OF_DECAY_NAME,  "The rate of decay of the angle variables", false));
+	addProperty(Property(Property::Integer, 10, NEURON_WIDTH_NAME, "Width of the neuron network", true));
+	addProperty(Property(Property::Integer, 1, NEURON_HEIGHT_NAME, "Height of the neuron network", true));
 
 	//Create the description
 	channelDescription = Description("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
@@ -24,9 +31,6 @@ JointOutputChannel::JointOutputChannel() : OutputChannel() {
 
 /** Destructor */
 JointOutputChannel::~JointOutputChannel(){
-	if(isInitialized()){
-		delete [] currentVariables;
-	}
 }
 
 
@@ -63,9 +67,16 @@ void JointOutputChannel::initialize(Writer* writer, map<string, Property>& prope
 	this->writer->start();
 
 	//Set up current variables
-	currentVariables = new double[size()];
 	for(int i=0; i<size(); ++i)
-		currentVariables[i] = 0.0;
+		currentVariables.push_back(0.0);
+
+	// Calculate angle covered by each current variable */
+	double angleDist = (maxAngle - minAngle) / double(size()-1);
+
+	// Populate the current variable angles
+	for(unsigned n=0; n < size(); ++n) {
+		currentVariableAngles.push_back(minAngle + n * angleDist);
+	}
 
 	setInitialized(true);
 }
@@ -73,25 +84,36 @@ void JointOutputChannel::initialize(Writer* writer, map<string, Property>& prope
 
 //Inherited from Channel
 void JointOutputChannel::step(){
-	//Calculate the angle from the current variables
-	double angleSum = 0;
-	double weightSum = 0;
-	for(unsigned int j = 0; j < size(); ++j)     {
-		double currentAngle = (maxAngle - minAngle) / ((width * height)-1) * j + minAngle;
-		angleSum += currentVariables[j] * currentAngle;
-		weightSum += currentVariables[j];
-	}
-	if(weightSum != 0) {
-		writer->setAngle(angleSum / weightSum);
+	//Check writer for errors
+	if(writer->isError()){
+		LOG(LOG_CRITICAL)<<"AngleWriter Error: "<<writer->getErrorMessage();
+		throw ISpikeException("Error in AngleWriter");
 	}
 
-	/* Decay the variables according to the following function:
-     * N(t+1) = N(t)*e^(-rateOfDecay*t)
-     */
-//	for(unsigned int i=0; i < size(); ++i) {
-//		currentVariables[i] = currentVariables[i] * exp(-(rateOfDecay) * times[i]);
-//		//FIXME MAKE THIS A PROPER EXPONENTIAL FUNCTION
-//	}
+	// Exponential decay of variables
+	for(vector<double>::iterator iter = currentVariables.begin(); iter != currentVariables.end(); ++iter) {
+		(*iter) *= rateOfDecay;
+	}
+
+	/* Now work out the weighted sum */
+	double angleSum = 0.0;
+	double weightSum = 0.0;
+	for(unsigned n = 0; n < size(); ++n) {
+		angleSum += currentVariableAngles.at(n) * currentVariables.at(n);
+		weightSum += currentVariables.at(n);
+	}
+
+	//Check angle is in range and set it in writer
+	double  newAngle = weightSum ? (angleSum / weightSum) : 0.0;
+	if(newAngle > maxAngle){
+		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") exceeds the maximum ("<<maxAngle<<". Has been limited to the maximum";
+		newAngle = maxAngle;
+	}
+	else if(newAngle < minAngle){
+		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") is less than the minimum ("<<minAngle<<". Has been limited to the minimum";
+		newAngle = minAngle;
+	}
+	writer->setAngle(newAngle);
 }
 
 
@@ -104,26 +126,26 @@ void JointOutputChannel::updateProperties(map<string, Property>& properties) {
 	if(propertyMap.size() != properties.size())
 		throw ISpikeException("JointOutputChannel: Current properties do not match new properties.");
 
-	bool updateReadOnly = !isInitialized();
+	updatePropertyCount = 0;
 	for(map<string,Property>::iterator iter = properties.begin(); iter != properties.end(); ++iter){
 		//In updateReadOnly mode, only update properties that are not read only
-		if((updateReadOnly && !propertyMap[iter->first].isReadOnly()) || !updateReadOnly) {
+		if((isInitialized() && !propertyMap[iter->first].isReadOnly()) || !isInitialized()) {
 			string paramName = iter->second.getName();
 			switch (iter->second.getType()) {
 				case Property::Integer: {
-					if (paramName == "Neuron Width")
-						setWidth(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
-					else if (paramName == "Neuron Height")
-						setHeight(updatePropertyValue(dynamic_cast<IntegerProperty&>(iter->second)));
+					if (paramName == NEURON_WIDTH_NAME)
+						setWidth(updateIntegerProperty(iter->second));
+					else if (paramName == NEURON_HEIGHT_NAME)
+						setHeight(updateIntegerProperty(iter->second));
 				}
 				break;
 				case Property::Double:{
-					if (paramName == "Minimum Angle")
-						minAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Maximum Angle")
-						maxAngle = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
-					else if (paramName == "Rate Of Decay")
-						rateOfDecay = updatePropertyValue(dynamic_cast<DoubleProperty&>(iter->second));
+					if (paramName == MIN_ANGLE_NAME)
+						minAngle = updateDoubleProperty(iter->second);
+					else if (paramName == MAX_ANGLE_NAME)
+						maxAngle = updateDoubleProperty(iter->second);
+					else if (paramName == RATE_OF_DECAY_NAME)
+						rateOfDecay = updateDoubleProperty(iter->second);
 				}
 				break;
 				case Property::Combo: break;
@@ -133,6 +155,15 @@ void JointOutputChannel::updateProperties(map<string, Property>& properties) {
 			}
 		}
 	}
+
+	//Check angles are sensible
+	if(maxAngle <= minAngle) {
+		throw ISpikeException("JointOutputChannel: Maximum angle must be greater than minimum angle");
+	}
+
+	//Check all properties were updated
+	if(!isInitialized() && updatePropertyCount != propertyMap.size())
+		throw ISpikeException("JointOutputChannel: Some or all of the properties were not updated: ", updatePropertyCount);
 }
 
 

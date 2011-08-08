@@ -18,113 +18,70 @@ void PropertyHolder::addProperty(Property property){
 }
 
 
-/*--------------------------------------------------------------------*/
-/*---------              PROTECTED METHODS                     -------*/
-/*--------------------------------------------------------------------*/
-
 /** Checks property exists and returns its value if it does */
-string PropertyHolder::getComboPropertyValue(string propertyName){
-	checkName(propertyName);
-	return getValue(dynamic_cast<ComboProperty&>(propertyMap[propertyName]));
-}
-
-
-/** Checks property exists and returns its value if it does */
-double PropertyHolder::getDoublePropertyValue(string propertyName){
-	checkName(propertyName);
-	return getValue(dynamic_cast<DoubleProperty&>(propertyMap[propertyName]));
-}
-
-
-/** Checks property exists and returns its value if it does */
-int PropertyHolder::getIntegerPropertyValue(string propertyName){
-	checkName(propertyName);
-	return getValue(dynamic_cast<IntegerProperty&>(propertyMap[propertyName]));
-}
-
-
-/** Checks property exists and returns its value if it does */
-string PropertyHolder::getStringPropertyValue(string propertyName){
-	checkName(propertyName);
-	return getValue(dynamic_cast<StringProperty&>(propertyMap[propertyName]));
-}
-
-/** Checks property exists and returns its value if it does */
-string PropertyHolder::getValue(ComboProperty& property){
+int PropertyHolder::updateIntegerProperty(Property& property){
 	checkProperty(property);
-	return property.getValue();
-}
-
-/** Checks property exists and returns its value if it does */
-double PropertyHolder::getValue(DoubleProperty& property){
-	checkProperty(property);
-	return property.getValue();
-}
-
-/** Checks property exists and returns its value if it does */
-int PropertyHolder::getValue(IntegerProperty& property){
-	checkProperty(property);
-	return property.getValue();
-}
-
-/** Checks property exists and returns its value if it does */
-string PropertyHolder::getValue(StringProperty& property){
-	checkProperty(property);
-	return property.getValue();
-}
-
-/** Checks property exists and returns its value if it does */
-string PropertyHolder::updatePropertyValue(ComboProperty& property){
-	checkProperty(property);
-	dynamic_cast<ComboProperty&>(propertyMap[property.getName()]).setValue(property.getValue());
-	return property.getValue();
+	propertyMap[property.getName()].setInt(property.getInt());
+	++updatePropertyCount;
+	return property.getInt();
 }
 
 /** Checks property exists, updates the property in the map with the value in the supplied property and returns its value if it does */
-double PropertyHolder::updatePropertyValue(DoubleProperty& property){
+double PropertyHolder::updateDoubleProperty(Property& property){
 	checkProperty(property);
-	dynamic_cast<DoubleProperty&>(propertyMap[property.getName()]).setValue(property.getValue());
-	return property.getValue();
+	propertyMap[property.getName()].setDouble(property.getDouble());
+	++updatePropertyCount;
+	return property.getDouble();
 }
 
 /** Checks property exists, updates the property in the map with the value in the supplied property and returns its value if it does */
-int PropertyHolder::updatePropertyValue(IntegerProperty& property){
+string PropertyHolder::updateStringProperty(Property& property){
 	checkProperty(property);
-	dynamic_cast<IntegerProperty&>(propertyMap[property.getName()]).setValue(property.getValue());
-	return property.getValue();
+	propertyMap[property.getName()].setString(property.getString());
+	++updatePropertyCount;
+	return property.getString();
 }
 
 /** Checks property exists, updates the property in the map with the value in the supplied property and returns its value if it does */
-string PropertyHolder::updatePropertyValue(StringProperty& property){
+string PropertyHolder::updateComboProperty(Property& property){
 	checkProperty(property);
-	dynamic_cast<StringProperty&>(propertyMap[property.getName()]).setValue(property.getValue());
-	return property.getValue();
+	propertyMap[property.getName()].setString(property.getString());
+	propertyMap[property.getName()].setOptions(property.getOptions());
+	++updatePropertyCount;
+	return property.getString();
 }
 
 
 /*--------------------------------------------------------------------*/
-/*---------                PRIVATE METHODS                     -------*/
+/*---------                PROTECTED METHODS                     -------*/
 /*--------------------------------------------------------------------*/
-
-/** Checks that property exists and that its name in the map matches its internal name */
-void PropertyHolder::checkName(string& propertyName){
-	if(propertyMap.count(propertyName) == 0){
-		LOG(LOG_CRITICAL) << "Property does not exist: " << propertyName <<endl;
-		throw ISpikeException("Property not recognized");
-	}
-
-	//Check that property name matches the map name
-	if(propertyMap[propertyName].getName() != propertyName){
-		LOG(LOG_CRITICAL) << "Property name mismatch: " <<propertyMap[propertyName].getName()<<", "<<propertyName<<endl;
-		throw ISpikeException("Property name mismatch");
-	}
-}
-
 
 /** Checks that property exists and that its name in the map matches its internal name */
 void PropertyHolder::checkProperty(Property& property){
 	if(propertyMap.count(property.getName()) == 0){
-		LOG(LOG_CRITICAL) << "Property does not exist: " << property.getName() <<endl;
+		LOG(LOG_CRITICAL) << "Property does not exist in property map: " << property.getName() <<endl;
 		throw ISpikeException("Property not recognized");
+	}
+}
+
+
+/** Prints out the properties */
+void PropertyHolder::printProperties(){
+	for(map<string, Property>::iterator iter = propertyMap.begin(); iter !=propertyMap.end(); ++iter ){
+		Property& tmpProp = iter->second;
+		cout<<"Name: "<<tmpProp.getName()<<", ";
+		if(tmpProp.getType() == Property::Integer)
+			cout<<"Type: Integer; value="<<tmpProp.getInt()<<endl;
+		else if(tmpProp.getType() == Property::Double)
+			cout<<"Type: Double; value="<<tmpProp.getDouble()<<endl;
+		else if(tmpProp.getType() == Property::String)
+			cout<<"Type: String; value="<<tmpProp.getString()<<endl;
+		else if(tmpProp.getType() == Property::Combo){
+			cout<<"Type: Combo; value="<<tmpProp.getString()<<"; Options=";
+			vector<string> tmpOptions = tmpProp.getOptions();
+			for(int i=0; i<tmpOptions.size(); ++i)
+				cout<<tmpOptions[i]<<", ";
+			cout<<endl;
+		}
 	}
 }
