@@ -1,10 +1,9 @@
 :: Set SpikeStream root directory
-SET SpikeStreamRoot=D:\Home\Programs\spikestream\trunk
-::SET SpikeStreamRoot=C:\Users\daogamez\Home\Programs\spikestream\trunk
+::SET SpikeStreamRoot=D:\Home\Programs\spikestream\trunk
+SET SpikeStreamRoot=C:\Users\daogamez\Home\Programs\spikestream\trunk
 
 :: Set location of iSpike library
-::SET iSpikeLibrary=lib
-SET iSpikeLibraryDirectory=D:\Home\Programs\iSpike\src
+SET iSpikeLibraryDirectory=src
 
 :: Copy library to external library location
 copy %iSpikeLibraryDirectory%\libiSpike.dll %SpikeStreamRoot%\extlib\ispike\lib\libiSpike.dll /Y

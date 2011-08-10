@@ -140,18 +140,24 @@ void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
 	if(outputWidth == 0 || outputHeight == 0)
 		throw ISpikeException("LogPolarVisualDataReducer: Cannot initialize with zero width and/or height.");
 
-	if(foveaRadius > outputWidth || foveaRadius > outputHeight)
-		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to output width and height.");
+	if(foveaRadius > outputWidth)
+		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to output width.");
 
-	if(bitmap.getWidth() <= outputWidth || bitmap.getHeight() <= outputHeight)
+	if(bitmap.getWidth() < outputWidth || bitmap.getHeight() < outputWidth)
 		throw ISpikeException("LogPolarVisualDataReducer: Incoming image must be greater in size than output.");
 
+	//Store input width and height
 	inputWidth = bitmap.getWidth();
 	inputHeight = bitmap.getHeight();
-	LOG(LOG_DEBUG)<<"Probe 1A";
+	if(foveaRadius > inputWidth/2 || foveaRadius > inputHeight/2)
+		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to half of input width or height.");
+
+	//Initialize map for converting between polar and Cartesian
 	initialisePolarToCartesianVector();
-	LOG(LOG_DEBUG)<<"Probe 1b";
+
+	//Create reduced image
 	reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
+
 	setInitialized(true);
 }
 

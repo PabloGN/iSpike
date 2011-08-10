@@ -34,14 +34,18 @@ VisualInputChannel::VisualInputChannel() {
 	addProperty(Property(Property::Double, 4.0, NEGATIVE_SIGMA_NAME, "Negative Gaussian Sigma", false));
 	addProperty(Property(Property::Double, 4.0, POSITIVE_FACTOR_NAME, "Multiplication ratio for positive image during subtraction", false));
 	addProperty(Property(Property::Double, 2.0, NEGATIVE_FACTOR_NAME, "Multiplication ratio for negative image during subtraction", false));
-	addProperty(Property(Property::Integer, 0, OPPONENCY_MAP_NAME, "Which colour oponency map to use (0 = R+G-; 1 = G+R-; 2 = B+Y-)", true));
+	vector<string> tmpVector;
+	tmpVector.push_back("R+G-");
+	tmpVector.push_back("G+R-");
+	tmpVector.push_back("B+Y-");
+	addProperty(Property("R+G-", tmpVector, OPPONENCY_MAP_NAME, "Which opponency map to use.", true));
 
 	//Properties of the neural simulator
 	addProperty(Property(Property::Double, 0.1, PARAM_A_NAME, "Parameter A of the Izhikevich Neuron Model", false));
 	addProperty(Property(Property::Double, 0.2, PARAM_B_NAME,"Parameter B of the Izhikevich Neuron Model",false));
 	addProperty(Property(Property::Double, -65, PARAM_C_NAME,"Parameter C of the Izhikevich Neuron Model",false));
 	addProperty(Property(Property::Double, 2.0, PARAM_D_NAME, "Parameter D of the Izhikevich Neuron Model",false));
-	addProperty(Property(Property::Double, 20.0, CURRENT_FACTOR_NAME, "Incoming current is multiplied by this value",false));
+	addProperty(Property(Property::Double, 0.1, CURRENT_FACTOR_NAME, "Incoming current is multiplied by this value",false));
 	addProperty(Property(Property::Double, 0.0, CONSTANT_CURRENT_NAME, "This value is added to the incoming current", false));
 
 	//Create the description
@@ -151,9 +155,7 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties) {
 			string paramName = iter->second.getName();
 			switch (iter->second.getType()){
 				case Property::Integer: {
-					if(paramName == OPPONENCY_MAP_NAME)
-						dogFilter->setOpponencyTypeID(updateIntegerProperty(iter->second));
-					else if (paramName == NEURON_WIDTH_NAME){
+					if (paramName == NEURON_WIDTH_NAME){
 						setWidth(updateIntegerProperty(iter->second));
 						dataReducer->setOutputWidth(getWidth());
 					}
@@ -187,8 +189,19 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties) {
 					else if (paramName == FOVEA_RADIUS_NAME)
 						dataReducer->setFoveaRadius(updateDoubleProperty(iter->second));
 					break;
-				}
+				}	
 				case Property::Combo:
+					if(paramName == OPPONENCY_MAP_NAME){
+						string mapName = updateComboProperty(iter->second);
+						if(mapName == "R+G-")
+							dogFilter->setOpponencyTypeID(0);
+						else if(mapName == "G+R-")
+							dogFilter->setOpponencyTypeID(1);
+						else if(mapName == "B+Y-")
+							dogFilter->setOpponencyTypeID(2);
+						else
+							throw ISpikeException("VisualInputChannel: Opponency map type not recognized");
+					}
 				break;
 				case Property::String:
 				break;

@@ -20,7 +20,25 @@ void Common::savePPMImage(const char* filename, Bitmap* image){
   std::ofstream file_handle(filename, std::ios::binary);
   if (file_handle) {
     file_handle << "P6" << std::endl << image->getWidth() << ' ' << image->getHeight() << std::endl << 255 << std::endl;
-    file_handle.write((char *)image->getContents(), image->getWidth() * image->getHeight() * image->getDepth());
+	//Write colour image
+	if(image->getDepth() ==3)
+		file_handle.write((char *)image->getContents(), image->getWidth() * image->getHeight() * image->getDepth());
+
+	//Write black and white image
+	else if(image->getDepth() == 1){
+		int imageSize = image->size();
+		char* imageContents = (char*)image->getContents();
+		for(int i=0; i<imageSize; ++i){
+			//Write each pixel three times
+			file_handle.write(&imageContents[i], 1);
+			file_handle.write(&imageContents[i], 1);
+			file_handle.write(&imageContents[i], 1);
+		}
+	}
+
+	//Unknown image
+	else
+		throw ISpikeException("Common: Image that is not depth 1 or 3 cannot be written.");
     file_handle.close();
   }
 }

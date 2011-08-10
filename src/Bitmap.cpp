@@ -38,7 +38,7 @@ Bitmap::Bitmap (const Bitmap& bmp){
 	unsigned char* bmpContents = bmp.getContents();
 
 	//Copy contents across into this bitmap
-	for(int i=0; i<size(); ++i)
+	for(int i=0; i<tmpSize; ++i)
 		contents[i] = bmpContents[i];
 }
 
@@ -75,7 +75,7 @@ Bitmap& Bitmap::operator=(const Bitmap& rhs){
 	unsigned char* rhsContents = rhs.getContents();
 
 	//Copy contents across into this bitmap
-	for(int i=0; i<size(); ++i)
+	for(int i=0; i<tmpSize; ++i)
 		contents[i] = rhsContents[i];
 
 	return *this;
