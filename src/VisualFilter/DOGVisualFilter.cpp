@@ -11,7 +11,7 @@ using namespace ispike;
 
 
 /** Ouputs debug images to file */
-#define DEBUG_IMAGES
+//#define DEBUG_IMAGES
 
 /** Maximum value of a pixel */
 #define MAX_PIXEL_VALUE 255

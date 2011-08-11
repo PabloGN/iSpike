@@ -4,7 +4,6 @@
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
 
-
 //Names of properties
 #define NEURON_WIDTH_NAME "Neuron Width"
 #define NEURON_HEIGHT_NAME "Neuron Height"

@@ -23,8 +23,8 @@ WriterFactory::WriterFactory(string ip, unsigned port){
 	printWriters();
 
 	//Store variables
-	ip = ip;
-	port = port;
+	this->ip = ip;
+	this->port = port;
 }
 
 

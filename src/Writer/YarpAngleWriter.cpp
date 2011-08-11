@@ -12,9 +12,9 @@ using namespace ispike;
 using namespace std;
 
 //Names of properties used
-#define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 #define PORT_NAME_PROP "Port Name"
 #define SLEEP_DURATION_PROP "Sleep Duration ms"
+
 
 /** The default constructor, only initialises the default parameters and the description */
 YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
@@ -34,8 +34,7 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 
 	//Other properties
-	addProperty(Property(Property::Integer, 20, DEGREE_OF_FREEDOM_PROP, "Degree of freedom of joint to write.", false));
-	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
+	addProperty(Property(Property::Integer, 50, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between sending command.", false));
 
 	//Create the description
 	writerDescription = Description("Yarp Angle Writer", "This is a Yarp angle writer", "Angle Writer");
@@ -48,6 +47,10 @@ YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 
 /** Destructor */
 YarpAngleWriter::~YarpAngleWriter(){
+	if(isRunning()){
+		requestStop();
+		getThreadPointer()->join();
+	}
 	if(yarpConnection != NULL)
 		delete yarpConnection;
 }
@@ -68,6 +71,15 @@ void YarpAngleWriter::initialize(map<string,Property>& properties){
 void YarpAngleWriter::setAngle(double newAngle){
 	if(this->angle != newAngle){
 		this->angle = newAngle;
+		angleChanged = true;
+	}
+}
+
+
+// Inherited from AngleWriter
+void YarpAngleWriter::setDegreeOfFreedom(int dof){
+	if(this->degreeOfFreedom != dof){
+		this->degreeOfFreedom = dof;
 		angleChanged = true;
 	}
 }
@@ -96,11 +108,9 @@ void YarpAngleWriter::start(){
 
 /** Updates the properties with values from the map */
 void YarpAngleWriter::updateProperties(map<string, Property>& properties){
-	bool updateReadOnly = !isInitialized();
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+	if(!isInitialized())
 		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
-	degreeOfFreedom = updateIntegerProperty(properties[DEGREE_OF_FREEDOM_PROP]);
 	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
 }
 
@@ -123,14 +133,17 @@ void YarpAngleWriter::workerFunction(){
 		yarpConnection->write_text("CONNECT foo\n");
 
 		//Main run loop
+		unsigned loopCtr = 0;
 		while(!isStopRequested()){
+			if(loopCtr % 20 == 0)
+				LOG(LOG_DEBUG)<<"YarpAngleWriter: Checking for new angle.";
 			if(angleChanged){
 				//Send new angle
 				yarpConnection->write_text("d\n");
 				ostringstream commandStream;
 				commandStream << "set pos " << degreeOfFreedom << " " << angle << "\n";
 				string command = commandStream.str();
-				LOG(LOG_DEBUG) << "YarpAngleWriter: Sent command " << command;
+				LOG(LOG_DEBUG) << "YarpAngleWriter: Sending command " << command;
 				this->yarpConnection->write_text(command);
 				LOG(LOG_DEBUG) << "YarpAngleWriter: Received reply " << this->yarpConnection->read_until("\n");
 
@@ -141,13 +154,18 @@ void YarpAngleWriter::workerFunction(){
 			//Sleep for the specified amount
 			if(sleepDuration_ms > 0)
 				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
+			++loopCtr;
 		}
 	}
 	catch(ISpikeException& ex){
 		setError(ex.msg());
 	}
+	catch(exception& ex){
+		LOG(LOG_CRITICAL)<<"YarpAngleWriter exception: "<<ex.what();
+		setError("An exception occurred in the YarpAngleWriter.");
+	}
 	catch(...){
-		setError("An unknown exception occurred in the YarpVisualReader");
+		setError("An unknown exception occurred in the YarpAngleWriter");
 	}
 
 	setRunning(false);

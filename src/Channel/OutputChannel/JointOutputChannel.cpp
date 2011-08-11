@@ -8,8 +8,10 @@ using namespace ispike;
 #define MIN_ANGLE_NAME "Minimum Angle"
 #define MAX_ANGLE_NAME "Maximum Angle"
 #define RATE_OF_DECAY_NAME "Rate of Decay"
+#define CURRENT_INCREMENT_NAME "Current Increment"
 #define NEURON_WIDTH_NAME "Neuron Width"
 #define NEURON_HEIGHT_NAME "Neuron Height"
+#define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 
 
 /** Constructor */
@@ -18,8 +20,10 @@ JointOutputChannel::JointOutputChannel() : OutputChannel() {
 	addProperty(Property(Property::Double, -90.0,  MIN_ANGLE_NAME, "The minimum angle to read", true));
 	addProperty(Property(Property::Double, 90.0, MAX_ANGLE_NAME, "The maximum angle to read", true));
 	addProperty(Property(Property::Double, 0.25, RATE_OF_DECAY_NAME,  "The rate of decay of the angle variables", false));
+	addProperty(Property(Property::Double, 10, CURRENT_INCREMENT_NAME,  "The amount by which the input current to the neurons is incremented by each spike", false));
 	addProperty(Property(Property::Integer, 10, NEURON_WIDTH_NAME, "Width of the neuron network", true));
 	addProperty(Property(Property::Integer, 1, NEURON_HEIGHT_NAME, "Height of the neuron network", true));
+	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_PROP, "Degree of freedom of joint.", false));
 
 	//Create the description
 	channelDescription = Description("Joint Output Channel", "This channel converts a pattern of spikes into an angle and writes it", "Angle Writer");
@@ -31,6 +35,8 @@ JointOutputChannel::JointOutputChannel() : OutputChannel() {
 
 /** Destructor */
 JointOutputChannel::~JointOutputChannel(){
+	if(writer != NULL)
+		delete writer;
 }
 
 
@@ -58,13 +64,10 @@ void JointOutputChannel::initialize(Writer* writer, map<string, Property>& prope
 	//This class requires an angle writer, so cast and check
 	this->writer = dynamic_cast<AngleWriter*>(writer);
 	if(this->writer == NULL)
-		throw ISpikeException("Cannot initialize JointOutputChannel with a null reader.");
+		throw ISpikeException("Cannot initialize JointOutputChannel with a null writer.");
 
 	//Update properties in this and dependent classes
 	updateProperties(properties);
-
-	//Start the writer thread running
-	this->writer->start();
 
 	//Set up current variables
 	for(int i=0; i<size(); ++i)
@@ -77,6 +80,9 @@ void JointOutputChannel::initialize(Writer* writer, map<string, Property>& prope
 	for(unsigned n=0; n < size(); ++n) {
 		currentVariableAngles.push_back(minAngle + n * angleDist);
 	}
+
+	//Start the writer thread running
+	this->writer->start();
 
 	setInitialized(true);
 }
@@ -103,14 +109,18 @@ void JointOutputChannel::step(){
 		weightSum += currentVariables.at(n);
 	}
 
+	//Calculate new angle
+	double newAngle = 0.0;
+	if(weightSum != 0.0)
+		newAngle = angleSum/weightSum;
+
 	//Check angle is in range and set it in writer
-	double  newAngle = weightSum ? (angleSum / weightSum) : 0.0;
 	if(newAngle > maxAngle){
-		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") exceeds the maximum ("<<maxAngle<<". Has been limited to the maximum";
+		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") exceeds the maximum ("<<maxAngle<<"). Has been limited to the maximum";
 		newAngle = maxAngle;
 	}
 	else if(newAngle < minAngle){
-		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") is less than the minimum ("<<minAngle<<". Has been limited to the minimum";
+		LOG(LOG_WARNING)<<"JointOutputChannel: New angle ("<<newAngle<<") is less than the minimum ("<<minAngle<<"). Has been limited to the minimum";
 		newAngle = minAngle;
 	}
 	writer->setAngle(newAngle);
@@ -137,6 +147,8 @@ void JointOutputChannel::updateProperties(map<string, Property>& properties) {
 						setWidth(updateIntegerProperty(iter->second));
 					else if (paramName == NEURON_HEIGHT_NAME)
 						setHeight(updateIntegerProperty(iter->second));
+					else if (paramName == DEGREE_OF_FREEDOM_PROP)
+						writer->setDegreeOfFreedom(updateIntegerProperty(iter->second));
 				}
 				break;
 				case Property::Double:{
@@ -146,6 +158,8 @@ void JointOutputChannel::updateProperties(map<string, Property>& properties) {
 						maxAngle = updateDoubleProperty(iter->second);
 					else if (paramName == RATE_OF_DECAY_NAME)
 						rateOfDecay = updateDoubleProperty(iter->second);
+					else if (paramName == CURRENT_INCREMENT_NAME)
+						currentIncrement = updateDoubleProperty(iter->second);
 				}
 				break;
 				case Property::Combo: break;

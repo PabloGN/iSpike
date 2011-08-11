@@ -20,9 +20,6 @@ FileAngleWriter::FileAngleWriter() {
 
 	//Create description
 	writerDescription = Description("File Angle Writer", "This is a file angle writer", "Angle Writer");
-
-	//Initialize variables
-	currentAngle = -1000000000.0;
 }
 
 
@@ -41,6 +38,15 @@ void FileAngleWriter::initialize(map<string, Property> &properties){
 void FileAngleWriter::setAngle(double newAngle){
 	if(this->angle != newAngle){
 		this->angle = newAngle;
+		writeAngleToFile();
+	}
+}
+
+
+//Inherited from AngleWriter
+void FileAngleWriter::setDegreeOfFreedom(int dof){
+	if(this->degreeOfFreedom != dof){
+		this->degreeOfFreedom = dof;
 		writeAngleToFile();
 	}
 }

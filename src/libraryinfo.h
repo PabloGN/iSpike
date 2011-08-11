@@ -13,15 +13,15 @@
 #define APPLICATION_NAME               "iSpike"
 #define APPLICATION_CODENAME           "iSpike"
 #define APPLICATION_COPYRIGHT_YEARS    "2011"
-#define APPLICATION_VERSION_MAJOR      1
+#define APPLICATION_VERSION_MAJOR      2
 /* #undef APPLICATION_VERSION_MINOR */
 /* #undef APPLICATION_VERSION_PATCH */
 #define APPLICATION_VERSION_TYPE       "SNAPSHOT"
-#define APPLICATION_VERSION_STRING     "1.0.0-SNAPSHOT"
-#define APPLICATION_VENDOR_ID          "com.imperial"
-#define APPLICATION_VENDOR_NAME        "Edgars Lazdins"
-#define APPLICATION_VENDOR_URL         "imperial.ac.uk"
-#define APPLICATION_ID                 "com.imperial"
+#define APPLICATION_VERSION_STRING     "2.0.0-SNAPSHOT"
+#define APPLICATION_VENDOR_ID          "Imperial"
+#define APPLICATION_VENDOR_NAME        "Department of Computing, Imperial College, London"
+#define APPLICATION_VENDOR_URL         "www.imperial.ac.uk"
+#define APPLICATION_ID                 "Imperial"
 
 #ifndef APPLICATION_NAME
 #   error "Please specify the application name in the top-level CMakeLists.txt file."

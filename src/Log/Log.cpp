@@ -10,6 +10,7 @@ int Log::currentId = 0;
 
 /** Constructor */
 Log::Log(){
+	os.precision(4);
 }
 
 /** Destructor */
@@ -21,7 +22,7 @@ Log::~Log(){
 
 
 TLogLevel& Log::ReportingLevel(){
-  static TLogLevel reportingLevel(LOG_DEBUG);
+  static TLogLevel reportingLevel(LOG_ERROR);
   return reportingLevel;
 }
 

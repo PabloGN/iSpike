@@ -28,7 +28,7 @@ using namespace ispike;
 /** Default constructor, initialises the default channel properties */
 JointInputChannel::JointInputChannel() {
 	// First define the properties of this channel
-	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_NAME, "The degree of freedom to read from this joint", true));
+	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_NAME, "The degree of freedom to read from this joint", false));
 	addProperty(Property(Property::Double, 0.5, STANDARD_DEVIATION_NAME, "The standard deviation as a percentage of neurons covered", true));
 	addProperty(Property(Property::Double, -90.0, MIN_ANGLE_NAME, "The minimum angle to read", true));
 	addProperty(Property(Property::Double, 90.0, MAX_ANGLE_NAME, "The maximum angle to read", true));

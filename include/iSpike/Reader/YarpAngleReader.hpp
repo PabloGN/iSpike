@@ -26,9 +26,6 @@ namespace ispike {
 			/** Class handling connection to YARP */
 			YarpConnection* yarpConnection;
 
-			/** Degree of freedom of joint */
-			int degreeOfFreedom;
-
 			/** Name of port that we connect to */
 			string portName;
 

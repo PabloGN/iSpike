@@ -21,7 +21,7 @@ namespace ispike {
 			void setAngle(double angle) { this->angle = angle; }
 
 
-		private:
+		protected:
 			/** The angle that is read by the reader */
 			double angle;
 

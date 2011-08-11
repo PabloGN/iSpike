@@ -31,7 +31,7 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 	else
 		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 
-	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
+	addProperty(Property(Property::Integer, 50, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Visual Reader", "This is a Yarp visual reader", "Visual Reader");
@@ -43,9 +43,11 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 
 /** Destructor */
 YarpVisualReader::~YarpVisualReader() {
-	if(isInitialized())	{
+	if(isRunning()){
 		requestStop();
 		getThreadPointer()->join();
+	}
+	if(isInitialized())	{
 		delete bitmap1;
 		delete bitmap2;
 	}
@@ -114,8 +116,7 @@ void YarpVisualReader::swapBitmap(){
 
 /** Updates the properties */
 void YarpVisualReader::updateProperties(map<string, Property>& properties){
-	bool updateReadOnly = !isInitialized();
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+	if(!isInitialized())
 		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
 	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
@@ -138,11 +139,16 @@ void YarpVisualReader::workerFunction(){
 		unsigned port = iter->second.getPort();
 		LOG(LOG_INFO) << "YarpVisualReader: Yarp Port IP: " << ip << " Port: " << port;
 
-		yarpConnection->connect_to_port(ip, port);
-		yarpConnection->prepare_to_read_binary();
-
 		//Main run loop
+		unsigned loopCtr = 0;
 		while(!isStopRequested()) {
+			if(loopCtr % 20 == 0){
+				LOG(LOG_DEBUG)<<"YarpVisualReader: Reading image.";
+			}
+
+			yarpConnection->connect_to_port(ip, port);
+			yarpConnection->prepare_to_read_binary();
+
 			//Load new version of image into new buffer
 			if(returnBitmap1){
 				yarpConnection->read_image(*bitmap2);
@@ -156,6 +162,8 @@ void YarpVisualReader::workerFunction(){
 			//Sleep for the specified amount
 			if(sleepDuration_ms > 0)
 				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
+
+			++loopCtr;
 		}
 	}
 	catch(ISpikeException& ex){

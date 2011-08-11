@@ -7,14 +7,17 @@
 using namespace ispike;
 
 //Other includes
+#include <ostream>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-
+using namespace std;
 
 //Property names
-#define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 #define PORT_NAME_PROP "Port Name"
 #define SLEEP_DURATION_PROP "Sleep Duration ms"
+
+//Debug output
+//#define DEBUG
 
 /** Constructor */
 YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
@@ -32,8 +35,7 @@ YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
 		addProperty(Property("undefined", yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
 	else
 		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
-	addProperty(Property(Property::Integer, 0, DEGREE_OF_FREEDOM_PROP,"Index controlling angle that is extracted", true));
-	addProperty(Property(Property::Integer, 20, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between refreshing angle.", false));
+	addProperty(Property(Property::Integer, 50, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between refreshing angle.", false));
 
 	//Create the description
 	readerDescription = Description("Yarp Angle Reader", "This is a Yarp angle reader", "Angle Reader");
@@ -90,11 +92,9 @@ void YarpAngleReader::start(){
 
 /** Updates the properties */
 void YarpAngleReader::updateProperties(map<string, Property>& properties){
-	bool updateReadOnly = !isInitialized();
-	if((updateReadOnly && !propertyMap[PORT_NAME_PROP].isReadOnly()) || !updateReadOnly)
+	if(!isInitialized())
 		portName = updateComboProperty(properties[PORT_NAME_PROP]);
 
-	degreeOfFreedom = updateIntegerProperty(properties[DEGREE_OF_FREEDOM_PROP]);
 	sleepDuration_ms = updateIntegerProperty(properties[SLEEP_DURATION_PROP]);
 
 }
@@ -119,12 +119,13 @@ void YarpAngleReader::workerFunction(){
 		unsigned port = iter->second.getPort();
 		LOG(LOG_INFO) << "YarpAngleReader: Yarp Port IP: " << ip << " Port: " << port;
 
-		yarpConnection->connect_to_port(ip, port);
-		yarpConnection->prepare_to_read_text();
 
 		//Main run loop
+		unsigned loopCtr = 0;
 		while(!isStopRequested()){
 			//Get angle data from YARP server
+			yarpConnection->connect_to_port(ip, port);
+			yarpConnection->prepare_to_read_text();
 			string contentLine = this->yarpConnection->getSocketString();
 
 			//Extract the angles
@@ -145,7 +146,6 @@ void YarpAngleReader::workerFunction(){
 						LOG(LOG_CRITICAL)<<"Error occured in YarpAngleReader: '"<<current_string<<"'"<<"Cannot convert this to double: "<<current_string;
 						throw new ISpikeException("Error at YarpAngleReader lexical_cast");
 					}
-					LOG(LOG_INFO) << "Angle: " << getAngle();
 					buffer.push_back(tmpAngle);
 				}
 			}
@@ -153,11 +153,24 @@ void YarpAngleReader::workerFunction(){
 			//Set the angle to the appropriate degree of freedom
 			if(degreeOfFreedom >= buffer.size())
 				throw ISpikeException("Degree of freedom is greater than the buffer size.");
+
+			//Logging output
+			if(loopCtr % 20 ==0){
+				ostringstream tmpOss;
+				for(int i=0; i<buffer.size();  ++i){
+					tmpOss<<buffer.at(i)<<" ";
+				}
+				LOG(LOG_INFO)<<"Angles: "<<tmpOss.str()<<"; degreeOfFreedom="<<degreeOfFreedom<<"; angle="<<getAngle();
+			}
+
+			//Set the angle
 			setAngle(buffer[degreeOfFreedom]);
 
 			//Sleep for a period before refreshing the angle
 			if(sleepDuration_ms > 0)
 				boost::this_thread::sleep(boost::posix_time::milliseconds(sleepDuration_ms));
+
+			++loopCtr;
 		}
 	}
 	catch(ISpikeException& ex){

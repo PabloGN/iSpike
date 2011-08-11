@@ -15,9 +15,9 @@ using namespace std;
 //Pi
 #define PI 3.141592653589793238
 
-/** Ouputs debug images to file */
-#define DEBUG_IMAGES
-#define DEBUG_COORDINATES
+/** Ouputs debug images and coordinates to file */
+//#define DEBUG_IMAGES
+//#define DEBUG_COORDINATES
 
 /** Constructor */
 LogPolarVisualDataReducer::LogPolarVisualDataReducer(){
@@ -128,8 +128,9 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 		}
 	}
 
-	//Output debug image if required
+	//Output reduced image if required
 	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("inputImage.ppm", &bitmap);
 		Common::savePPMImage("logPolar.ppm", reducedImage);
 	#endif//DEBUG_IMAGES
 }

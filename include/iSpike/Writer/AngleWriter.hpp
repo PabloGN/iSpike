@@ -17,9 +17,16 @@ namespace ispike {
 			/** Retrieves the angle  */
 			double getAngle() { return angle; }
 
+			/** Sets the degree of freedom */
+			virtual void setDegreeOfFreedom(int dof) = 0;
+
+
 		protected:
 			/** The angle that is written by the writer */
 			double angle;
+
+			/** Degree of freedom of the joint */
+			int degreeOfFreedom;
 	};
 
 }

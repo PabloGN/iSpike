@@ -18,11 +18,13 @@ namespace ispike {
 			virtual ~YarpAngleWriter();
 			void initialize(map<string,Property>& properties);
 			void setAngle(double newAngle);
+			void setDegreeOfFreedom(int dof);
 			void setProperties(map<string,Property>& properties);
 			void start();
 
 		private:
 			//===========================  VARIABLES  =========================
+			/** Class handling connection to YARP */
 			YarpConnection* yarpConnection;
 
 			/*! Controls whether the angle should be output */
@@ -34,8 +36,6 @@ namespace ispike {
 			/** Amount to sleep in between writing commands */
 			unsigned sleepDuration_ms;
 
-			/** Degree of freedom that this writer writes */
-			int degreeOfFreedom;
 
 			//===========================  METHODS  ===========================
 			void updateProperties(map<string, Property>& properties);

@@ -12,14 +12,12 @@ namespace ispike {
 			virtual ~FileAngleWriter(){}
 			void initialize(map<string, Property>& properties);
 			void setAngle(double angle);
+			void setDegreeOfFreedom(int dof);
 			void setProperties(map<string, Property>& properties);
 			void start() {}
 
 		private:
 			//==========================  VARIABLES  =========================
-			/** Used to establish if angle has changed */
-			double currentAngle;
-
 			/** Name of the file to write the angle */
 			string fileName;
 
