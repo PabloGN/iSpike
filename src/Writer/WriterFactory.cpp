@@ -4,6 +4,7 @@
 #include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/Writer/FileAngleWriter.hpp>
+#include "iSpike/Log/Log.hpp"
 using namespace ispike;
 
 /** Default constructor
@@ -79,5 +80,5 @@ Writer* WriterFactory::create(Description& desc, map<string, Property>& writerPr
 /** Prints out the available writers */
 void WriterFactory::printWriters(){
 	for(size_t i=0; i<writerList.size(); ++i)
-		cout<<"Writer: "<<writerList[i].getName()<<", "<<writerList[i].getDescription()<<endl;
+		LOG(LOG_DEBUG)<<"Writer: "<<writerList[i].getName()<<", "<<writerList[i].getDescription();
 }

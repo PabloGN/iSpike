@@ -2,6 +2,7 @@
 #include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 #include <iSpike/Writer/AngleWriter.hpp>
 #include "iSpike/ISpikeException.hpp"
+#include "iSpike/Log/Log.hpp"
 using namespace ispike;
 
 
@@ -43,7 +44,7 @@ map<string, Property> OutputChannelFactory::getDefaultProperties(Description& de
 /** Prints out the available input channels */
 void OutputChannelFactory::printOutputChannels(){
 	for(size_t i=0; i<channelList.size(); ++i)
-		cout<<"Output Channel: "<<channelList[i].getName()<<", "<<channelList[i].getDescription()<<endl;
+		LOG(LOG_DEBUG)<<"Output Channel: "<<channelList[i].getName()<<", "<<channelList[i].getDescription();
 }
 
 

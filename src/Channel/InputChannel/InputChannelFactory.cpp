@@ -4,6 +4,7 @@
 #include <iSpike/Channel/InputChannel/VisualInputChannel.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include "iSpike/ISpikeException.hpp"
+#include "iSpike/Log/Log.hpp"
 using namespace ispike;
 
 
@@ -54,5 +55,5 @@ map<string, Property> InputChannelFactory::getDefaultProperties(Description& des
 /** Prints out the available input channels */
 void InputChannelFactory::printInputChannels(){
 	for(size_t i=0; i<channelList.size(); ++i)
-		cout<<"Input Channel: "<<channelList[i].getName()<<", "<<channelList[i].getDescription()<<endl;
+		LOG(LOG_DEBUG)<<"Input Channel: "<<channelList[i].getName()<<", "<<channelList[i].getDescription();
 }

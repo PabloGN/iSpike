@@ -6,6 +6,7 @@
 #include <iSpike/Reader/YarpAngleReader.hpp>
 #include <iSpike/Reader/YarpVisualReader.hpp>
 #include "iSpike/ISpikeException.hpp"
+#include "iSpike/Log/Log.hpp"
 using namespace ispike;
 
 //Other includes
@@ -97,6 +98,6 @@ Reader* ReaderFactory::create(Description& desc, map<string, Property>& readerPr
 /** Prints out the available readers */
 void ReaderFactory::printReaders(){
 	for(size_t i=0; i<readerList.size(); ++i)
-		cout<<"Reader: "<<readerList[i].getName()<<", "<<readerList[i].getDescription()<<endl;
+		LOG(LOG_DEBUG)<<"Reader: "<<readerList[i].getName()<<", "<<readerList[i].getDescription();
 }
 

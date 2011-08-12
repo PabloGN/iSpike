@@ -13,6 +13,9 @@ using namespace ispike;
 #define NEURON_HEIGHT_NAME "Neuron Height"
 #define DEGREE_OF_FREEDOM_PROP "Degree of Freedom"
 
+//Debug defines
+//S#define DEBUG_NEURON_IDS
+
 
 /** Constructor */
 JointOutputChannel::JointOutputChannel() : OutputChannel() {
@@ -45,11 +48,20 @@ JointOutputChannel::~JointOutputChannel(){
 /*--------------------------------------------------------------------*/
 
 //Inherited from OutputChannel
-void JointOutputChannel::setFiring(std::vector<int>& buffer){
+void JointOutputChannel::setFiring(vector<int>& buffer){
 	//Work through the neuron ids in the buffer
+	#ifdef DEBUG_NEURON_IDS
+		cout<<"OutputChannel: Firing neuron IDs ";
+	#endif//DEBUG_NEURON_IDS
 	for(vector<int>::iterator iter =buffer.begin(); iter != buffer.end(); ++ iter){
+		#ifdef DEBUG_NEURON_IDS
+			cout<<*iter<<", ";
+		#endif//DEBUG_NEURON_IDS
 		currentVariables[*iter] += currentIncrement;
 	}
+	#ifdef DEBUG_NEURON_IDS
+		cout<<endl;
+	#endif//DEBUG_NEURON_IDS
 }
 
 
