@@ -1,0 +1,78 @@
+/* Reset.css */
+ html, body ,  div,  span,  object,  iframe,  h1,  h2,  h3,  h4,  h5,  h6,  p,  blockquote,  pre,  a,  abbr,  acronym,  address,  code,  del,  dfn,  em,  img,  q,  dl,  dt,  dd,  ol,  ul,  li,  fieldset,  form,  label,  legend,  table,  caption,  tbody,  tfoot,  thead,  tr,  th,  td {
+	margin:0;
+	padding:0;
+	border:0;
+	font-weight:inherit;
+	font-style:inherit;
+	font-size:100%;
+	font-family:inherit;
+	vertical-align:bottom;
+	text-decoration: none;
+	list-style-type:none;
+}
+
+body{
+	text-align: center;
+	margin-top: 5px;
+	background-image: url(../images/structure/grid.png);
+}
+
+div.navWrap{
+	width: 1000px;
+	height: 49px;
+	background-image: url(../images/structure/page_top.png);
+	margin: 0px auto;
+}
+
+div.navWrap ul{
+	padding: 10px 0px 0px 0px;
+}
+
+/* Home link overlay */
+div.navWrap li.homeLink {
+	margin-left: 0px;
+}
+div.navWrap li.homeLink img{
+	width: 150px; 
+	height: 56px;
+}
+
+div.navWrap li {
+	margin-left: 50px;
+	float: left;
+	display: inline;
+}
+
+div.navWrap a {
+	font-family: Arial;
+	font-weight: bold;
+	font-size: 20px;
+	color: #205000
+}
+
+div.navWrap a.highlight {
+	color: #753a00;
+}
+
+div.contentsWrap{
+	width: 1000px;
+	background-image: url(../images/structure/page_middle.png);
+	margin: 0px auto;
+}
+
+div.footerWrap{
+	width: 1000px;
+	height: 58px;
+	background-image: url(../images/structure/page_bottom.png);
+	margin: 0px auto;
+}
+
+div.footerWrap p, div.footerWrap a{
+	padding: 20px 0px 0px 0px;
+	font-family: Arial;
+	font-weight: normal;
+	font-size: 12px;
+	text-align: center;
+	color: #ce9d53;
+}
