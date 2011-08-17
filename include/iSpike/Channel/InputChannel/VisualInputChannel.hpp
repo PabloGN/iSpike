@@ -4,7 +4,7 @@
 //iSpike includes
 #include <iSpike/Channel/InputChannel/InputChannel.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
-#include <iSpike/VisualDataReducer/LogpolarVisualDataReducer.hpp>
+#include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
 #include <iSpike/NeuronSim/IzhikevichNeuronSim.hpp>
 
