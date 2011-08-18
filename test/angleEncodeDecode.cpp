@@ -89,7 +89,6 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
 			}
 			// LOG(LOG_ERROR) << "I: " << i << " Neurons: " << neuronCount << " Input Angle: " << inputChannel->getCurrentAngle() << " Output Angle: " << outputChannel->getCurrentAngle();
 			//LOG(LOG_DEBUG) << inputChannel->getWidth() << " " << outputChannel->getWidth();
-#endif
 		}
 #if 0
 		for (int i = 0; i < data.size(); i++) {
