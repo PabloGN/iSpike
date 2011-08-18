@@ -48,12 +48,12 @@ JointOutputChannel::~JointOutputChannel(){
 /*--------------------------------------------------------------------*/
 
 //Inherited from OutputChannel
-void JointOutputChannel::setFiring(vector<int>& buffer){
+void JointOutputChannel::setFiring(const std::vector<unsigned>& buffer){
 	//Work through the neuron ids in the buffer
 	#ifdef DEBUG_NEURON_IDS
 		cout<<"OutputChannel: Firing neuron IDs ";
 	#endif//DEBUG_NEURON_IDS
-	for(vector<int>::iterator iter =buffer.begin(); iter != buffer.end(); ++ iter){
+	for(std::vector<unsigned>::const_iterator iter = buffer.begin(); iter != buffer.end(); ++ iter){
 		#ifdef DEBUG_NEURON_IDS
 			cout<<*iter<<", ";
 		#endif//DEBUG_NEURON_IDS

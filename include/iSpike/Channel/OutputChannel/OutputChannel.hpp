@@ -1,14 +1,9 @@
 #ifndef OUTPUTCHANNEL_H_
 #define OUTPUTCHANNEL_H_
 
-//iSpike includes
 #include <iSpike/Channel/Channel.hpp>
 #include <iSpike/Description.hpp>
-#include "iSpike/Writer/Writer.hpp"
-
-//Other includes
-#include <vector>
-using namespace std;
+#include <iSpike/Writer/Writer.hpp>
 
 namespace ispike {
 
@@ -16,6 +11,7 @@ namespace ispike {
 		to send spikes to this channel, which are decoded into something else */
 	class OutputChannel : public Channel {
 		public:
+
 			virtual ~OutputChannel() {}
 			Description getChannelDescription() { return channelDescription; }
 
@@ -26,10 +22,10 @@ namespace ispike {
 			virtual void initialize(Writer* writer, map<string, Property>& properties) = 0;
 
 			/**  Sets the current spike pattern  */
-			virtual void setFiring(vector<int>& buffer) = 0;
-
+			virtual void setFiring(const std::vector<unsigned>& buffer) = 0;
 
 		protected:
+
 			/** Description of the channel */
 			Description channelDescription;
 

@@ -1,15 +1,12 @@
 #ifndef JOINTOUTPUTCHANNEL_HPP_
 #define JOINTOUTPUTCHANNEL_HPP_
 
-//iSpike includes
 #include <iSpike/Channel/OutputChannel/OutputChannel.hpp>
 #include <iSpike/Writer/AngleWriter.hpp>
 #include <iSpike/Log/Log.hpp>
 
-//Other includes
 #include <string>
 #include <vector>
-using namespace std;
 
 namespace ispike {
 
@@ -19,7 +16,7 @@ namespace ispike {
 			JointOutputChannel();
 			virtual ~JointOutputChannel();
 			void initialize(Writer* writer, map<string,Property>& properties);
-			void setFiring(vector<int>& buffer);
+			void setFiring(const std::vector<unsigned>& buffer);
 			void setProperties(map<string, Property>& properties);
 			void step();
 
@@ -42,10 +39,10 @@ namespace ispike {
 			double rateOfDecay;
 
 			/** Vector holding the current variables */
-			vector<double> currentVariables;
+			std::vector<double> currentVariables;
 
 			/** Angle associated with each current variable */
-			vector<double> currentVariableAngles;
+			std::vector<double> currentVariableAngles;
 
 			/** The amount by which a current variable is incremented with each spike */
 			double currentIncrement;

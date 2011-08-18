@@ -20,7 +20,7 @@ namespace ispike {
 		public:
 			VisualInputChannel();
 			virtual ~VisualInputChannel();
-			vector<int>& getFiring() { return neuronSim.getSpikes(); }
+			const vector<unsigned>& getFiring() { return neuronSim.getSpikes(); }
 			void initialize(Reader* reader, map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
 			void step();

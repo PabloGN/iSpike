@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
 			// outputChannel->start();
 
 			for (delay = 0; delay < 100; delay++) {
-				vector<int>& firings = inputChannel->getFiring();
+				const vector<unsigned>& firings = inputChannel->getFiring();
 				if (!firings.empty()) {
 					outputChannel->setFiring(firings);
 				}
