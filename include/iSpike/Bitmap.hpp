@@ -12,10 +12,12 @@ namespace ispike {
 		so the contents array would be arranged as RGBRGBRGBRGB. This could be a 2x2 or a 4x1
 		image, depending on the width and height settings. */
 	class Bitmap {
+
 		public:
+
 			Bitmap();
 			Bitmap(unsigned width, unsigned height, unsigned depth) ;
-			Bitmap (const Bitmap& copy_from_me);
+			Bitmap(const Bitmap& copy_from_me);
 			~Bitmap();
 			Bitmap& operator=(const Bitmap& rhs);
 			unsigned char* getContents() const  { return contents;  }
@@ -23,17 +25,18 @@ namespace ispike {
 			unsigned getDepth() const { return depth; }
 			unsigned getHeight() const { return height; }
 			unsigned getWidth() const { return width; }
-			bool isEmpty() { if (size() > 0) return false; return true; }
+			bool isEmpty() const { return size() == 0; }
 			void reset(unsigned width, unsigned height, unsigned depth);
-			int size() { return width*height*depth; }
+
+			/*! \return number of bytes used by this Bitmap */
+			unsigned size() const;
 
 		private:
-			//========================  VARIABLES  ========================
+
 			unsigned width;
 			unsigned height;
 			unsigned depth;
 			unsigned char* contents;
-
 	};
 
 }
