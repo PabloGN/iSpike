@@ -10,6 +10,8 @@ namespace ispike {
 	/** Retrieves a joint angle from a given file and makes it available upon request */
 	class FileAngleReader : public AngleReader {
 		public:
+
+			/** Create a new file angle read which reads from a file named anglesIn.txt */
 			FileAngleReader();
 			~FileAngleReader();
 			void initialize(map<string, Property>& properties);

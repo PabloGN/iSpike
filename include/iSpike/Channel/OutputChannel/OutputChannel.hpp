@@ -19,7 +19,10 @@ namespace ispike {
 			virtual ~OutputChannel() {}
 			Description getChannelDescription() { return channelDescription; }
 
-			/*! Initializes the channel with a reader and set of properties */
+			/*! Initialize the channel with a reader and set of properties
+			 *
+			 * The Channel assumes ownership of the Writer object.
+			 * */
 			virtual void initialize(Writer* writer, map<string, Property>& properties) = 0;
 
 			/**  Sets the current spike pattern  */
