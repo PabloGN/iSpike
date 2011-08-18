@@ -1,4 +1,4 @@
-FIND_PACKAGE (Boost 1.42 COMPONENTS "unit_test_framework" REQUIRED)
+FIND_PACKAGE (Boost 1.30.0 COMPONENTS "unit_test_framework" REQUIRED)
 
 FILE (GLOB_RECURSE test_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 IF(WIN32)

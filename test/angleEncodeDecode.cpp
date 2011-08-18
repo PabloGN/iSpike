@@ -1,4 +1,4 @@
-/**
+/*
  * This test creates a joint input and output channel
  * Associates file readers/writers with the channels
  * And executes them for varying periods of time, with varying inputs, with varying numbers of neurons
@@ -6,93 +6,92 @@
  */
 
 #include <boost/test/unit_test.hpp>
+#include <iSpike/Property.hpp>
 #include <iSpike/Reader/FileAngleReader.hpp>
 #include <iSpike/Writer/FileAngleWriter.hpp>
 #include <iSpike/Channel/InputChannel/JointInputChannel.hpp>
 #include <iSpike/Channel/OutputChannel/JointOutputChannel.hpp>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <iSpike/Log/Log.hpp>
 
 BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
 {
+	using namespace ispike;
+
 	Log::ReportingLevel() = LOG_ERROR;
 	srand ( time(NULL) );
 	int delay = 0;
-	std::vector< std::vector<double> > data;
-	std::ofstream angleStream;
-	angleStream.open("angles.txt", std::fstream::out | std::fstream::app);
+	// std::vector< std::vector<double> > data;
+	// std::ofstream angleStream;
+	// angleStream.open("angles.txt", std::fstream::out | std::fstream::app);
 	for (int i = 1; i < 10; i++) {
 		double currentAngle = (rand() % 180) - 90;
 		LOG(LOG_NOTICE) << "Angle: " << currentAngle;
+#if 0
 		std::ofstream inputAngleStream;
 		inputAngleStream.open("anglesIn.txt", std::fstream::out);
 		inputAngleStream << currentAngle;
 		inputAngleStream.close();
-		for (int neuronCount = 1; neuronCount < 10; neuronCount++) {
-			try {
-				LOG(LOG_DEBUG) << "Neuron Count: " << neuronCount;
-				//Create the Reader
-				FileAngleReader* reader = new FileAngleReader("anglesIn.txt");
-				JointInputChannel* inputChannel = new JointInputChannel();
-				std::map<std::string, Property*> inputChannelProperties = inputChannel->getChannelDescription().getChannelProperties();
-				Property* newNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description", true);
-				inputChannelProperties.at("Neuron Width") = newNeuronCount;
-				inputChannel->initialise(reader, inputChannelProperties);
-				inputChannel->start();
+#endif
 
-				FileAngleWriter* writer = new FileAngleWriter();
-				std::map<std::string, Property*> outputProperties = writer->getWriterDescription().getWriterProperties();
-				writer->initialise();
-				LOG(LOG_DEBUG) << "Filename: " << ((StringProperty*)(writer->getWriterDescription().getWriterProperties()["Filename"]))->getValue();
-				JointOutputChannel* outputChannel = new JointOutputChannel();
-				std::map<std::string, Property*> outputChannelProperties = outputChannel->getChannelDescription().getChannelProperties();
-				Property* outputNeuronCount = new IntegerProperty("Neuron Width", neuronCount, "description", true);
-				outputChannelProperties.at("Neuron Width") = outputNeuronCount;
-				outputChannel->initialise(writer, outputChannelProperties);
-				LOG(LOG_DEBUG) << "I: " << i << "Neuron Height: " << ((IntegerProperty*)(outputChannel->getChannelDescription().getChannelProperties()["Neuron Height"]))->getValue();
-				outputChannel->start();
 
-				for (delay = 0; delay < 100; delay++) {
-					std::vector<std::vector<int> > firings = inputChannel->getFiring();
-					if (!firings.empty()) {
-						std::vector<int> inputFirings = *(firings.begin());
-						outputChannel->setFiring(&inputFirings);
-						/*std::ostringstream currentText;
-						  currentText << "Neurons: "  << neuronCount << "Spikes: ";
-						  for(unsigned int n = 0; n < inputFirings.size(); n++)
-						  {
-						  currentText << inputFirings[n] << ", ";
-						  }
-						  LOG(LOG_NOTICE) << currentText.str();*/
-					}
-					inputChannel->step();
-					outputChannel->step();
-					//boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-					if (delay % 5 == 0) {
-						std::vector<double> currentData(5);
-						currentData[0] = currentAngle;
-						currentData[1] = neuronCount;
-						currentData[2] = delay;
-						currentData[3] = inputChannel->getCurrentAngle();
-						currentData[4] = outputChannel->getCurrentAngle();
-						data.push_back(currentData);
-						//LOG(LOG_DEBUG) << "Current Delay: " << delay;
-						//LOG(LOG_DEBUG) << "Input Angle: " << inputChannel->getCurrentAngle();
-						//LOG(LOG_DEBUG) << "Output Angle: " << outputChannel->getCurrentAngle();
-					}
+		for (int neuronCount = 2; neuronCount < 10; neuronCount++) {
+
+			LOG(LOG_DEBUG) << "Neuron Count: " << neuronCount;
+			FileAngleReader* reader = new FileAngleReader();
+
+			/* Create input channel */
+			boost::scoped_ptr<JointInputChannel> inputChannel(new JointInputChannel());
+			std::map<std::string, Property> inputChannelProperties = inputChannel->getProperties();
+			inputChannelProperties.at("Neuron Width") =
+				Property(Property::Integer, neuronCount,
+						"Neuron Width", "description", true);
+			inputChannel->initialize(reader, inputChannelProperties);
+
+			/* Create output channel */
+			FileAngleWriter* writer = new FileAngleWriter();
+			boost::scoped_ptr<JointOutputChannel> outputChannel(new JointOutputChannel());
+			std::map<std::string, Property> outputChannelProperties = outputChannel->getProperties();
+			outputChannelProperties.at("Neuron Width") =
+				Property(Property::Integer, neuronCount,
+						"Neuron Width", "description", true);
+			outputChannel->initialize(writer, outputChannelProperties);
+
+			// LOG(LOG_DEBUG) << "I: " << i << "Neuron Height: " << ((IntegerProperty*)(outputChannel->getChannelDescription().getChannelProperties()["Neuron Height"]))->getValue();
+			// outputChannel->start();
+
+			for (delay = 0; delay < 100; delay++) {
+				vector<int>& firings = inputChannel->getFiring();
+				if (!firings.empty()) {
+					outputChannel->setFiring(firings);
 				}
-				LOG(LOG_ERROR) << "I: " << i << " Neurons: " << neuronCount << " Input Angle: " << inputChannel->getCurrentAngle() << " Output Angle: " << outputChannel->getCurrentAngle();
-				//LOG(LOG_DEBUG) << inputChannel->getWidth() << " " << outputChannel->getWidth();
-				delete inputChannel;
-				delete reader;
-				delete outputChannel;
-				delete writer;
-			} catch(std::exception& e) {
-				LOG(LOG_ERROR) << "EXCEPTION CAUGHT!!!!!";
-				LOG(LOG_ERROR) << e.what();
+				inputChannel->step();
+				outputChannel->step();
+				// now compare the input and output angles
+				//boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+#if 0
+				if (delay % 5 == 0) {
+					std::vector<double> currentData(5);
+					currentData[0] = currentAngle;
+					currentData[1] = neuronCount;
+					currentData[2] = delay;
+					// HERE: how do we get the angles?
+					currentData[3] = inputChannel->getCurrentAngle();
+					currentData[4] = outputChannel->getCurrentAngle();
+					// data.push_back(currentData);
+					//LOG(LOG_DEBUG) << "Current Delay: " << delay;
+					//LOG(LOG_DEBUG) << "Input Angle: " << inputChannel->getCurrentAngle();
+					//LOG(LOG_DEBUG) << "Output Angle: " << outputChannel->getCurrentAngle();
+				}
+#endif
 			}
+			// LOG(LOG_ERROR) << "I: " << i << " Neurons: " << neuronCount << " Input Angle: " << inputChannel->getCurrentAngle() << " Output Angle: " << outputChannel->getCurrentAngle();
+			//LOG(LOG_DEBUG) << inputChannel->getWidth() << " " << outputChannel->getWidth();
+#endif
 		}
+#if 0
 		for (int i = 0; i < data.size(); i++) {
 			//if((data.size() / i) % 10 == 0)
 			//  LOG(LOG_INFO) << (data.size() / i) << "% completed";
@@ -105,8 +104,9 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
 			angleStream << std::endl;
 		}
 		angleStream.flush();
-		data.clear();
+#endif
+		// data.clear();
 	}
 	LOG(LOG_NOTICE) << "Dumping data to angles.txt";
-	angleStream.close();
+	// angleStream.close();
 }
