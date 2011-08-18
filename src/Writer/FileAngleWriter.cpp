@@ -1,24 +1,18 @@
-//iSpike includes
 #include <iSpike/Writer/FileAngleWriter.hpp>
 #include <iSpike/ISpikeException.hpp>
 #include <iSpike/Log/Log.hpp>
 using namespace ispike;
 
-//Other includes
 #include <string>
-#include <iostream>
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 using namespace std;
 
 
-/** Constructor */
-FileAngleWriter::FileAngleWriter() {
-	// Define the properties of this writer
-	fileName = "anglesOut.txt";
+FileAngleWriter::FileAngleWriter() :
+	fileName("anglesOut.txt")
+{
 	addProperty(Property("anglesOut.txt", "File Name", "The file where the angles will be written to", true));
-
-	//Create description
 	writerDescription = Description("File Angle Writer", "This is a file angle writer", "Angle Writer");
 }
 

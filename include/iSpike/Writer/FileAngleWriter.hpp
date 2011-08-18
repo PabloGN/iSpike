@@ -19,7 +19,7 @@ namespace ispike {
 		private:
 			//==========================  VARIABLES  =========================
 			/** Name of the file to write the angle */
-			string fileName;
+			std::string fileName;
 
 			//===========================  METHODS  ==========================
 			void writeAngleToFile();

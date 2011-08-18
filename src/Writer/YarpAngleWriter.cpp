@@ -1,4 +1,3 @@
-//iSpike includes
 #include <iSpike/Writer/YarpAngleWriter.hpp>
 #include <iSpike/YarpPortDetails.hpp>
 #include <iSpike/YarpConnection.hpp>
@@ -6,7 +5,6 @@
 #include <iSpike/ISpikeException.hpp>
 using namespace ispike;
 
-//Other includes
 #include <sstream>
 #include <iostream>
 using namespace std;
