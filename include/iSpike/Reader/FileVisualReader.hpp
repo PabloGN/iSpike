@@ -1,32 +1,32 @@
 #ifndef FILEVISUALREADER_HPP_
 #define FILEVISUALREADER_HPP_
 
-//iSpike includes
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/Bitmap.hpp>
 
 namespace ispike {
 
-	/** Retrieves an image from the hard drive and outputs it on request */
+	/** Retrieves an image from a file and outputs it on request */
 	class FileVisualReader : public VisualReader {
+
 		public:
+
 			FileVisualReader();
 			~FileVisualReader();
 			Bitmap& getBitmap();
 			void initialize(map<string, Property>& properties);
 			void setProperties(map<string, Property>& properties);
-			void start() {}//Required by iSpikeThread, but not used by this class
-
+			void start() {} //Required by iSpikeThread, but not used by this class
 
 		private:
+
 			//====================  VARIABLES  ======================
 			/** Bitmap that holds data from file */
-			Bitmap* bitmap;
-
+			Bitmap bitmap;
 
 			//====================  METHODS  ========================
 			void readPPMImage(string& fileName);
-			void workerFunction() {}//Required by iSpikeThread, but not used by this class
+			void workerFunction() {} //Required by iSpikeThread, but not used by this class
 
 	};
 

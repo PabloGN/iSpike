@@ -16,11 +16,10 @@ using namespace std;
 #define PORT_NAME_PROP "Port Name"
 #define SLEEP_DURATION_PROP "Sleep Duration ms"
 
-//Debug output
-//#define DEBUG
 
 /** Constructor */
 YarpAngleReader::YarpAngleReader(string nameserverIP, unsigned nameserverPort){
+
 	// Connect to YARP and get list of ports
 	yarpConnection = NULL;//Set to null so that it is deleted correctly if an exception is thrown
 	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
@@ -52,8 +51,9 @@ YarpAngleReader::~YarpAngleReader(){
 		requestStop();
 		getThreadPointer()->join();
 	}
-	if(yarpConnection != NULL)
+	if(yarpConnection != NULL) {
 		delete yarpConnection;
+	}
 }
 
 

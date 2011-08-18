@@ -17,7 +17,7 @@ namespace ispike {
 	  * from a predefined source and serving it upon request */
 	class Reader : public PropertyHolder, public ISpikeThread {
 		public:
-			Reader(){ initialized = false; }
+			Reader() : initialized(false) { }
 			virtual ~Reader(){}
 			Description getReaderDescription() const { return readerDescription; }
 			virtual void initialize(map<string, Property>& properties) = 0;

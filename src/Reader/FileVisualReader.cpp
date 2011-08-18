@@ -11,23 +11,17 @@ using namespace ispike;
 using namespace std;
 
 
-/** Constructor */
-FileVisualReader::FileVisualReader(){
+FileVisualReader::FileVisualReader()
+{
 	// Define the properties of this reader
 	addProperty(Property("imageIn.ppm", "File Name", "The file where the image will be read from", true));
 
 	//Create description
 	readerDescription = Description("File Visual Reader", "This is a file visual reader", "Visual Reader");
-
-	//Initialize variables
-	bitmap = NULL;
 }
 
 
-/** Destructor */
 FileVisualReader::~FileVisualReader(){
-	if(bitmap != NULL)
-		delete bitmap;
 }
 
 
@@ -37,7 +31,7 @@ FileVisualReader::~FileVisualReader(){
 
 /** Returns a reference to the visual data */
 Bitmap& FileVisualReader::getBitmap(){
-	return *bitmap;
+	return bitmap;
 }
 
 
@@ -63,12 +57,6 @@ void FileVisualReader::setProperties(map<string, Property>& properties){
 void FileVisualReader::readPPMImage(string& fname){
 	LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fname;
 
-	//Clean up old bitmap
-	if(bitmap != NULL)
-		delete bitmap;
-
-	int N, M;
-	char header [100], *ptr;
 	ifstream ifp;
 
 	ifp.open(fname.c_str(), ios::in | ios::binary);
@@ -81,6 +69,7 @@ void FileVisualReader::readPPMImage(string& fname){
 	}
 
 	// read header
+	char header [100];
 	ifp.getline(header,100,'\n');
 
 	if ( (header[0]!=80) ||    /* 'P' */
@@ -92,19 +81,20 @@ void FileVisualReader::readPPMImage(string& fname){
 	}
 
 	ifp.getline(header,100,'\n');
-	while(header[0]=='#')
+	while(header[0]=='#') {
 		ifp.getline(header,100,'\n');
+	}
 
-	M=strtol(header,&ptr,0);
-	N=atoi(ptr);
+	char* ptr;
+	int M=strtol(header, &ptr, 0);
+	int N=atoi(ptr);
 
 	LOG(LOG_INFO) << "FileVisualReader: Retrieved image with Width: " << M << " Height: " << N;
 
 	ifp.getline(header,100,'\n');
 
-	//Create bitmap
-	bitmap = new Bitmap(M, N, 3);
-	unsigned char *charImage = bitmap->getContents();
+	bitmap.reset(M, N, 3);
+	unsigned char *charImage = bitmap.getContents();
 
 	//Read image into bitmap's contents
 	ifp.read((char*)charImage, 3*M*N);
@@ -118,7 +108,7 @@ void FileVisualReader::readPPMImage(string& fname){
 	//Clean up
 	ifp.close();
 
-	LOG(LOG_DEBUG)<<"File visual reader bitmap size: "<<bitmap->size();
+	LOG(LOG_DEBUG)<<"File visual reader bitmap size: "<< bitmap.size();
 
 	//Increment image id
 	++imageID;
