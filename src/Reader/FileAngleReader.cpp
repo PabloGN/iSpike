@@ -12,7 +12,6 @@ using namespace ispike;
 using namespace std;
 
 
-/** Constructor */
 FileAngleReader::FileAngleReader() {
 	// Define the properties of this reader
 	addProperty(Property("anglesIn.txt", "File Name", "The file where the angles will be read from", true));
@@ -22,7 +21,6 @@ FileAngleReader::FileAngleReader() {
 }
 
 
-/** Destructor */
 FileAngleReader::~FileAngleReader(){
 }
 
@@ -86,8 +84,9 @@ void FileAngleReader::readAngleFromFile(string& fileName) {
 		buffer.push_back(angle);
 	}
 
-	if(!buffer.empty())
+	if(!buffer.empty()) {
 		setAngle(buffer[0]);
-	else
+	} else {
 		throw ISpikeException("FileAngleReader: No angles found in file.");
+	}
 }

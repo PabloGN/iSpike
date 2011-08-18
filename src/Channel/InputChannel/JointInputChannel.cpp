@@ -3,6 +3,8 @@
 #include <iSpike/ISpikeException.hpp>
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/Log/Log.hpp>
+
+
 using namespace ispike;
 
 //Local debugging information
@@ -72,6 +74,10 @@ void JointInputChannel::initialize(Reader* reader, map<string, Property>& proper
 
 	//Start the reader thread running
 	this->reader->start();
+
+	if(size() < 2) {
+		throw ISpikeException("JointInputChannel must use two or more neurons");
+	}
 
 	/* Angle covered by each neuron */
 	double angleDist = (maxAngle - minAngle) / double(size()-1);
