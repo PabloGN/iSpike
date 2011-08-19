@@ -46,4 +46,25 @@ IF(WIN32)
 	SET(CPACK_GENERATOR "NSIS")
 ENDIF(WIN32)
 
+SET(CPACK_SOURCE_GENERATOR "TGZ")
+
+# By default cpack grabs everything in the source tree. However, the local
+# source tree may contain user-specific files which should not be included.
+# A list of such files (or patterns) can be specified in the file
+# CMake/cpack.ignore
+IF(EXISTS ${CMAKE_SOURCE_DIR}/CMake/cpack.ignore)
+	FILE(READ CMake/cpack.ignore USER_CPACK_SOURCE_IGNORE_FILES)
+	SET(CPACK_SOURCE_IGNORE_FILES ${USER_CPACK_SOURCE_IGNORE_FILES} ${CPACK_SOURCE_IGNORE_FILES})
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/CMake/cpack.ignore)
+
+SET(CPACK_SOURCE_IGNORE_FILES
+		build
+		docs/website
+		".svn"
+		ispike-manual-2.0.doc
+		Lazdins11_iSpikeProjectReport.pdf
+		LazdinsFidjelandGamez11_iSpike.pdf
+	${CPACK_SOURCE_IGNORE_FILES})
+MESSAGE(${CPACK_SOURCE_IGNORE_FILES})
+
 INCLUDE(CPack)
