@@ -22,6 +22,7 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/libraryinfo.h.in.cmake ${CMAKE_BINARY_DIR}/in
 
 # Add Build Targets
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(docs)
 
 # Add Install Targets
 INSTALL(FILES ${CMAKE_BINARY_DIR}/include/iSpike/libraryinfo.h DESTINATION include)
