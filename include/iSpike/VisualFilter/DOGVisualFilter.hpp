@@ -1,7 +1,6 @@
 #ifndef DOGVISUALFILTER_HPP_
 #define DOGVISUALFILTER_HPP_
 
-//iSpike includes
 #include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
 

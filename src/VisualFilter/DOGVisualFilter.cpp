@@ -1,40 +1,44 @@
-//iSpike includes
 #include <iSpike/VisualFilter/DOGVisualFilter.hpp>
-#include "iSpike/ISpikeException.hpp"
+#include <iSpike/ISpikeException.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Common.hpp>
-#include "iSpike/Log/Log.hpp"
+#include <iSpike/Log/Log.hpp>
 using namespace ispike;
 
-//Other includes
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/round.hpp>
 
-
-/** Ouputs debug images to file */
-//#define DEBUG_IMAGES
 
 /** Maximum value of a pixel */
 #define MAX_PIXEL_VALUE 255
 
 
-/** Constructor */
-DOGVisualFilter::DOGVisualFilter(LogPolarVisualDataReducer* reducer){
-	//Store variables
-	this->reducer = reducer;
-
-	//Initialize variables
-	initialized = false;
-	positiveSigma = -1.0;
-	negativeSigma = -1.0;
-	positiveFactor = -1.0;
-	negativeFactor = -1.0;
-	opponencyTypeID = -1;
-	normalize = false;
+/** Create a new difference-of-gaussians visual filter
+ *
+ * The filter object does /not/ take ownership of the reducer object
+ */
+DOGVisualFilter::DOGVisualFilter(LogPolarVisualDataReducer* reducer) :
+	reducer(reducer),
+	positiveSigma(-1.0),
+	negativeSigma(-1.0),
+	positiveFactor(-1.0),
+	negativeFactor(-1.0),
+	opponencyTypeID(-1),
+	normalize(false),
+	initialized(false),
+	opponencyBitmap(NULL),
+	redBitmap(NULL),
+	greenBitmap(NULL),
+	blueBitmap(NULL),
+	yellowBitmap(NULL),
+	positiveBlurredBitmap(NULL),
+	negativeBlurredBitmap(NULL)
+{
+	;
 }
 
 
-/** Destructor */
+
 DOGVisualFilter::~DOGVisualFilter(){
 	if(isInitialized()){
 		delete redBitmap;
