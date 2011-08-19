@@ -1,5 +1,5 @@
 #include <iSpike/version.h>
-#include "iSpike/libraryinfo.h"
+#include <iSpike/libraryinfo.h>
 
 EXTERNC int projectname_version_major()
 { 
