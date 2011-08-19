@@ -1,24 +1,27 @@
 #ifndef LOGPOLARVISUALDATAREDUCER_HPP_
 #define LOGPOLARVISUALDATAREDUCER_HPP_
 
-//iSpike includes
 #include <iSpike/Bitmap.hpp>
 
-//Other includes
 #include <vector>
 using namespace std;
+
+#include <boost/scoped_ptr.hpp>
 
 namespace ispike {
 
 	/** Holds a mapping between polar and Cartesian coordinates */
 	class PolarCartCoords {
 		public:
-			PolarCartCoords(int radius, int theta, int x, int y){
-				this->radius = radius;
-				this->theta = theta;
-				this->x = x;
-				this->y = y;
+			PolarCartCoords(int radius, int theta, int x, int y) :
+				radius(radius),
+				theta(theta),
+				x(x),
+				y(y)
+			{
+				;
 			}
+
 			int radius;
 			int theta;
 			int x;
@@ -30,7 +33,6 @@ namespace ispike {
 	class LogPolarVisualDataReducer {
 		public:
 			LogPolarVisualDataReducer();
-			~LogPolarVisualDataReducer();
 			Bitmap& getReducedImage();
 			bool isInitialized() { return initialized; }
 			void setBitmap(Bitmap& bitmap);
@@ -38,11 +40,10 @@ namespace ispike {
 			void setOutputWidth(int outputWidth);
 			void setFoveaRadius(double foveaRadius);
 
-
 		private:
 			//========================  VARIABLES  ============================
 			/** Log polar image */
-			Bitmap* reducedImage;
+			boost::scoped_ptr<Bitmap> reducedImage;
 
 			/** Width of the incoming image */
 			int inputWidth;
@@ -73,7 +74,6 @@ namespace ispike {
 			pair<int, int> getInputCartesianCoordinate(double radius, double theta);
 			void initialize(Bitmap& bitmap);
 			void initialisePolarToCartesianVector();
-			void setInitialized(bool initialized){ this->initialized = initialized; }
 
 	};
 

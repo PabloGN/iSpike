@@ -1,12 +1,10 @@
-//iSpike includes
 #include <iSpike/VisualDataReducer/LogPolarVisualDataReducer.hpp>
 #include <iSpike/Bitmap.hpp>
 #include <iSpike/Reader/VisualReader.hpp>
 #include <iSpike/Common.hpp>
-#include "iSpike/ISpikeException.hpp"
+#include <iSpike/ISpikeException.hpp>
 using namespace ispike;
 
-//Other includes
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -17,23 +15,18 @@ using namespace std;
 //Pi
 #define PI 3.141592653589793238
 
-/** Ouputs debug images and coordinates to file */
-//#define DEBUG_IMAGES
-//#define DEBUG_COORDINATES
 
-/** Constructor */
-LogPolarVisualDataReducer::LogPolarVisualDataReducer(){
-	//Initialize variables
-	reducedImage = NULL;
-	setInitialized(false);
+LogPolarVisualDataReducer::LogPolarVisualDataReducer() :
+	inputWidth(0),
+	inputHeight(0),
+	outputWidth(0),
+	outputHeight(0),
+	foveaRadius(0.0),
+	initialized(false)
+{
+	;
 }
 
-
-/** Destructor */
-LogPolarVisualDataReducer::~LogPolarVisualDataReducer(){
-	if(isInitialized())
-		delete reducedImage;
-}
 
 
 /*--------------------------------------------------------------------*/
@@ -48,7 +41,7 @@ Bitmap& LogPolarVisualDataReducer::getReducedImage(){
 
 /** Sets the bitmap and recalculates the new reduced image */
 void LogPolarVisualDataReducer::setBitmap(Bitmap& bitmap){
-	if(bitmap.isEmpty()){
+	if(bitmap.isEmpty()) {
 		LOG(LOG_DEBUG)<<"LogPolarVisualDataReducer: Empty bitmap";
 		return;
 	}
@@ -59,8 +52,9 @@ void LogPolarVisualDataReducer::setBitmap(Bitmap& bitmap){
 	}
 
 	//Check bitmap is correct size
-	if(bitmap.getWidth() != inputWidth || bitmap.getHeight() != inputHeight)
+	if(bitmap.getWidth() != inputWidth || bitmap.getHeight() != inputHeight) {
 		throw ISpikeException("LogPolarVisualDataReducer: Incoming image size has changed.");
+	}
 
 	//Calculate the log polar foveated image
 	calculateReducedImage(bitmap);
@@ -69,16 +63,18 @@ void LogPolarVisualDataReducer::setBitmap(Bitmap& bitmap){
 
 /** Sets the input width, throws exception if class has been initialized. */
 void LogPolarVisualDataReducer::setOutputHeight(int outputHeight){
-	if(isInitialized())
+	if(isInitialized()) {
 		throw ISpikeException("LogPolarVisualDataReducer: Output height cannot be set after class has been initialized.");
+	}
 	this->outputHeight = outputHeight;
 }
 
 
 /** Sets the output width, throws exception if class has been initialized */
 void LogPolarVisualDataReducer::setOutputWidth(int outputWidth){
-	if(isInitialized())
+	if(isInitialized()) {
 		throw ISpikeException("LogPolarVisualDataReducer: Output width cannot be set after class has been initialized.");
+	}
 	this->outputWidth = outputWidth;
 }
 
@@ -97,8 +93,9 @@ void LogPolarVisualDataReducer::setFoveaRadius(double foveaRadius){
 
 /** Calculates the log polar reduced image from the bitmap */
 void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
-	if(bitmap.getDepth() != reducedImage->getDepth())
+	if(bitmap.getDepth() != reducedImage->getDepth()) {
 		throw ISpikeException("Depth in input image and reduced image do not match");
+	}
 	int tmpDepth = bitmap.getDepth();
 
 	//References to arrays inside both images
@@ -106,12 +103,6 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	unsigned char* reducedImageArray = reducedImage->getContents();
 
 	LOG(LOG_DEBUG)<<"Input image size: "<<bitmap.size()<<"; reduced image size: "<<reducedImage->size();
-
-	//Work through coordinates in log polar output map
-	for(int r=0; r<outputWidth; ++r){
-		for(int theta=0; theta<outputHeight; ++theta){
-		}
-	}
 
 	//Copy the pixels across from the input to the output maps
 	for(vector<PolarCartCoords>::iterator iter = coordinatesVector.begin(); iter != coordinatesVector.end(); ++iter){
@@ -133,35 +124,39 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	//Output reduced image if required
 	#ifdef DEBUG_IMAGES
 		Common::savePPMImage("inputImage.ppm", &bitmap);
-		Common::savePPMImage("logPolar.ppm", reducedImage);
+		Common::savePPMImage("logPolar.ppm", reducedImage.get());
 	#endif//DEBUG_IMAGES
 }
 
 
 /** Checks that parameters are sensible and initializes the class */
 void LogPolarVisualDataReducer::initialize(Bitmap& bitmap){
-	if(outputWidth == 0 || outputHeight == 0)
+	if(outputWidth == 0 || outputHeight == 0) {
 		throw ISpikeException("LogPolarVisualDataReducer: Cannot initialize with zero width and/or height.");
+	}
 
-	if(foveaRadius > outputWidth)
+	if(foveaRadius > outputWidth) {
 		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to output width.");
+	}
 
-	if(bitmap.getWidth() < outputWidth || bitmap.getHeight() < outputWidth)
+	if(bitmap.getWidth() < outputWidth || bitmap.getHeight() < outputWidth) {
 		throw ISpikeException("LogPolarVisualDataReducer: Incoming image must be greater in size than output.");
+	}
 
 	//Store input width and height
 	inputWidth = bitmap.getWidth();
 	inputHeight = bitmap.getHeight();
-	if(foveaRadius > inputWidth/2 || foveaRadius > inputHeight/2)
+	if(foveaRadius > inputWidth/2 || foveaRadius > inputHeight/2) {
 		throw ISpikeException("LogPolarVisualDataReducer: Fovea radius must be less than or equal to half of input width or height.");
+	}
 
 	//Initialize map for converting between polar and Cartesian
 	initialisePolarToCartesianVector();
 
 	//Create reduced image
-	reducedImage = new Bitmap(outputWidth, outputHeight, bitmap.getDepth());
+	reducedImage.reset(new Bitmap(outputWidth, outputHeight, bitmap.getDepth()));
 
-	setInitialized(true);
+	initialized = true;
 }
 
 
@@ -180,8 +175,9 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 
 	//Get appropriate base for logarithm
 	double inputRadius = inputWidth/2.0;
-	if(inputWidth>inputHeight)
+	if(inputWidth>inputHeight) {
 		inputRadius = inputHeight/2.0;//Minimum - can only sample a circular pattern in input
+	}
 
 	//Radius lengths outside foveated area
 	double outputLogRadius = outputWidth - foveaRadius;
@@ -200,8 +196,7 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 				#ifdef DEBUG_COORDINATES
 					fileStream<<"Polar("<<r<<", "<<theta<<") -> Cart("<<tmpPair.first<<", "<<tmpPair.second<<")"<<endl;
 				#endif//DEBUG_COORDINATES
-			}
-			else{
+			} else {
 				pair<int, int> tmpPair = getInputCartesianCoordinate(foveaRadius + pow(expBase, r-foveaRadius), theta*angleResolution);
 				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
 				#ifdef DEBUG_COORDINATES
