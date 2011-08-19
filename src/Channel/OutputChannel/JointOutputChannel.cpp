@@ -82,8 +82,9 @@ void JointOutputChannel::initialize(Writer* writer, map<string, Property>& prope
 	updateProperties(properties);
 
 	//Set up current variables
-	for(int i=0; i<size(); ++i)
+	for(unsigned i=0; i<size(); ++i) {
 		currentVariables.push_back(0.0);
+	}
 
 	// Calculate angle covered by each current variable */
 	double angleDist = (maxAngle - minAngle) / double(size()-1);

@@ -70,16 +70,16 @@ void PropertyHolder::printProperties(){
 	for(map<string, Property>::iterator iter = propertyMap.begin(); iter !=propertyMap.end(); ++iter ){
 		Property& tmpProp = iter->second;
 		cout<<"Name: "<<tmpProp.getName()<<", ";
-		if(tmpProp.getType() == Property::Integer)
+		if(tmpProp.getType() == Property::Integer) {
 			cout<<"Type: Integer; value="<<tmpProp.getInt()<<endl;
-		else if(tmpProp.getType() == Property::Double)
+		} else if(tmpProp.getType() == Property::Double) {
 			cout<<"Type: Double; value="<<tmpProp.getDouble()<<endl;
-		else if(tmpProp.getType() == Property::String)
+		} else if(tmpProp.getType() == Property::String) {
 			cout<<"Type: String; value="<<tmpProp.getString()<<endl;
-		else if(tmpProp.getType() == Property::Combo){
+		} else if(tmpProp.getType() == Property::Combo){
 			cout<<"Type: Combo; value="<<tmpProp.getString()<<"; Options=";
 			vector<string> tmpOptions = tmpProp.getOptions();
-			for(int i=0; i<tmpOptions.size(); ++i)
+			for(unsigned i=0; i<tmpOptions.size(); ++i)
 				cout<<tmpOptions[i]<<", ";
 			cout<<endl;
 		}

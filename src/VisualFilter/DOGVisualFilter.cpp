@@ -161,7 +161,7 @@ void DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, do
 	//Create kernel
 	double* kernel = new double[(int)ceil(6 * sigma) + 1];
 	for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
-		int x = i - ceil( 3 * sigma );
+		int x = i - int(ceil( 3 * sigma ));
 		double k = exp( - ( (x * x) / ( 2 * sigma * sigma ) ) );
 		kernel[i] = k / sqrt( 2 * boost::math::constants::pi<double>() * sigma * sigma );
 	}
@@ -174,7 +174,7 @@ void DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, do
 
 			//iterate over the kernel
 			for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
-				int kernel_x = i - ceil( 3 * sigma );
+				int kernel_x = i - int(ceil( 3 * sigma ));
 				if(x + kernel_x < 0 )
 					continue;
 				else if(x + kernel_x > width)
@@ -195,7 +195,7 @@ void DOGVisualFilter::gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, do
 
 			//iterate over the kernel
 			for(int i = 0; i < ceil( 6 * sigma ) + 1; i++){
-				int kernel_y = i - ceil( 3 * sigma );
+				int kernel_y = i - int(ceil( 3 * sigma ));
 				if(y + kernel_y <= 0 )
 					continue;
 				else if(y + kernel_y >= height)
@@ -364,6 +364,7 @@ void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bi
 	unsigned char* resultContents = result.getContents();
 
 	for(int i=0; i<imageSize; ++i){
-		resultContents[i] = boost::math::round<unsigned char>(firstImageContents[i]*positiveFactor - secondImageContents[i]*negativeFactor);
+		double val = double(firstImageContents[i])*positiveFactor - double(secondImageContents[i])*negativeFactor;
+		resultContents[i] = boost::math::round<unsigned char>(val);
 	}
 }

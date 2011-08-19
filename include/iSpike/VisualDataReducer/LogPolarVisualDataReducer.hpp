@@ -36,8 +36,8 @@ namespace ispike {
 			Bitmap& getReducedImage();
 			bool isInitialized() { return initialized; }
 			void setBitmap(Bitmap& bitmap);
-			void setOutputHeight(int outputHeight);
-			void setOutputWidth(int outputWidth);
+			void setOutputHeight(unsigned outputHeight);
+			void setOutputWidth(unsigned outputWidth);
 			void setFoveaRadius(double foveaRadius);
 
 		private:
@@ -46,16 +46,16 @@ namespace ispike {
 			boost::scoped_ptr<Bitmap> reducedImage;
 
 			/** Width of the incoming image */
-			int inputWidth;
+			unsigned inputWidth;
 
 			/** Height of the incoming image */
-			int inputHeight;
+			unsigned inputHeight;
 
 			/** Width of the reduced image to be output */
-			int outputWidth;
+			unsigned outputWidth;
 
 			/** Height of the reduced image to be output */
-			int outputHeight;
+			unsigned outputHeight;
 
 			/** Map linking a set of Cartesian coordinates in the input image to a set of polar coordinates in the output image */
 			//CoordMapType polarToCartesianMap;

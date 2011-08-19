@@ -127,7 +127,7 @@ void JointInputChannel::step(){
 	}
 
 	//Set input currents to neurons
-	for(int index = 0; index < size(); ++index)	{
+	for(unsigned index = 0; index < size(); ++index)	{
 		neuronSim.setInputCurrent( index, constantCurrent + currentFactor * pdf(normalDistribution, neuronAngles[index]-tmpAngle) );
 	}
 

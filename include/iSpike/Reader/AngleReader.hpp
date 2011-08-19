@@ -15,7 +15,7 @@ namespace ispike {
 			double getAngle() { return angle; }
 
 			/** Sets the degree of freedom */
-			void setDegreeOfFreedom(int dof){ degreeOfFreedom = dof; }
+			void setDegreeOfFreedom(unsigned dof){ degreeOfFreedom = dof; }
 
 			/** Sets the angle */
 			void setAngle(double angle) { this->angle = angle; }
@@ -26,7 +26,7 @@ namespace ispike {
 			double angle;
 
 			/** Degree of freedom of the joint */
-			int degreeOfFreedom;
+			unsigned degreeOfFreedom;
 
 	};
 

@@ -21,7 +21,7 @@ IzhikevichNeuronSim::IzhikevichNeuronSim() :
 
 /** Constructor with parameters */
 IzhikevichNeuronSim::IzhikevichNeuronSim(size_t numNeurons,
-		float a, float b, float c, float d) :
+		double a, double b, double c, double d) :
 	numNeurons(numNeurons),
 	aParam(a),
 	bParam(b),
@@ -60,7 +60,7 @@ void IzhikevichNeuronSim::initialize(size_t numNeurons){
 
 
 /** Sets the input current to a particular neuron */
-void IzhikevichNeuronSim::setInputCurrent(int index, float current){
+void IzhikevichNeuronSim::setInputCurrent(unsigned index, double current){
 	if(index >= numNeurons) {
 		throw ISpikeException("IzhikevichNeuronSim: Index is out of range.");
 	}

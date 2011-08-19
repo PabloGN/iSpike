@@ -17,7 +17,7 @@ using namespace std;
 /** The default constructor, only initialises the default parameters and the description */
 YarpAngleWriter::YarpAngleWriter(string nameserverIP, unsigned nameserverPort){
 	// Connect to YARP and get list of ports
-	yarpConnection == NULL;
+	yarpConnection = NULL;
 	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
 	map<string, YarpPortDetails>& portMap = yarpConnection->getPortMap();
 

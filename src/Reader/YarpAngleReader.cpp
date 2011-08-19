@@ -142,7 +142,7 @@ void YarpAngleReader::workerFunction(){
 					try{
 						tmpAngle = boost::lexical_cast<double>(current_string);
 					}
-					catch (exception& e) {
+					catch (exception&) {
 						LOG(LOG_CRITICAL)<<"Error occured in YarpAngleReader: '"<<current_string<<"'"<<"Cannot convert this to double: "<<current_string;
 						throw new ISpikeException("Error at YarpAngleReader lexical_cast");
 					}
@@ -151,13 +151,14 @@ void YarpAngleReader::workerFunction(){
 			}
 
 			//Set the angle to the appropriate degree of freedom
-			if(degreeOfFreedom >= buffer.size())
+			if(degreeOfFreedom >= buffer.size()) {
 				throw ISpikeException("Degree of freedom is greater than the buffer size.");
+			}
 
 			//Logging output
 			if(loopCtr % 20 ==0){
 				ostringstream tmpOss;
-				for(int i=0; i<buffer.size();  ++i){
+				for(unsigned i=0; i<buffer.size();  ++i){
 					tmpOss<<buffer.at(i)<<" ";
 				}
 				LOG(LOG_INFO)<<"Angles: "<<tmpOss.str()<<"; degreeOfFreedom="<<degreeOfFreedom<<"; angle="<<getAngle();

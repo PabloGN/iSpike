@@ -36,7 +36,7 @@ namespace ispike {
 			void setHeight(int height){	this->height = height;	}
 
 			/** Returns the size of the channel */
-			int size() { return width*height; }
+			unsigned size() { return width*height; }
 
 			/** Retrieves the description of a Channel  */
 			string getDescription(){ return this->description;	}
@@ -54,10 +54,10 @@ namespace ispike {
 			int id;
 
 			/** Neuron Width */
-			int width;
+			unsigned width;
 
 			/** Neuron Height */
-			int height;
+			unsigned height;
 
 			/** Channel Description */
 			string description;

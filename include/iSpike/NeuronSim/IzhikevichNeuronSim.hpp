@@ -10,14 +10,14 @@ namespace ispike {
 
 		public:
 			IzhikevichNeuronSim();
-			IzhikevichNeuronSim(size_t numNeurons, float a, float b, float c, float d);
+			IzhikevichNeuronSim(size_t numNeurons, double a, double b, double c, double d);
 			const std::vector<unsigned>& getSpikes() { return spikeVector; }
 			void step();
-			void setInputCurrent(int index, float current);
-			void setParameterA(float a){ this->aParam = a; }
-			void setParameterB(float b){ this->bParam = b; }
-			void setParameterC(float c){ this->cParam = c; }
-			void setParameterD(float d){ this->dParam = d; }
+			void setInputCurrent(unsigned index, double current);
+			void setParameterA(double a){ this->aParam = a; }
+			void setParameterB(double b){ this->bParam = b; }
+			void setParameterC(double c){ this->cParam = c; }
+			void setParameterD(double d){ this->dParam = d; }
 			void initialize(size_t numNeurons);
 
 		private:
@@ -29,15 +29,15 @@ namespace ispike {
 			size_t numNeurons;
 
 			//Izhikevich parameters
-			float aParam;
-			float bParam;
-			float cParam;
-			float dParam;
+			double aParam;
+			double bParam;
+			double cParam;
+			double dParam;
 
 			//Data structures for simulation
-			std::vector<float> vArray;
-			std::vector<float> uArray;
-			std::vector<float> iArray;
+			std::vector<double> vArray;
+			std::vector<double> uArray;
+			std::vector<double> iArray;
 			std::vector<bool> firedArray;
 
 			/** Records whether simulator has been initialized */

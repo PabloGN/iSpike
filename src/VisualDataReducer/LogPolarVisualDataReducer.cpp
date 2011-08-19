@@ -62,7 +62,7 @@ void LogPolarVisualDataReducer::setBitmap(Bitmap& bitmap){
 
 
 /** Sets the input width, throws exception if class has been initialized. */
-void LogPolarVisualDataReducer::setOutputHeight(int outputHeight){
+void LogPolarVisualDataReducer::setOutputHeight(unsigned outputHeight){
 	if(isInitialized()) {
 		throw ISpikeException("LogPolarVisualDataReducer: Output height cannot be set after class has been initialized.");
 	}
@@ -71,7 +71,7 @@ void LogPolarVisualDataReducer::setOutputHeight(int outputHeight){
 
 
 /** Sets the output width, throws exception if class has been initialized */
-void LogPolarVisualDataReducer::setOutputWidth(int outputWidth){
+void LogPolarVisualDataReducer::setOutputWidth(unsigned outputWidth){
 	if(isInitialized()) {
 		throw ISpikeException("LogPolarVisualDataReducer: Output width cannot be set after class has been initialized.");
 	}
@@ -188,8 +188,8 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 
 	LOG(LOG_DEBUG)<<"OutputLogRadius: "<<outputLogRadius<<"; InputLogRadius: "<<inputLogRadius<<"; ExpBase: "<<expBase;
 
-	for(int r=0; r<outputWidth; ++r){
-		for(int theta=0; theta<outputHeight; ++theta){
+	for(unsigned r=0; r<outputWidth; ++r){
+		for(unsigned theta=0; theta<outputHeight; ++theta){
 			if(r <= foveaRadius){
 				pair<int, int> tmpPair = getInputCartesianCoordinate(r, theta*angleResolution);
 				coordinatesVector.push_back(PolarCartCoords(r, theta, tmpPair.first, tmpPair.second));
@@ -216,12 +216,12 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 	theta is in degrees */
 pair<int, int> LogPolarVisualDataReducer::getInputCartesianCoordinate(double radius, double theta_deg){
 	double theta_rads = (theta_deg / 360.0) * 2.0 * PI;
-	int tmpY = boost::math::round(inputHeight/2 + radius * sin(theta_rads));
-	if(tmpY >= inputHeight) {
+	int tmpY = boost::math::iround(double(inputHeight/2) + radius * sin(theta_rads));
+	if(tmpY >= int(inputHeight)) {
 		throw ISpikeException("LogPolarVisualDataReducer: Y out of range: ", tmpY);
 	}
-	int tmpX = boost::math::round(inputWidth/2 + radius * cos(theta_rads));
-	if(tmpX >= inputWidth) {
+	int tmpX = boost::math::iround(double(inputWidth/2) + radius * cos(theta_rads));
+	if(tmpX >= int(inputWidth)) {
 		throw ISpikeException("LogPolarVisualDataReducer: X out of range: ", tmpX);
 	}
 	return make_pair(tmpX, tmpY);

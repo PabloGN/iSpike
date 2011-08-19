@@ -1,11 +1,9 @@
 #ifndef YARPANGLEREADER_HPP_
 #define YARPANGLEREADER_HPP_
 
-//iSpike includes
 #include <iSpike/Reader/AngleReader.hpp>
 #include <iSpike/YarpConnection.hpp>
 
-//Other includes
 #include <vector>
 #include <map>
 using namespace std;

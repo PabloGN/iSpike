@@ -17,7 +17,7 @@ using namespace std;
 /** Constructor */
 YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort) {
 	// Connect to YARP and get list of ports
-	yarpConnection == NULL;//Initialize to null so that it is deleted correctly if an exception is thrown
+	yarpConnection = NULL;//Initialize to null so that it is deleted correctly if an exception is thrown
 	yarpConnection = new YarpConnection(nameserverIP, nameserverPort);
 
 	//Store port names as properties of this reader
@@ -26,10 +26,11 @@ YarpVisualReader::YarpVisualReader(string nameserverIP, unsigned nameserverPort)
 	for (map<string, YarpPortDetails>::iterator iter = portMap.begin(); iter != portMap.end(); ++iter){
 		yarpPortNames.push_back(iter->first);
 	}
-	if(yarpPortNames.empty())
+	if(yarpPortNames.empty()) {
 		addProperty(Property("undefined", yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
-	else
+	} else {
 		addProperty(Property(yarpPortNames[0], yarpPortNames, PORT_NAME_PROP, "The Yarp Port name", true));
+	}
 
 	addProperty(Property(Property::Integer, 50, SLEEP_DURATION_PROP, "Amount to sleep in milliseconds in between reads.", false));
 

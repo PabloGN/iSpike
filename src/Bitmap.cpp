@@ -1,4 +1,5 @@
-#include "iSpike/Bitmap.hpp"
+#include <iSpike/Bitmap.hpp>
+#include <iSpike/ISpikeException.hpp>
 
 using namespace ispike;
 
@@ -89,6 +90,9 @@ unsigned char Bitmap::getPixel(unsigned x, unsigned y, unsigned d) {
 			return *(contents + (width * y) + x);
 		}
 		return *(contents + (width * depth * y) + x * depth + d);
+	} else {
+		throw ISpikeException("Invalid pixel address");
+		return 0U;
 	}
 }
 

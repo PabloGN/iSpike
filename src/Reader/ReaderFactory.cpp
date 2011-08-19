@@ -42,7 +42,7 @@ ReaderFactory::ReaderFactory(string ip, unsigned port){
 /** Returns readers of a particular type */
 vector<Description> ReaderFactory::getReadersOfType(string readerType){
 	vector<Description> result;
-	for(int i = 0; i < readerList.size(); i++) {
+	for(unsigned i = 0; i < readerList.size(); i++) {
 		if(readerList[i].getType() == readerType)
 			result.push_back(readerList[i]);
 	}
