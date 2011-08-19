@@ -12,6 +12,8 @@ using namespace ispike;
 #include <sstream>
 using namespace std;
 
+#include <boost/math/special_functions/round.hpp>
+
 //Pi
 #define PI 3.141592653589793238
 
@@ -219,12 +221,14 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 	theta is in degrees */
 pair<int, int> LogPolarVisualDataReducer::getInputCartesianCoordinate(double radius, double theta_deg){
 	double theta_rads = (theta_deg / 360.0) * 2.0 * PI;
-	int tmpY = nearbyint(inputHeight/2 + radius * sin(theta_rads));
-	if(tmpY >= inputHeight)
+	int tmpY = boost::math::round(inputHeight/2 + radius * sin(theta_rads));
+	if(tmpY >= inputHeight) {
 		throw ISpikeException("LogPolarVisualDataReducer: Y out of range: ", tmpY);
-	int tmpX = nearbyint(inputWidth/2 + radius * cos(theta_rads));
-	if(tmpX >= inputWidth)
+	}
+	int tmpX = boost::math::round(inputWidth/2 + radius * cos(theta_rads));
+	if(tmpX >= inputWidth) {
 		throw ISpikeException("LogPolarVisualDataReducer: X out of range: ", tmpX);
+	}
 	return make_pair(tmpX, tmpY);
 }
 

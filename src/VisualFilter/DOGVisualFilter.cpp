@@ -8,6 +8,7 @@ using namespace ispike;
 
 //Other includes
 #include <boost/math/constants/constants.hpp>
+#include <boost/math/special_functions/round.hpp>
 
 
 /** Ouputs debug images to file */
@@ -359,6 +360,6 @@ void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bi
 	unsigned char* resultContents = result.getContents();
 
 	for(int i=0; i<imageSize; ++i){
-		resultContents[i] = (unsigned char)rint(firstImageContents[i]*positiveFactor - secondImageContents[i]*negativeFactor);
+		resultContents[i] = boost::math::round<unsigned char>(firstImageContents[i]*positiveFactor - secondImageContents[i]*negativeFactor);
 	}
 }
