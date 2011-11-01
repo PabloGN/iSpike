@@ -37,6 +37,8 @@ VisualInputChannel::VisualInputChannel() {
 	tmpVector.push_back("R+G-");
 	tmpVector.push_back("G+R-");
 	tmpVector.push_back("B+Y-");
+	tmpVector.push_back("G+G-");
+	tmpVector.push_back("Motion sensitive");
 	addProperty(Property("R+G-", tmpVector, OPPONENCY_MAP_NAME, "Which opponency map to use.", true));
 
 	//Properties of the neural simulator
