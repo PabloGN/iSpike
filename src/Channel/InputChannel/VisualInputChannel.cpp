@@ -116,7 +116,7 @@ void VisualInputChannel::step() {
 	}
 
 	//Load opponency data into neural simulator
-	Bitmap& opponencyMap = dogFilter->getOpponencyBitmap();
+	Bitmap& opponencyMap = dogFilter->getBitmap();
 	if(!opponencyMap.isEmpty()) {
 		//Get reference to opponency map
 		int opponencyMapSize = opponencyMap.size();

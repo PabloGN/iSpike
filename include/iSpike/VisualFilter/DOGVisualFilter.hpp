@@ -11,7 +11,7 @@ namespace ispike {
 		public:
 			DOGVisualFilter(LogPolarVisualDataReducer* reducer);
 			~DOGVisualFilter();
-			Bitmap& getOpponencyBitmap();
+			Bitmap& getBitmap();
 			bool isInitialized(){ return initialized; }
 			void setPositiveSigma(double positiveSigma) { this->positiveSigma = positiveSigma; }
 			void setNegativeSigma(double negativeSigma) { this->negativeSigma = negativeSigma; }
@@ -46,7 +46,7 @@ namespace ispike {
 			bool initialized;
 
 			/** Final output bitmap */
-			Bitmap* opponencyBitmap;
+			Bitmap* outputBitmap;
 
 			/** Red visual data */
 			Bitmap* redBitmap;
@@ -60,6 +60,9 @@ namespace ispike {
 			/** Yellow visual data */
 			Bitmap* yellowBitmap;
 
+			/** Black and white visual data */
+			Bitmap* greyBitmap;
+
 			/** Positive blurred bitmap */
 			Bitmap* positiveBlurredBitmap;
 
@@ -68,11 +71,13 @@ namespace ispike {
 
 
 			//==========================  METHODS  =========================
+			void calculateLogDifference(Bitmap& bitmap1, Bitmap& bitmap2);
 			void calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2);
 			void extractRedChannel(Bitmap& inputImage);
 			void extractGreenChannel(Bitmap& inputImage);
 			void extractBlueChannel(Bitmap& inputImage);
 			void extractYellowChannel();
+			void extractGreyChannel(Bitmap& inputImage);
 			void gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma);
 			void initialize(int width, int height);
 			void normalizeImage(Bitmap& image);

@@ -26,11 +26,12 @@ DOGVisualFilter::DOGVisualFilter(LogPolarVisualDataReducer* reducer) :
 	opponencyTypeID(-1),
 	normalize(false),
 	initialized(false),
-	opponencyBitmap(NULL),
+	outputBitmap(NULL),
 	redBitmap(NULL),
 	greenBitmap(NULL),
 	blueBitmap(NULL),
 	yellowBitmap(NULL),
+	greyBitmap(NULL),
 	positiveBlurredBitmap(NULL),
 	negativeBlurredBitmap(NULL)
 {
@@ -45,9 +46,10 @@ DOGVisualFilter::~DOGVisualFilter(){
 		delete greenBitmap;
 		delete blueBitmap;
 		delete yellowBitmap;
+		delete greyBitmap;
 		delete positiveBlurredBitmap;
 		delete negativeBlurredBitmap;
-		delete opponencyBitmap;
+		delete outputBitmap;
 	}
 }
 
@@ -57,8 +59,8 @@ DOGVisualFilter::~DOGVisualFilter(){
 /*--------------------------------------------------------------------*/
 
 /** Returns a reference to the opponency bitmap */
-Bitmap& DOGVisualFilter::getOpponencyBitmap(){
-	return *opponencyBitmap;
+Bitmap& DOGVisualFilter::getBitmap(){
+	return *outputBitmap;
 }
 
 
@@ -91,28 +93,46 @@ void DOGVisualFilter::update(){
 		initialize(reducedImage.getWidth(), reducedImage.getHeight());
 	}
 
-	//Generate red and green images, which are needed for all maps
-	extractRedChannel(reducedImage);
-	extractGreenChannel(reducedImage);
-
 	//Calculate opponency map
 	if(opponencyTypeID == Common::redVsGreen){
+		extractRedChannel(reducedImage);
+		extractGreenChannel(reducedImage);
 		calculateOpponency(*redBitmap, *greenBitmap);
 	}
 	else if(opponencyTypeID == Common::greenVsRed){
+		extractRedChannel(reducedImage);
+		extractGreenChannel(reducedImage);
 		calculateOpponency(*greenBitmap, *redBitmap);
 	}
 	else if(opponencyTypeID == Common::blueVsYellow){
+		extractRedChannel(reducedImage);
+		extractGreenChannel(reducedImage);
 		extractBlueChannel(reducedImage);
 		extractYellowChannel();
 		calculateOpponency(*blueBitmap, *yellowBitmap);
 	}
+	else if(opponencyTypeID == Common::greyVsGrey){
+		extractGreyChannel(reducedImage);
+		calculateOpponency(*greyBitmap, *greyBitmap);
+	}
+	else if(opponencyTypeID == Common::motionSensitive){
+		extractGreyChannel(reducedImage);
+		calculateLogDifference(*greyBitmap, *greyBitmap);//FIXME!!
+	}
+	else
+		throw ISpikeException("Opponency type ID not recognized: ", opponencyTypeID);
 }
 
 
 /*--------------------------------------------------------------------*/
 /*---------                 PRIVATE METHODS                    -------*/
 /*--------------------------------------------------------------------*/
+
+/*! Calculates the log of the difference between the two bitmaps */
+void DOGVisualFilter::calculateLogDifference(Bitmap& bitmap1, Bitmap& bitmap2){
+
+}
+
 
 /** Calculate opponency image */
 void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
@@ -129,20 +149,20 @@ void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
 	#endif//DEBUG_IMAGES
 
 	//Subtract the negative from the positive image to get the opponency map
-	subtractImages(*positiveBlurredBitmap, *positiveBlurredBitmap, *opponencyBitmap);
+	subtractImages(*positiveBlurredBitmap, *positiveBlurredBitmap, *outputBitmap);
 
 	//Normalize opponency map if required
 	if(normalize)
-		normalizeImage(*opponencyBitmap);
+		normalizeImage(*outputBitmap);
 
 	//Output debug image if required
 	#ifdef DEBUG_IMAGES
 		if(opponencyTypeID == Common::redVsGreen)
-			Common::savePPMImage("Red+Green-.ppm", opponencyBitmap);
+			Common::savePPMImage("Red+Green-.ppm", outputBitmap);
 		else if(opponencyTypeID == Common::greenVsRed)
-			Common::savePPMImage("Green+Red-.ppm", opponencyBitmap);
+			Common::savePPMImage("Green+Red-.ppm", outputBitmap);
 		if(opponencyTypeID == Common::blueVsYellow)
-			Common::savePPMImage("Blue+Yellow-.ppm", opponencyBitmap);
+			Common::savePPMImage("Blue+Yellow-.ppm", outputBitmap);
 	#endif//DEBUG_IMAGES
 }
 
@@ -277,9 +297,9 @@ void DOGVisualFilter::extractBlueChannel(Bitmap& image){
 	unsigned char* blueContents = blueBitmap->getContents();
 	unsigned char* imageContents = image.getContents();
 
-	//Copy the green pixels
+	//Copy the blue pixels
 	for(int pixel = 0; pixel < imageSize; ++pixel) {
-		blueContents[pixel] = imageContents[pixel * 3 + 1];
+		blueContents[pixel] = imageContents[pixel * 3 + 2];
 	}
 
 	//Output debug image if required
@@ -311,6 +331,34 @@ void DOGVisualFilter::extractYellowChannel(){
 }
 
 
+/** Extracts the grey channel from a given image, whose dimensions must match.
+	Takes the average of the red, green and blue channels. */
+void DOGVisualFilter::extractGreyChannel(Bitmap& image){
+	//Check image dimensions match
+	if(image.getWidth() != greyBitmap->getWidth() || image.getHeight() != greyBitmap->getHeight())
+		throw ISpikeException("DOGVisualFilter: Grey image and incoming reduced image have different dimensions");
+
+	//Avoid multiple function calls
+	int imageSize = greyBitmap->size();
+	unsigned char* greyContents = greyBitmap->getContents();
+	unsigned char* imageContents = image.getContents();
+
+	//Take the average of the red, green and blue pixels
+	double tmpSum;//Avoid overrun of unsigned char
+	for(int pixel = 0; pixel < imageSize; ++pixel) {
+		tmpSum =  imageContents[pixel * 3];
+		tmpSum += imageContents[pixel * 3 + 1];
+		tmpSum += imageContents[pixel * 3 + 2];
+		greyContents[pixel] = (unsigned char)rint(tmpSum/3.0);
+	}
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		Common::savePPMImage("grey.ppm", greyBitmap);
+	#endif//DEBUG_IMAGES
+}
+
+
 /** Initializes the bitmaps used by the class - this way the memory only has to be allocated once */
 void DOGVisualFilter::initialize(int width, int height){
 	//Check variables have been set
@@ -321,9 +369,10 @@ void DOGVisualFilter::initialize(int width, int height){
 	greenBitmap = new Bitmap(width, height, 1);
 	blueBitmap = new Bitmap(width, height, 1);
 	yellowBitmap = new Bitmap(width, height, 1);
+	greyBitmap = new Bitmap(width, height, 1);
 	positiveBlurredBitmap = new Bitmap(width, height, 1);
 	negativeBlurredBitmap = new Bitmap(width, height, 1);
-	opponencyBitmap = new Bitmap(width, height, 1);
+	outputBitmap = new Bitmap(width, height, 1);
 	initialized = true;
 }
 
