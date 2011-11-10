@@ -3,7 +3,7 @@
 SET SpikeStreamRoot=C:\Users\daogamez\Home\Programs\spikestream\trunk
 
 :: Set location of iSpike library
-SET iSpikeLibraryDirectory=src
+SET iSpikeLibraryDirectory=build\src
 
 :: File is held in scripts, one directory up from the root
 cd ..
