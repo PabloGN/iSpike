@@ -15,6 +15,7 @@ namespace ispike {
 			~FileVisualReader();
 			Bitmap& getBitmap();
 			void initialize(map<string, Property>& properties);
+			void setImageID(unsigned imageID){this->imageID = imageID;}//Used for performance testing
 			void setProperties(map<string, Property>& properties);
 			void start() {} //Required by iSpikeThread, but not used by this class
 

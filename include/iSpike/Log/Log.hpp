@@ -26,7 +26,7 @@ namespace ispike {
 		public:
 			Log();
 			virtual ~Log();
-			ostringstream& Get(TLogLevel level = LOG_DEBUG);
+			ostringstream& Get(TLogLevel level = LOG_ERROR);
 			static TLogLevel& ReportingLevel();
 			static int currentId;
 

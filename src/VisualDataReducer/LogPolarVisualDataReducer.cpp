@@ -16,7 +16,7 @@ using namespace std;
 #define PI 3.141592653589793238
 
 /** Ouputs debug images and coordinates to file */
-#define DEBUG_IMAGES
+//#define DEBUG_IMAGES
 //#define DEBUG_COORDINATES
 
 

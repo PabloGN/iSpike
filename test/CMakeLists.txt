@@ -1,8 +1,11 @@
-FIND_PACKAGE (Boost 1.30.0 COMPONENTS "unit_test_framework" REQUIRED)
+SET (BOOST_ROOT "D:/Home/Programs/spikestream/trunk/extlib/boost")
+FIND_PACKAGE (Boost 1.30.0 COMPONENTS "unit_test_framework" "date_time" REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 FILE (GLOB_RECURSE test_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 IF(WIN32)
-    SET (test_LIBS iSpike ${Boost_LIBRARIES} ${Log5Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} "ws3_32")
+    SET (test_LIBS iSpike ${Boost_LIBRARIES} ${Log5Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES})
 ELSE()
     SET (test_LIBS iSpike ${Boost_LIBRARIES} ${Log4Cxx_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES} ${UnitTestPlusPlus_LIBRARIES})
 ENDIF()
