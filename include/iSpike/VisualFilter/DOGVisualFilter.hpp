@@ -60,8 +60,14 @@ namespace ispike {
 			/** Yellow visual data */
 			Bitmap* yellowBitmap;
 
-			/** Black and white visual data */
-			Bitmap* greyBitmap;
+			/** Black and white visual data - 2 maps are used for this and swapped around */
+			Bitmap* greyBitmap1;
+
+			/** Second map for black and white visual data */
+			Bitmap* greyBitmap2;
+
+			/** Controls which grey bitmap data is read into */
+			bool useGreyBitmap1;
 
 			/** Positive blurred bitmap */
 			Bitmap* positiveBlurredBitmap;
@@ -77,11 +83,12 @@ namespace ispike {
 			void extractGreenChannel(Bitmap& inputImage);
 			void extractBlueChannel(Bitmap& inputImage);
 			void extractYellowChannel();
-			void extractGreyChannel(Bitmap& inputImage);
+			void extractGreyChannel(Bitmap& inputBitmap, Bitmap& newBitmap, bool logInput);
 			void gaussianBlur(Bitmap& inputBitmap, Bitmap& resultBitmap, double sigma);
 			void initialize(int width, int height);
 			void normalizeImage(Bitmap& image);
 			void subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bitmap& result);
+			void subtractImages(Bitmap& firstImage, Bitmap& secondImage, double positiveFactor, double negativeFactor, Bitmap& result);
 	};
 
 }

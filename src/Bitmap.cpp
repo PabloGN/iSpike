@@ -3,19 +3,24 @@
 
 using namespace ispike;
 
-Bitmap::Bitmap() :
-	width(0), height(0), depth(0), contents(NULL)
-{
+/** Empty constructor */
+Bitmap::Bitmap() :	width(0), height(0), depth(0), contents(NULL){
 	;
 }
 
 
-Bitmap::Bitmap(unsigned width, unsigned height, unsigned depth) :
-	width(width),
-	height(height),
-	depth(depth)
-{
+/** Constructs bitmap with specified dimensions and junk data */
+Bitmap::Bitmap(unsigned width, unsigned height, unsigned depth) : width(width), height(height), depth(depth){
 	contents = new unsigned char[width * height * depth];
+}
+
+
+/** Constructs bitmap with specified dimensions and initializes it with the specified value */
+Bitmap::Bitmap(unsigned width, unsigned height, unsigned depth, unsigned char initVal) : width(width), height(height), depth(depth){
+	contents = new unsigned char[width * height * depth];
+	int tmpSize = size();//Avoid repeated calls to size
+	for(int i=0; i<tmpSize; ++i)
+		contents[i] = initVal;
 }
 
 

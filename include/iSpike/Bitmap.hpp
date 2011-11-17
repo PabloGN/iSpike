@@ -16,7 +16,8 @@ namespace ispike {
 		public:
 
 			Bitmap();
-			Bitmap(unsigned width, unsigned height, unsigned depth) ;
+			Bitmap(unsigned width, unsigned height, unsigned depth);
+			Bitmap(unsigned width, unsigned height, unsigned depth, unsigned char initVal);
 			Bitmap(const Bitmap& copy_from_me);
 			~Bitmap();
 			Bitmap& operator=(const Bitmap& rhs);

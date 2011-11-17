@@ -22,7 +22,7 @@ Log::~Log(){
 
 
 TLogLevel& Log::ReportingLevel(){
-  static TLogLevel reportingLevel(LOG_ERROR);
+  static TLogLevel reportingLevel(LOG_DEBUG);
   return reportingLevel;
 }
 

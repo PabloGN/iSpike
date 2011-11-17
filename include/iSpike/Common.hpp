@@ -24,6 +24,7 @@ namespace ispike {
 			static const int blueVsYellow = 2;
 			static const int greyVsGrey = 3;
 			static const int motionSensitive = 4;
+			static const int motionSensitiveLog = 5;
 	};
 
 }

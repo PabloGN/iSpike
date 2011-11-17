@@ -37,8 +37,9 @@ VisualInputChannel::VisualInputChannel() {
 	tmpVector.push_back("R+G-");
 	tmpVector.push_back("G+R-");
 	tmpVector.push_back("B+Y-");
-	tmpVector.push_back("G+G-");
+	tmpVector.push_back("B&W+B&W-");
 	tmpVector.push_back("Motion sensitive");
+	tmpVector.push_back("Motion sensitive with log");
 	addProperty(Property("R+G-", tmpVector, OPPONENCY_MAP_NAME, "Which opponency map to use.", true));
 
 	//Properties of the neural simulator
@@ -200,6 +201,12 @@ void VisualInputChannel::updateProperties(map<string, Property>& properties) {
 							dogFilter->setOpponencyTypeID(1);
 						else if(mapName == "B+Y-")
 							dogFilter->setOpponencyTypeID(2);
+						else if(mapName == "B&W+B&W-")
+							dogFilter->setOpponencyTypeID(3);
+						else if(mapName == "Motion sensitive")
+							dogFilter->setOpponencyTypeID(4);
+						else if(mapName == "Motion sensitive with log")
+							dogFilter->setOpponencyTypeID(5);
 						else
 							throw ISpikeException("VisualInputChannel: Opponency map type not recognized");
 					}

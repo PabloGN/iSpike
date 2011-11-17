@@ -13,7 +13,7 @@ using namespace ispike;
 #define MAX_PIXEL_VALUE 255
 
 /** Ouput debug images */
-//#define DEBUG_IMAGES
+#define DEBUG_IMAGES
 
 
 /** Create a new difference-of-gaussians visual filter
@@ -34,13 +34,13 @@ DOGVisualFilter::DOGVisualFilter(LogPolarVisualDataReducer* reducer) :
 	greenBitmap(NULL),
 	blueBitmap(NULL),
 	yellowBitmap(NULL),
-	greyBitmap(NULL),
+	greyBitmap1(NULL),
+	greyBitmap2(NULL),
 	positiveBlurredBitmap(NULL),
 	negativeBlurredBitmap(NULL)
 {
 	;
 }
-
 
 
 DOGVisualFilter::~DOGVisualFilter(){
@@ -49,7 +49,8 @@ DOGVisualFilter::~DOGVisualFilter(){
 		delete greenBitmap;
 		delete blueBitmap;
 		delete yellowBitmap;
-		delete greyBitmap;
+		delete greyBitmap1;
+		delete greyBitmap2;
 		delete positiveBlurredBitmap;
 		delete negativeBlurredBitmap;
 		delete outputBitmap;
@@ -115,27 +116,51 @@ void DOGVisualFilter::update(){
 		calculateOpponency(*blueBitmap, *yellowBitmap);
 	}
 	else if(opponencyTypeID == Common::greyVsGrey){
-		extractGreyChannel(reducedImage);
-		calculateOpponency(*greyBitmap, *greyBitmap);
+		extractGreyChannel(reducedImage, *greyBitmap1, false);
+		calculateOpponency(*greyBitmap1, *greyBitmap1);
 	}
-	else if(opponencyTypeID == Common::motionSensitive){
-		extractGreyChannel(reducedImage);
-		calculateLogDifference(*greyBitmap, *greyBitmap);//FIXME!!
+	else if(opponencyTypeID == Common::motionSensitive || opponencyTypeID == Common::motionSensitiveLog){
+		if(useGreyBitmap1){
+			if(opponencyTypeID == Common::motionSensitiveLog)
+				extractGreyChannel(reducedImage, *greyBitmap1, true);
+			else
+				extractGreyChannel(reducedImage, *greyBitmap1, false);
+			subtractImages(*greyBitmap1, *greyBitmap2, 1.0, 1.0, *outputBitmap);
+			useGreyBitmap1 = false;
+		}
+		else{
+			if(opponencyTypeID == Common::motionSensitiveLog)
+				extractGreyChannel(reducedImage, *greyBitmap2, true);
+			else
+				extractGreyChannel(reducedImage, *greyBitmap2, false);
+			subtractImages(*greyBitmap2, *greyBitmap1, 1.0, 1.0, *outputBitmap);
+			useGreyBitmap1 = true;
+		}
 	}
 	else
 		throw ISpikeException("Opponency type ID not recognized: ", opponencyTypeID);
+
+	//Output debug image if required
+	#ifdef DEBUG_IMAGES
+		if(opponencyTypeID == Common::redVsGreen)
+			Common::savePPMImage("Red+Green-.ppm", outputBitmap);
+		else if(opponencyTypeID == Common::greenVsRed)
+			Common::savePPMImage("Green+Red-.ppm", outputBitmap);
+		else if(opponencyTypeID == Common::blueVsYellow)
+			Common::savePPMImage("Blue+Yellow-.ppm", outputBitmap);
+		else if (opponencyTypeID == Common::greyVsGrey)
+			Common::savePPMImage("Grey+Grey-.ppm", outputBitmap);
+		else if (opponencyTypeID == Common::motionSensitive)
+			Common::savePPMImage("Motion.ppm", outputBitmap);
+		else if (opponencyTypeID == Common::motionSensitiveLog)
+			Common::savePPMImage("MotionLog.ppm", outputBitmap);
+	#endif//DEBUG_IMAGES
 }
 
 
 /*--------------------------------------------------------------------*/
 /*---------                 PRIVATE METHODS                    -------*/
 /*--------------------------------------------------------------------*/
-
-/*! Calculates the log of the difference between the two bitmaps */
-void DOGVisualFilter::calculateLogDifference(Bitmap& bitmap1, Bitmap& bitmap2){
-
-}
-
 
 /** Calculate opponency image */
 void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
@@ -157,16 +182,6 @@ void DOGVisualFilter::calculateOpponency(Bitmap& bitmap1, Bitmap& bitmap2){
 	//Normalize opponency map if required
 	if(normalize)
 		normalizeImage(*outputBitmap);
-
-	//Output debug image if required
-	#ifdef DEBUG_IMAGES
-		if(opponencyTypeID == Common::redVsGreen)
-			Common::savePPMImage("Red+Green-.ppm", outputBitmap);
-		else if(opponencyTypeID == Common::greenVsRed)
-			Common::savePPMImage("Green+Red-.ppm", outputBitmap);
-		if(opponencyTypeID == Common::blueVsYellow)
-			Common::savePPMImage("Blue+Yellow-.ppm", outputBitmap);
-	#endif//DEBUG_IMAGES
 }
 
 
@@ -335,29 +350,46 @@ void DOGVisualFilter::extractYellowChannel(){
 
 
 /** Extracts the grey channel from a given image, whose dimensions must match.
-	Takes the average of the red, green and blue channels. */
-void DOGVisualFilter::extractGreyChannel(Bitmap& image){
+	Takes the average of the red, green and blue channels.
+	Optionally takes the log of the average for a certain type of motion sensitive channel. */
+void DOGVisualFilter::extractGreyChannel(Bitmap& inputBitmap, Bitmap& newBitmap, bool logInput){
 	//Check image dimensions match
-	if(image.getWidth() != greyBitmap->getWidth() || image.getHeight() != greyBitmap->getHeight())
+	if(inputBitmap.getWidth() != newBitmap.getWidth() || inputBitmap.getHeight() != newBitmap.getHeight())
 		throw ISpikeException("DOGVisualFilter: Grey image and incoming reduced image have different dimensions");
 
 	//Avoid multiple function calls
-	int imageSize = greyBitmap->size();
-	unsigned char* greyContents = greyBitmap->getContents();
-	unsigned char* imageContents = image.getContents();
+	int imageSize = newBitmap.size();//Size of the destination map, which should have depth of 1
+	unsigned char* inContents = inputBitmap.getContents();
+	unsigned char* newContents = newBitmap.getContents();
 
 	//Take the average of the red, green and blue pixels
-	double tmpSum;//Avoid overrun of unsigned char
-	for(int pixel = 0; pixel < imageSize; ++pixel) {
-		tmpSum =  imageContents[pixel * 3];
-		tmpSum += imageContents[pixel * 3 + 1];
-		tmpSum += imageContents[pixel * 3 + 2];
-		greyContents[pixel] = (unsigned char)rint(tmpSum/3.0);
+	double tmpSum, tmpRes;//Avoid overrun of unsigned char
+	if(logInput){
+		for(int pixel = 0; pixel < imageSize; ++pixel) {
+			tmpSum =  inContents[pixel * 3];
+			tmpSum += inContents[pixel * 3 + 1];
+			tmpSum += inContents[pixel * 3 + 2];
+
+			//Calculate the log if tmpSum is > 0
+			if(tmpSum != 0.0)
+				tmpRes = log(tmpSum/3.0);
+			if(tmpRes < 0.0)
+				tmpRes = 0.0;
+			newContents[pixel] = (unsigned char)rint(tmpRes);
+		}
+	}
+	else{
+		for(int pixel = 0; pixel < imageSize; ++pixel) {
+			tmpSum =  inContents[pixel * 3];
+			tmpSum += inContents[pixel * 3 + 1];
+			tmpSum += inContents[pixel * 3 + 2];
+			newContents[pixel] = (unsigned char)rint(tmpSum/3.0);
+		}
 	}
 
 	//Output debug image if required
 	#ifdef DEBUG_IMAGES
-		Common::savePPMImage("grey.ppm", greyBitmap);
+		Common::savePPMImage("grey.ppm", &newBitmap);
 	#endif//DEBUG_IMAGES
 }
 
@@ -372,10 +404,12 @@ void DOGVisualFilter::initialize(int width, int height){
 	greenBitmap = new Bitmap(width, height, 1);
 	blueBitmap = new Bitmap(width, height, 1);
 	yellowBitmap = new Bitmap(width, height, 1);
-	greyBitmap = new Bitmap(width, height, 1);
+	greyBitmap1 = new Bitmap(width, height, 1, 0);
+	greyBitmap2 = new Bitmap(width, height, 1, 0);
 	positiveBlurredBitmap = new Bitmap(width, height, 1);
 	negativeBlurredBitmap = new Bitmap(width, height, 1);
 	outputBitmap = new Bitmap(width, height, 1);
+	useGreyBitmap1 = true;
 	initialized = true;
 }
 
@@ -417,6 +451,28 @@ void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, Bi
 
 	for(int i=0; i<imageSize; ++i){
 		double val = double(firstImageContents[i])*positiveFactor - double(secondImageContents[i])*negativeFactor;
+		if(val < 0.0)
+			val = 0.0;
+		resultContents[i] = boost::math::round<unsigned char>(val);
+	}
+}
+
+
+/** Subtracts one image from another of the same dimensions with the positive and negative factors specified. */
+void DOGVisualFilter::subtractImages(Bitmap& firstImage, Bitmap& secondImage, double positiveFactor, double negativeFactor,  Bitmap& result){
+	if(firstImage.size() != secondImage.size() || firstImage.size() != result.size())
+		throw ISpikeException("Subtraction only works between images of the same size. The result must be the same size as well.");
+
+	//Get references to buffers etc.
+	int imageSize = firstImage.size();
+	unsigned char* firstImageContents = firstImage.getContents();
+	unsigned char* secondImageContents = secondImage.getContents();
+	unsigned char* resultContents = result.getContents();
+
+	for(int i=0; i<imageSize; ++i){
+		double val = double(firstImageContents[i])*positiveFactor - double(secondImageContents[i])*negativeFactor;
+		if(val < 0.0)
+			val = 0.0;
 		resultContents[i] = boost::math::round<unsigned char>(val);
 	}
 }
