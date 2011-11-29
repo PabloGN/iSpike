@@ -31,7 +31,6 @@ FileVisualReader::~FileVisualReader(){
 
 /** Returns a reference to the visual data */
 Bitmap& FileVisualReader::getBitmap(){
-	++imageID;
 	return bitmap;
 }
 

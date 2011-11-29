@@ -20,6 +20,7 @@ using namespace std;
 //#define DEBUG_COORDINATES
 
 
+/** Constructor */
 LogPolarVisualDataReducer::LogPolarVisualDataReducer() :
 	inputWidth(0),
 	inputHeight(0),

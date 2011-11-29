@@ -47,7 +47,7 @@ VisualInputChannel::VisualInputChannel() {
 	addProperty(Property(Property::Double, 0.2, PARAM_B_NAME,"Parameter B of the Izhikevich Neuron Model",false));
 	addProperty(Property(Property::Double, -65, PARAM_C_NAME,"Parameter C of the Izhikevich Neuron Model",false));
 	addProperty(Property(Property::Double, 2.0, PARAM_D_NAME, "Parameter D of the Izhikevich Neuron Model",false));
-	addProperty(Property(Property::Double, 0.1, CURRENT_FACTOR_NAME, "Incoming current is multiplied by this value",false));
+	addProperty(Property(Property::Double, 10.0, CURRENT_FACTOR_NAME, "Incoming current is multiplied by this value",false));
 	addProperty(Property(Property::Double, 0.0, CONSTANT_CURRENT_NAME, "This value is added to the incoming current", false));
 
 	//Create the description
@@ -118,6 +118,9 @@ void VisualInputChannel::step() {
 		dogFilter->update();
 	}
 
+	//Multiplication factor combines the current factor with the size of the value used to store the pixel
+	double multFactor = currentFactor/ 255.0;
+
 	//Load opponency data into neural simulator
 	Bitmap& opponencyMap = dogFilter->getBitmap();
 	if(!opponencyMap.isEmpty()) {
@@ -131,7 +134,8 @@ void VisualInputChannel::step() {
 		//Convert pixels to currents in simulator
 		for(int i=0; i<opponencyMapSize; ++i){
 			//Set the input current to the neurons
-			neuronSim.setInputCurrent(i, currentFactor * opponencyMapContents[i] + constantCurrent);
+			//LOG(LOG_DEBUG)<<"INPUT CURRENT: "<<(multFactor * opponencyMapContents[i] + constantCurrent);
+			neuronSim.setInputCurrent(i, multFactor * opponencyMapContents[i] + constantCurrent);
 		}
 	}
 

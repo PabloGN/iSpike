@@ -22,14 +22,17 @@ using namespace ispike;
 
 BOOST_AUTO_TEST_CASE(Performance){
 	//Reporting level
-	Log::ReportingLevel() = LOG_ERROR;
+	//Log::ReportingLevel() = LOG_ERROR;
+	LOG(LOG_DEBUG)<<"Performance Test";
+	return;
 
 	//Results file
 	ofstream resultsFileStream;
 	resultsFileStream.open("results.txt", fstream::out);
 
 	//Number of time steps to run each test
-	int numTestTimeSteps = 100000;
+	//int numTestTimeSteps = 100000;
+	int numTestTimeSteps = 10;
 
 	// First test: encode angle into spikes using different resolutions
 	LOG(LOG_DEBUG)<<"Testing joint angle encoding";
@@ -102,13 +105,16 @@ BOOST_AUTO_TEST_CASE(Performance){
 	int updateRateArrayLength = 6;
 
 	//Run image stuff for less time steps
-	numTestTimeSteps = 1000;
+	//numTestTimeSteps = 1000;
+	numTestTimeSteps = 1;
+	//int numTestRuns = 10;
+	int numTestRuns = 1;
 
 	//Test image with 640x480
 	for(int imgRateCtr = 0; imgRateCtr < updateRateArrayLength; ++ imgRateCtr){
 		resultsFileStream<<"Vision encoding 640x480; Update rate: "<<updateRateArray[imgRateCtr]<<endl;
 
-		for(int testNum=1; testNum<=10; ++testNum){//Ten test runs
+		for(int testNum=1; testNum<=numTestRuns; ++testNum){//Ten test runs
 			//Create reader
 			FileVisualReader* visualReader = new FileVisualReader();
 			std::map<std::string, Property> fileVisualReaderProperties = visualReader->getProperties();
@@ -146,7 +152,7 @@ BOOST_AUTO_TEST_CASE(Performance){
 	for(int imgRateCtr = 0; imgRateCtr < updateRateArrayLength; ++ imgRateCtr){
 		resultsFileStream<<"Vision encoding 200x200; Update rate: "<<updateRateArray[imgRateCtr]<<endl;
 
-		for(int testNum=1; testNum<=10; ++testNum){//Ten test runs
+		for(int testNum=1; testNum<=numTestRuns; ++testNum){//Ten test runs
 			//Create reader
 			FileVisualReader* visualReader = new FileVisualReader();
 			std::map<std::string, Property> fileVisualReaderProperties = visualReader->getProperties();
