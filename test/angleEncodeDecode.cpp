@@ -20,9 +20,11 @@ BOOST_AUTO_TEST_CASE(AngleEncodeDecode)
 {
 	using namespace ispike;
 
+	// Enable/disable test
+	return;
+
 	//Log::ReportingLevel() = LOG_ERROR;
 	LOG(LOG_DEBUG)<<"AngleEncodeDecode Test";
-	return;
 
 	srand ( time(NULL) );
 	int delay = 0;

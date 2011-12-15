@@ -21,10 +21,13 @@ using namespace std;
 using namespace ispike;
 
 BOOST_AUTO_TEST_CASE(Performance){
+
+	//Enable disable test
+	return;
+
 	//Reporting level
 	//Log::ReportingLevel() = LOG_ERROR;
 	LOG(LOG_DEBUG)<<"Performance Test";
-	return;
 
 	//Results file
 	ofstream resultsFileStream;

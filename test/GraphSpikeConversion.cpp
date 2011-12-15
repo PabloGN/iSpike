@@ -16,12 +16,15 @@ using namespace std;
 using namespace ispike;
 
 BOOST_AUTO_TEST_CASE(GraphSpikeConversion){
+	// Enable/disable test
+	return;
+
 	//Reporting level
 	Log::ReportingLevel() = LOG_DEBUG;
 	LOG(LOG_DEBUG)<<"GraphSpikeConversion Test";
 
 	//Number of time steps to record
-	int numTestTimeSteps = 10000;
+	int numTestTimeSteps = 10;
 
 	//Create reader
 	FileVisualReader* visualReader = new FileVisualReader();
@@ -39,7 +42,7 @@ BOOST_AUTO_TEST_CASE(GraphSpikeConversion){
 	std::map<std::string, Property> visualChannelProperties = visualChannel->getProperties();
 	visualChannelProperties.at("Neuron Width") = Property(Property::Integer, neuronWidth, "Neuron Width", "description", true);
 	visualChannelProperties.at("Neuron Height") = Property(Property::Integer, neuronHeight, "Neuron Height", "description", true);
-	visualChannelProperties.at("Fovea Radius") = Property(Property::Double, 50, "Fovea Radius", "description", true);
+	visualChannelProperties.at("Fovea Radius") = Property(Property::Double, 90, "Fovea Radius", "description", true);
 	visualChannelProperties.at("Current Factor") = Property(Property::Double, 7.5, "Current Factor", "description", true);
 	visualChannel->initialize(visualReader, visualChannelProperties);
 

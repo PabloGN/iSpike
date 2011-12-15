@@ -13,7 +13,7 @@ using namespace ispike;
 #define MAX_PIXEL_VALUE 255
 
 /** Ouput debug images */
-#define DEBUG_IMAGES
+//#define DEBUG_IMAGES
 
 
 /** Create a new difference-of-gaussians visual filter
