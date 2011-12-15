@@ -10,6 +10,8 @@ using namespace ispike;
 #include <fstream>
 using namespace std;
 
+//Enable/disable debug output
+//#define DEBUG
 
 FileVisualReader::FileVisualReader()
 {
@@ -55,7 +57,9 @@ void FileVisualReader::setProperties(map<string, Property>& properties){
 
 /** Reads a PPM image from the specified file */
 void FileVisualReader::readPPMImage(string& fname){
-	LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fname;
+	#ifdef DEBUG
+		LOG(LOG_INFO) << "FileVisualReader: Reading image from: " << fname;
+	#endif//DEBUG
 
 	ifstream ifp;
 
@@ -89,7 +93,9 @@ void FileVisualReader::readPPMImage(string& fname){
 	int M=strtol(header, &ptr, 0);
 	int N=atoi(ptr);
 
-	LOG(LOG_INFO) << "FileVisualReader: Retrieved image with Width: " << M << " Height: " << N;
+	#ifdef DEBUG
+		LOG(LOG_INFO) << "FileVisualReader: Retrieved image with Width: " << M << " Height: " << N;
+	#endif//DEBUG
 
 	ifp.getline(header,100,'\n');
 
@@ -108,7 +114,9 @@ void FileVisualReader::readPPMImage(string& fname){
 	//Clean up
 	ifp.close();
 
-	LOG(LOG_DEBUG)<<"File visual reader bitmap size: "<< bitmap.size();
+	#ifdef DEBUG
+		LOG(LOG_DEBUG)<<"File visual reader bitmap size: "<< bitmap.size();
+	#endif//DEBUG
 
 	//Increment image id
 	++imageID;

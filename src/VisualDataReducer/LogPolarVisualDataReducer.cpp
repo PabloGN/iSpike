@@ -18,6 +18,7 @@ using namespace std;
 /** Ouputs debug images and coordinates to file */
 //#define DEBUG_IMAGES
 //#define DEBUG_COORDINATES
+//#define DEBUG
 
 
 /** Constructor */
@@ -107,7 +108,9 @@ void LogPolarVisualDataReducer::calculateReducedImage(Bitmap& bitmap){
 	unsigned char* inputImageArray = bitmap.getContents();
 	unsigned char* reducedImageArray = reducedImage->getContents();
 
-	LOG(LOG_DEBUG)<<"Input image size: "<<bitmap.size()<<"; reduced image size: "<<reducedImage->size();
+	#ifdef DEBUG
+		LOG(LOG_DEBUG)<<"Input image size: "<<bitmap.size()<<"; reduced image size: "<<reducedImage->size();
+	#endif//DEBUG
 
 	//Copy the pixels across from the input to the output maps
 	for(vector<PolarCartCoords>::iterator iter = coordinatesVector.begin(); iter != coordinatesVector.end(); ++iter){
@@ -191,7 +194,9 @@ void LogPolarVisualDataReducer::initialisePolarToCartesianVector(){
 	//Find the base such that the maximum value will lie inside the inputRadius
 	double expBase = pow(10.0, log10(inputLogRadius) / outputLogRadius );
 
-	LOG(LOG_DEBUG)<<"OutputLogRadius: "<<outputLogRadius<<"; InputLogRadius: "<<inputLogRadius<<"; ExpBase: "<<expBase;
+	#ifdef DEBUG
+		LOG(LOG_DEBUG)<<"OutputLogRadius: "<<outputLogRadius<<"; InputLogRadius: "<<inputLogRadius<<"; ExpBase: "<<expBase;
+	#endif//DEBUG
 
 	for(unsigned r=0; r<outputWidth; ++r){
 		for(unsigned theta=0; theta<outputHeight; ++theta){

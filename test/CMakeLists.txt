@@ -1,4 +1,6 @@
-SET (BOOST_ROOT "D:/Home/Programs/spikestream/trunk/extlib/boost")
+#SET (BOOST_ROOT "D:/Home/Programs/spikestream/trunk/extlib/boost")
+SET (BOOST_ROOT "C:/Users/daogamez/Home/Programs/spikestream/trunk/extlib/boost")
+
 FIND_PACKAGE (Boost 1.30.0 COMPONENTS "unit_test_framework" "date_time" REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
