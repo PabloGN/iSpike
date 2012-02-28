@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(ComponentPerformance){
 	int numTestRuns = 10;
 
 	// FIRST TEST: Neural Simulator
-	if(true){//Switch test on or off
+	if(false){//Switch test on or off
 		LOG(LOG_DEBUG)<<"Testing neural simulator";
 		resultsFileStream<<"----------------------------------"<<endl<<"Neural Simulator Test"<<endl;
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(ComponentPerformance){
 
 
 	// SECOND TEST: Foveation Performance
-	if(true){//Switch test on or off
+	if(false){//Switch test on or off
 		LOG(LOG_DEBUG)<<"Testing foveation performance";
 		resultsFileStream<<"----------------------------------"<<endl<<"Foveation Performance Test"<<endl;
 
