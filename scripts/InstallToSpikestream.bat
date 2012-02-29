@@ -1,6 +1,6 @@
 :: Set SpikeStream root directory
-SET SpikeStreamRoot=D:\Home\Programs\spikestream\trunk
-::SET SpikeStreamRoot=C:\Users\daogamez\Home\Programs\spikestream\trunk
+::SET SpikeStreamRoot=D:\Home\Programs\spikestream\trunk
+SET SpikeStreamRoot=C:\Users\daogamez\Home\Programs\spikestream\trunk
 
 :: Set location of iSpike library
 SET iSpikeLibraryDirectory=build\src
