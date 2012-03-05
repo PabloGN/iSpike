@@ -1,6 +1,6 @@
------------------------------
-       iSpike Library
------------------------------
-Instructions for building and using iSpike are given in the manual, which is available in the doc folder of the release.
+iSpike 2.1
 
-The doc folder also includes source code documentation, available in .html or man format.
+Instructions for installing iSpike on Windows, Mac OS X and Linux can be found in the manual located at doc/ispike-manual-2.1.pdf
+
+Source code, further information and support is available at the iSpike website: http://ispike.sf.net/
+ 

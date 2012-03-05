@@ -1,4 +1,3 @@
 INSTALL(FILES
-		ispike-manual-2.0.pdf
-		LazdinsFidjelandGamez11_iSpike.pdf
+		ispike-manual-2.1.pdf
 	DESTINATION docs)

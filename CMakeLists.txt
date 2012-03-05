@@ -66,7 +66,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
 		build
 		docs/website
 		".svn"
-		ispike-manual-2.0.doc
+		ispike-manual.doc
 		Lazdins11_iSpikeProjectReport.pdf
 		LazdinsFidjelandGamez11_iSpike.pdf
 	${CPACK_SOURCE_IGNORE_FILES})
