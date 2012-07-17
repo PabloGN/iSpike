@@ -2,6 +2,7 @@
 #define IZHIKEVICHNEURONSIM_HPP_
 
 #include <vector>
+#include <stdlib.h>
 
 namespace ispike {
 
